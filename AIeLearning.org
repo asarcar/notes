@@ -1,0 +1,188 @@
+* Summary
+"AI Grand Challenges for Education: Woolf et al."
+Static printed textbooks is an anochronistic remain of 19th century 
+physical world where fixed classrooms and lectures prevailed - incapable 
+of serving a mobile and digital society or adapting to the future.
++ Learning Science & Neuroscience Research:
+  ++ Learn more when working in teams on motivating/challenging 
+     group projects.
+  ++ Retain more when immediately applied what learnt.
+  ++ Learn more when help from tutors respond quickly
+     with deep understanding of learner's background.
++ How are those knowledge of congnition applicable in digital environments?
+  ++ Develop representations & reasoning about new cognitive insights.
+  ++ Measure, enhance, and integrate collaborative activity.
+* Videos
+** Neuroscience, AI, and the Future of Education: Scott Bolland
+https://www.youtube.com/watch?v=_cYIvfS-knA
++ Learning is fun when at topics exist at the periphery of learning knowledge:
+  ++ Endorphins released giving us pleasure.
+  ++ Dopamine released causing addiction.
+  ++ Mismatch between teaching techniques and learning methods.
++ Ken Robinson: 
+  ++ Education Transformed vs Reformed
+  ++ Less Standardization and More Personalization
++ Levels of Learning
+  ++ Level 1: Rote Learning - Factual "What is 5x7? Capital of France?"
+    +++ Cramming: Retention goes down with time after exam.
+    +++ Spaced Repetition: Refresh with longer progressive retention.
+    +++ "Active Recall" better than "Passive Learning"
+        i.e. flashcards/quizzes vs highlighting/re-reading
+  ++ Level 2: Generative AI - Ability to generate personalized content & Qs
+    +++ Generate Content (music) based on student's level 
+    +++ What? - Personalized Content e.g. Music Synthesis
+    +++ Why? - Link Content/World via group projects & Communication and 
+        Collaboration e.g. social networking platforms
+  ++ Level 3: Integrative AI - Match Generative AI and integrate with environment
+     using technologies: 
+     +++ VR for language learning based on scenarios to reinforce
+     +++ xBox detects movement to teach dance, martial arts, sign language.
+     +++ Simulation Envs with visualization - learn movement in magnetic fields.
+** AI & Future of Education Systems: Bernhard Schindlholzer
+https://www.youtube.com/watch?v=ZdHhs-I9FVo
++ Skill Requirement Change
+  ++ Routine Knowledge Work e.g back office going to decrease
+  ++ Non-routine creative knowledge work - design solutions to world problems
++ Future Education: Beyond knowledge transfer
+  ++ Valued Skill is not knowledge (Google has plenty) but how it is applied 
+    +++ Technology is not eliminating this skill
+    +++ Embrace technology to extend the horizon of possible solutions
+  ++ Knowledge disemmination from best instructors scaled via technology
+  ++ Design Solutions in supervised but deeply collaborative framework
+    +++ Problem Based Learning: Apply to real world problems to find
+        drastic new solutions to existing new problems
+    +++ Immersion: Real time decision taking over longer periods of time
+    +++ Simulation: Iterative/Free to experiment, failure is cheap, process/style
+        based evalution in addition to outcomes
+** Teaching Methods for Inspiring the Students of Future: Joe Ruhl
+https://www.youtube.com/watch?v=UCFg9bcW7Bk
++ Quotes
+  ++ "Education is not the learning of facts, but the training of 
+      the mind to think.": Albert Einstein
+  ++ "The mind is not a vessel that needs filling, but woods that
+      needs igniting.": Plutarch
++ Active Learning
+  ++ Respond to questions that student's initiate. 
+  ++ Listen to what student's are thinking.
++ Teaching Techniques
+  ++ Collaboration & Communication: Social Media
+  ++ Critical Thinking & Creativity (Problem Solving)
+    +++ Choice based on interest
+    +++ Student Centered with Teacher as a guide
++ Relationships
+  ++ Teacher's passion i.e. love for subject is infectious
+  ++ Teacher's care for student's interest is inspiring
+** Creative and Active Teaching/learning: Dr. John Zubizarreta
+https://www.youtube.com/watch?v=V3QfhMX5ESU
+** How does Brain Learn: Lara Boyd
+https://www.youtube.com/watch?v=LNHBMFCzznE: Neuroplasticity
++ Brain Changes to support learning
+  ++ Releasing Chemicals - short term changes
+  ++ Connections - long term changes
+  ++ Function - areas more excited for specialized signals
+* Papers
+** AI Education: Birds of a Feather: Todd W. Neller
+   "[Play] is our brain's favorite way of learning..." Ackerman
+** AI Grand Challenges for Education
++ Challenges: 
+  ++ Mentors for every learner.
+  ++ Learning 21st century skills.
+  ++ Interaction data to support learning
+  ++ Universal access to global classrooms
+  ++ Lifelong and lifewide learning
++ Mentors for every learner:
+  Students learn best in collaboration working on specific relatable 
+  problems in small groups (J&J 1994).
+  ++ Personalized: Computation AI-based tools reason about a student's 
+  strengths, weaknesses, challenges, motivational style, cognition, 
+  metacognition (thinking about learning), emotion, and motivation.
+  ++ User Models: Mine/explore unique types of data to understand user.
+  The model can also aid the tutor controller to assign a task of 
+  appropriate of difficulty and skill requirement.
+    +++ Knowledge/skills mastered by student and settings in which they 
+    learn (re: Conati and Kardan [2013], Koedinger et al. [2013]). 
+    +++ Communicative competencies and Collaborative achievements.
+    +++ Misconceptions, (cultural) preferences/interests, learning goals, 
+        plans, beliefs, and metacognitive/emotional/teamwork skills.
+    +++ Track when/how skills learned and what pedagogies worked best.
+  ++ "Modern Book": Paper textbooks will evolve into digital workbooks 
+  that are aware of contexts - e.g. user models - and provide students 
+  with immersive learning experiences, breaking away from current linear 
+  flow, to be adaptive to student’s current state of learning, to embed 
+  simulation and virtual laboratories, and to more broadly engage in
+  dialogues with students.
+  ++ eTutor: Learning by design (Kolodner 2002) advocates learning science 
+  in the context of trying to solve a problem, where one may need a 
+  solution approach specific science mentor illuminating concepts in 
+  service of completing the design. 
+  ++ Integration of Disciplines: Cognitive and emotional modeling, knowledge 
+  representation, reasoning, natural language question answering, and 
+  machine-learning methods (Woolf 2009).
++ Learning 21st century skills:
+  Technology changes every few years rippling to problem & solution areas. 
+  Acquire new knowledge quickly, explore alternative approaches, and connecting
+  with new learning communities would be key skills. 
+  ++ Cognitive Skills - nonroutine problem solving, systems/critical thinking
+  ++ Interpersonal Skills - active listening, presentation, conflict resolution
+  ++ Intrapersonal Skills - adaptability, self-management/development
+* Companies
++ Language
+  ++ Duolingo: Learning language via gamification - immersive 
+     experience given points.
+* Articles
+** Gaming
++ Gaming helps Engagement & Learning
+  ++ Interactive, Data Collection, Analytics,  and Real Time Simulations
+  ++ Repetition with Optimal Cadence
+  ++ Dynamic Difficulty Adjustment
+  ++ Puzzles
+  ++ Pattern Recognition
+  ++ Manage time/resource
+  ++ Leveling Up
+  ++ Planning Workflows
+  ++ Competing
+  ++ Discovering/Exploring
+  ++ Seeking optimality under rules/constraints
+  ++ Observing - Learn from others perform
+  ++ Collaborating/Leadership
+  ++ Interacting/Analyzing Data, etc.
+  ++ Problem solving: Small interest based cohorts
++ Content Development & Personalized
+https://elearningindustry.com/artificial-intelligence-will-shape-elearning: 
+  ++ Barrier for eLearning - Initial cost of content development. 
+  ++ Chapman Alliance Survey: 1 hr of eLearning content 49-125 hrs vs 
+     22-82 hrs for instructor-led training (ILT). 
+  ++ Automate generation of eLearning content by repurposing 
+     existing content.
+  ++ Using machines to help classify, organize, and present (appropriately
+     based on student) content would greatly reduce the cost of 
+     content development. 
+  ++ Identifying related concepts across subjects reduces resources 
+     required to repurpose content and allows producing new content 
+     in subjects not initially developed e.g. Optophysics deals with 
+     concepts in Physics and Optometry.
+** Online learning Platforms
+https://elearningindustry.com/choosing-online-learning-platform-makes-sense
+*** Learning Management Systems: Repository for learning. 
++ Companies: Moodle and Sakai.
++ Attributes: Run classes, discussions, quizzes, ... 
+  ++ Discussion Pages, Threaded Discussions, Chat Rooms, 
+  ++ Group Pages, Grade Book, ...
++ Requirements
+  ++ Cost, Usability, Integration with Student Information Systems, 
+  ++ Analytics, Support, Special Features, etc. are key requirements.
++ Lacks 
+  ++ Content Authoring Software: Content Creation (Gomo). 
+     Features: convert power points, annotate videos, multi-device o/p
+  ++ Instructional Designer & Instructer: 
+*** Social Media and P2P Platforms
+Learners teaching in an open environment rather than walled garden of LMS.
++ Companies: Edmodo - Free
+  ++ Free, Educational Focus, Less B/W Intensive
+  ++ Serves as Online Classroom, Familiar, and Easy to Use
+*** Online Two or Multi-Way Meeting/Conferencing Applications
+Promote instructor-lead, didactic, and lecture-based instruction.
++ Companies: Adobe Connect, WebEx, Skype, Hangout
++ Concerns
+  ++ Learning Objectives: Same as face to face but at scale?
+  ++ Audience: Who is your audience? Is web conferencing appropriate?

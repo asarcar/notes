@@ -1,0 +1,1211 @@
+* Reinforcement Learning (RL): Charles Isbell & Michael Littman - Udacity
+Agent <-> Environment. Observables: State, Action, and Reward sequence.
+Objective: Maximimize total future rewards with an implied discount factor.
+** Markov Decision Process (MDP)
+\begin{enumerate}
+  \item $5-tuple\ (S, A, P, R, \gamma)$
+  \item $S = \{s_1,s_2,...,s_n\}\ finite\ set\ of\ states$
+  \item $A = \{a_1,a_2,...,a_m\}\ finite\ set\ of\ actions$
+  \item $P(s,a,s') \sim Pr(s'|s,a): 
+                \text{Markovian transition model is probability of 
+                making a transition from state s to s' when taking action a}$
+  \item $R(s,a,s'): \text{expected reward for the transition}
+	        R_{statenaction}(s,a) = \forall_{s_d}{E[R(s,a,s_d)]};
+                R_{state}(s) =  \forall_{a}{E[R_{statenaction}(s,a)]}$
+  \item $\gamma \in [0, 1] 
+                \text{ is the discount factor for future rewards}$
+  \item $Policy: \\
+                \forall_{s}\{\pi(s) = \{p(a_1), p(a_2), \cdots, p(a_m)\}\}; 
+		\text{ is a stationary stochastic policy.} \\
+                \forall_{s}\{\pi(s) = a\}
+		\text{ is a stationary deterministic policy.} \\
+		\text{Policy is a mapping distribution from 
+		state to action.}$
+  \item $\text{States define Environment, only present state 
+                matters, rules are stationary, and (sometimes delayed) 
+                feedback provided as Reward.}$
+  \item $\text{Whereas supervised learning would take a 
+                set of (unrelated over time) tuples } \\
+                <state, optimal\_action> = \{<s_1,a_1>, <s_2, a_2>, \cdots, 
+                <s_N, a_N>\} \\
+                \text{ and come up with a policy 
+                function that maps state to actions, } \\
+		\text{RL would take a sequence of 
+		(related over time) triplets } \\
+                <state, any\_action, reward> = 
+                \{<s_1, a1, r1>, <s_2, a_2, r_2>, \cdots, <s_N, a_N, r_N>\} \\
+		\text{ and then come up with a policy function.}$
+\end{enumerate}
+** Bellman Equations
+\begin{enumerate}
+\item $\text{Value (V) Function: } 
+V(s) = 
+\max_{\forall{a}}(R(s,a) + \gamma \sum_{\forall{s'}}T(s,a,s')V(s') = \\
+\max_{\forall{a}}(R(s,a) + \gamma \sum_{\forall{s'}}T(s,a,s')
+\max_{\forall{a'}}(R(s',a') + \gamma\sum_{\forall{s''}}T(s',a',s'') \cdots)); \\
+\forall_{s}{V(s)}: N\ Non-Linear\ Equations\ \&\ N\ Unknowns, where 
+N = \parallel s \parallel$
+\item $\text{Quality (Q) Function: } 
+Q(s,a) = 
+R(s,a) + \gamma \sum_{\forall{s'}}T(s,a,s')\max_{\forall{a'}}Q(s',a') = \\
+R(s,a) + \gamma \sum_{\forall{s'}}T(s,a,s')
+\max_{\forall{a'}}(R(s',a') + \gamma\sum_{\forall{s''}}T(s',a',s'') \cdots)) \\
+\forall_{s,a}{Q(s,a)}: N\ Non-Linear\ Equations\ \&\ N\ Unknowns, where
+N = \parallel s \parallel \times \parallel a \parallel $
+\item $\text{Continuation (C) Function: } 
+C(s,a) = 
+\gamma \sum_{\forall{s'}}T(s,a,s')\max_{\forall{a'}}(R(s',a') + C(s',a')) = \\
+\gamma \sum_{\forall{s'}}T(s,a,s')
+\max_{\forall{a'}}(R(s',a') + \gamma\sum_{\forall{s''}}T(s',a',s'') \cdots)) \\
+\forall_{s,a}{C(s,a)}: N\ Non-Linear\ Equations\ \&\ N\ Unknowns, where
+N = \parallel s \parallel \times \parallel a \parallel $
+\item $V(s) = f(V(s')) \implies
+V(s) = \max_{\forall{a}}(R(s,a) + \gamma \sum_{\forall{s'}}T(s,a,s')V(s'))$
+\item $V(s) = f(Q(s,a)) \implies
+V(s) = \max_{\forall{a}}Q(s,a)$
+\item $V(s) = f(C(s,a)) \implies
+V(s) = \max_{\forall{a}}(R(s,a) + C(s,a))$
+\item $Q(s,a) = f(V(s')) \implies
+Q(s,a) = R(s,a) + \gamma \sum_{\forall{s'}}T(s,a,s')V(s')$
+\item $Q(s,a) = f(Q(s',a')) \implies
+Q(s,a) = R(s,a) + \gamma \sum_{\forall{s'}}T(s,a,s')
+\max_{\forall{a'}}Q(s',a')$
+\item $Q(s,a) = f(C(s,a)) \implies
+Q(s,a) = R(s,a) + C(s,a)$
+\item $C(s,a) = f(V(s')) \implies
+C(s,a) = \gamma \sum_{\forall{s'}}T(s,a,s')V(s')$
+\item $C(s,a) = f(Q(s',a')) \implies
+C(s,a) = \gamma \sum_{\forall{s'}}T(s,a,s')
+\max_{\forall{a'}}Q(s',a')$
+\item $C(s,a) = f(C(s',a')) \implies
+C(s,a) = \gamma \sum_{\forall{s'}}T(s,a,s')
+\max_{\forall{a'}}(R(s',a') + C(s',a'))$
+\end{enumerate}
+** Algorithms
+*** Classes
+\begin{enumerate}
+  \item $\text{Planning: Know everything about the model e.g. }\bold{R, T}$
+  \item $\text{RL: Interact with environment and balance 
+                exploitation with exploration to figure out the policy}$
+\end{enumerate}
+*** Planning Algorithm Flavors
+$\text{Value Iteration: }$
+\begin{itemize}
+  \item $\text{Guess (or initialize randomly): } 
+               \forall_{s}\{V_{t=0}(s)\}$
+  \item $\text{Iterate: }
+               \forall_{s}\{V_t(s) = \max_{\forall{a}}(R(s,a) + 
+               \gamma \sum_{\forall{s'}}T(s,a,s')V_{t-1}(s'))\}$
+  \item $\text{Terminate when values converge: } 
+                \forall_{s}\{\parallel V_{t=N}(s) - V_{t=N-1}(s) \parallel < \delta\}$
+  \item $\forall_{s}\{\pi^*(s) = \arg\max_{a}(R(s,a) + 
+               \gamma \sum_{\forall{s'}}T(s,a,s')V_{t=N}(s'))\}$
+\end{itemize}
+
+$$
+\text{Policy Iteration: }
+$$
+\begin{itemize}
+  \item $\text{Guess (or initialize randomly): }
+               \forall_{s}\{\pi_{t=0}(s) \&\ V^{\pi_{t=0}}(s)\}$
+  \item $\text{Iterate}$  
+  \item $\text{  Evaluate: } 
+               \forall_{s}\{V^{\pi_t}(s) = R(s,\pi_t(s)) + \gamma
+               \sum_{\forall{s'}}T(s,\pi_t(s),s')V^{\pi_t}(s') \}$
+  \item $\text{  Improve: }            
+  \forall_{s}\{
+    \pi_{t+1}(s) = \arg\max_{\forall{a}}
+    [R(s,a) + \gamma\sum_{\forall{s'}}T(s,a,s')V^{\pi_t}(s')]
+  \}$
+  \item $\text{  Prepare for next iteration: } 
+               \forall_{s}\{ V^{\pi_{t+1}}(s) = V^{\pi_t}(s) \}$
+  \item $Note:\ Value\ Convergence\ \forall_{s}\{V(s)\}: 
+               N\ Linear\ Equations\ \&\ N\ Unknowns, where\ 
+               N = \parallel s \parallel\\
+               \text{ may be computed analytically but often
+               dealt via few loops of Value Iteration for convenience.}$
+  \item $\text{Terminate when policy converges: } 
+                \forall_{s}\{\pi_M(s) = \pi_{M-1}(s) \implies 
+		\pi^*(s) = \pi_M(s)\}$
+  \item $\text{NOTE: Policy convergence typically happens before 
+               values convergence!}$
+\end{itemize}
+
+$$\text{Q-Policy Iteration}:$$
+$$
+\forall_{s,a}Q^{\pi}(s,a): 
+\text{function indicates the 
+expected, discounted, total reward when taking action a 
+in state s and thereafter following by policy } \pi.
+$$
+\begin{itemize}
+  \item $\text{Guess or initialize randomly: }
+               \forall_{s}\{Q^{\pi_0}(s)\}$
+  \item $\text{Iterate on Bellman Q Equation: } 
+                \forall_{s}\{Q^{\pi}(s,a) = R(s,a) + 
+                \gamma\sum\limits_{\forall{s'}}T(s,a,s')Q^{\pi}(s', \pi(s'))\}$
+  \item $\text{Improve: } 
+                \forall_{s}\{ \pi_{t+1}(s) = 
+                \arg\max_{\forall{a}}Q^{\pi_t}(s,a) \ni t \geq 0 \}$
+  \item $\text{Evaluate i.e. Value Iterate using new policy: }
+                Q^{\pi_{t+1}} = Q
+                \text{ value evaluated using policy } \pi_{t+1}
+                \text{ with initial values seeded at } Q^{\pi_t}$
+  \item $\forall_{s,a}\{Q(s,a) = 
+	        R(s,a) +\gamma\sum\limits_{\forall{s'}}
+	        T(s,a,s')Q^{\pi_t}(s', \pi_{t+1}(s'))\}$
+  \item $\text{Terminate when policy converges: } 
+                \forall_{s}\{\pi_M(s) = \pi_{M-1}(s) \implies 
+		\pi^*(s) = \pi_M(s)\}$
+\end{itemize}
+
+$\text{Linear Programming (LP): }$
+\begin{itemize}
+  \item $\text{Bellman Equation: }
+                V_{s_{\forall_s}} = \max_{\forall_a}(R(s,a) + 
+                \gamma\sum_{\forall_{s'}}T(s,a,s')V_{s'})$
+  \item $\text{PRIMAL: Objective} =  
+                \min{\sum_{\forall{s}}}V_s \ni 
+                \forall_{s,a} V_s \geq R(s,a) + 
+                \gamma\sum_{\forall{s'}}T(s,a,s')V_{s'}$
+  \item $\text{DUAL: Objective} =  
+                \max_{q_{sa}}\sum_{\forall{s,a}}q_{sa}R(s,a) \ni
+                \forall_{s'} 1 + 
+                \gamma\sum_{\forall{s,a}}q_{sa}T(s,a,s') =
+                \sum_{\forall{a}}q_{s'a}\ \&\ \forall_{s,a}q_{sa} \geq 0;
+                q_{sa} \text{ conceptualized as policy flow.}$
+\end{itemize}
+
+*** RL Algorithm Flavors
+\begin{enumerate}
+\item $Model\ Based: 
+<s_t,a_t,r_t,s_{t+1}>* \rightarrow \\
+\framebox{Model Learner} \rightarrow <\bold{T, R}>
+\rightarrow \framebox{MDP Solver} \rightarrow Q^{*} 
+\rightarrow \arg\max \rightarrow \pi\\
+\mathbb{R}(s_t, a_t) \leftarrow \mathbb{R}(s_t, a_t) + 
+\alpha_t(r_t - \mathbb{R}(s_t, a_t))\\
+\mathbb{T}(s_t, a_t, s_{t+1}) \leftarrow \mathbb{T}(s_t, a_t, s_{t+1}) + 
+\alpha_t(1 - \mathbb{T}(s_t, a_t, s_{t+1})) \ \&\ 
+\mathbb{T}(s_t, a_t, s'_{s' \neq s_{t+1}}) \leftarrow 
+\mathbb{T}(s_t, a_t, s') + 
+\alpha_t(0 - \mathbb{T}(s_t, a_t, s'))\\
+\\
+\mathbb{Q}(s, a) = \mathbb{R}(s, a) + \gamma\sum\limits_{s'}
+\mathbb{T}(s, a,s')\max\limits_{a'}\mathbb{Q}(s',a')
+\\
+\mathbb{Q}(s,a) \rightarrow Q(s,a) \text{ per Littman '96 if }
+\begin{cases}
+\sum\limits_t\alpha_t = \infty\ i.e.\ 
+\forall{s,a} \text{ visisted infinitely often}\\
+\sum\limits_t\alpha_t^2 < \infty
+\end{cases}
+$
+
+\item $\text{Model Free: Do not bother learning model. 
+Observe and directly map observations to actions.}$
+\begin{itemize}
+
+\item $Value\ Function\ Based:
+<s_t,a_t,r_t, s_{t+1}>* \rightarrow \\
+\framebox{Value Update} \rightarrow
+Q \rightarrow \arg\max \rightarrow \pi$
+\item $Policy\ Search: 
+<s_t,a_t,r_t, s_{t+1}>* \rightarrow \\
+\framebox{Policy Update} \rightarrow \pi$
+
+\end{itemize}
+\end{enumerate}
+
+** Value Estimation 
+*** Temporal Difference (TD) Without Control i.e. Action
+$$
+Bellman\ Equation: V(s) = R(s) + \gamma\sum_{\forall{s'}}T(s,s')V(s')
+$$
+**** Monte Carlo Method
+Episode T
+\begin{enumerate}
+  \item $\forall_{s}{V_T(s) = V_{T-1}(s)\ \&\ R_T(s) = R_{T-1}(s)}$
+  \item $\text{Run through the end of an entire episode of states}$
+  \item $\forall_{s_{t=1\cdots{N}}\ visited \ in\ episode\ T: \Delta{V_T(s_t)} =
+               \alpha(R(s_t) - V_{T-1}(s_t)); R(s_t) = 
+               \sum_{\forall{t'=t..K}}{\gamma^{t'-t}r_{t'}}}$
+\end{enumerate}
+**** Temporal Difference Learning
+***** Background
+$$
+V_T(s) = \frac{(T-1)V_{T-1}(s) + R_T(s)}{T} \implies
+V_T(s) = V_{T-1}(s) + \alpha_T(R_T(s) - V_{T-1}(s)); \alpha_T = \frac{1}{T}
+$$
+$$
+\lim_{T\rightarrow\infty} V_T(s) = V(s) \ when\ 
+\sum_{\forall{T}}\alpha_T = \infty \ \&\ 
+\sum_{\forall{T}}\alpha_T^2 < \infty
+$$
+***** Algorithm TD($0 \leq \lambda \leq 1$)
+$\forall_{episode T=1\cdots{N}}:$
+\begin{enumerate}
+  \item $\forall_{s}{e(s) = 0\ \&\ V_T(s) = V_{T-1}(s)}$
+  \item $\forall_{t=1\cdots{K}}: State\ Change: s_{t-1} 
+                \rightarrow_{r_t} s_t 
+                \implies e(s_{t-1}) = e(s_{t-1}) + 1 \ and \\
+                \forall_s{\Delta{V_T(s)}=
+                \alpha_T(r_t + 
+                \gamma{V_{T-1}}(s_t) - V_{T-1}(s_{t-1}))e(s)} \ and \\
+                \forall_s{e(s) = \lambda\gamma{e(s)}}$
+\end{enumerate}
+Example TD($\lambda = 0$) run: $$
+\text{Example State Machine Episodes: }
+T=1, 2, 3, 4: s_0 \rightarrow_{r_1} s_1 \rightarrow_{r_2} 
+s_2 \rightarrow_{r_3} s_F$$
+\begin{enumerate}
+  \item $\text{Initialization: }
+               \forall_{s} V_{T=1}(s) = V_{T=0}(s) = 0; 
+               \alpha_T = \frac{1}{T}$
+  \item $T=1: V(s_0) = V(s_0) +  \alpha_1(r_1 + \gamma{V(s_1)} - V(s_0))
+		\implies V(s_0) = r_1; V(s_1) = r_2; V(s_2) = r_3$
+  \item $T=2: V(s_0) = V(s_0) +  \alpha_2(r_1 + \gamma{V(s_1)} - V(s_0))
+		\implies V(s_0) = r_1 + \frac{1}{2}(r_1 + \gamma{r_2} - r_1) 
+                \implies V(s_0) = r_1 + \gamma\frac{r_2}{2}; 
+                V(s_1) = r_2 + \gamma\frac{r_3}{2}; V(s_2) = r_3$
+  \item $T=3: V(s_0) = V(s_0) +  \alpha_3(r_1 + \gamma{V(s_1)} - V(s_0))
+		\implies 
+                V(s_0) = r_1 + \gamma\frac{r_2}{2} + 
+                \frac{1}{3}(r_1 +
+                \gamma(r_2 + \gamma\frac{r_3}{2}) - (r_1 + \gamma\frac{r_2}{2})) 
+                \implies 
+                V(s_0) = r_1 + \gamma\frac{2r_2}{3} + \gamma^2\frac{r_3}{6};
+                V(s_1) = r_2 + \gamma\frac{2r_3}{3}; V(s_3) = r_3$
+  \item $T=4: V(s_0) = V(s_0) +  \alpha_3(r_1 + \gamma{V(s_1)} - V(s_0))
+		\implies 
+                V(s_0) = r_1 + \gamma\frac{2r_2}{3} + \gamma^2\frac{r_3}{6} +
+                \frac{1}{4}(r_1 +
+                \gamma(r_2 + \gamma\frac{2r_3}{3}) - 
+		(r_1 + \gamma\frac{2r_2}{3} + \gamma^2\frac{r_3}{6})) 
+                \implies 
+                V(s_0) = r_1 + \gamma\frac{3r_2}{4} + \gamma^2\frac{10r_3}{24};
+                V(s_1) = r_2 + \gamma\frac{3r_3}{4}; V(s_3) = r_3$
+  \item $TD(\lambda=0) 
+  \text{ uses one step information that is data efficient (re)using 
+  all data accross episodes that is unbiased on episode specific 
+  runs. However, propagation of actual results with a run to 
+  end of episode is slow.}$
+\end{enumerate}
+
+Example TD($\lambda=1$) run: $$
+\text{Example State Machine Episodes: } 
+s_0 \rightarrow_{r_1} s_1 \rightarrow_{r_2} s_2 \rightarrow_{r_3} s_{3/F}
+$$
+\begin{enumerate}
+  \item $Episodes: T = 1, \cdots, N; State\ Sequence: t = 1, \cdots, K$
+  \item $\text{Initialization: } 
+               \forall_{s} V_{T=1}(s) = V_{T=0}(s) = 0; 
+               \alpha_T = \frac{\alpha}{T}$
+  \item $T=1, t=1: V_{T=1}(s_0) = V_{T=1}(s_0) +  
+                \alpha(r_1 + \gamma{V_{T=0}(s_1)} - V_{T=0}(s_0))
+		\implies V_{T=1}(s_0) = \alpha{r_1}$
+  \item $T=1, t=2: V_{T=1}(s_0) = V_{T=1}(s_0) +  
+                \alpha(r_2 + \gamma{V_{T=0}(s_2)} - V_{T=0}(s_1))\gamma
+		\implies V_{T=1}(s_0) = \alpha(r_1 + \gamma{r_2})$
+  \item $T=1, t=3: V_{T=1}(s_0) = V_{T=1}(s_0) + 
+                \alpha(r_3 + \gamma{V_{T=0}(s_3)} - V_{T=0}(s_2)){\gamma^2} = 
+		\alpha(r_1 + \gamma{r_2} + \gamma^2{r_3})$
+  \item $T=2, t=1: V_{T=2}(s_0) = V_{T=2}(s_0) +  
+                \alpha(r_1 + \gamma{V_{T=1}(s_1)} - V_{T=1}(s_0)) \cdots $
+  \item $TD(\lambda=1) 
+  \text{ uses outcome based estimate that rapidly propagates actual
+  rewards observed on episode specific result. But it is data inefficient 
+  and suffers from episodic variance.}$
+\end{enumerate}
+***** TD($\lambda$) Intuition:
+\begin{enumerate}
+  \item $E_1: TD(\lambda=0) = V_T(s_t) = V_{T-1}(s_t) + 
+               \alpha_T(r_{t+1} + \gamma{V_{T-1}(s_{t+1})}-V_{T-1}(s_t))$
+  \item $E_K: V_T(s_t) = V_{T-1}(s_t) + \alpha_T(r_{t+1} + \cdots + 
+                \gamma^{K-1}r_{t+K} + \gamma^K{V_{T-1}(s_{t+K})}-V_{T-1}(s_t))$
+  \item $E_\infty: TD(\lambda=1) = V_T(s_t) = V_{T-1}(s_t) + 
+                \alpha_T(r_{t+1} + \cdots +
+                \gamma^{K-1}r_{t+K} + \cdots - V_{T-1}(s_t))$
+  \item $V(s) \text { estimate with } TD(\lambda) 
+  \text{ has some error at } \lambda = 0, 
+  \text{ max error at } \lambda = 1, 
+  \text{ and least error when }  0 < \lambda < 1.$
+\end{enumerate}
+
+$$
+TD(\lambda) = \Delta{V_T(s_t)} = \alpha_TU_T(s_t); 
+U_T(s_t) = R_T(s_t) + W_T(s_t) - V_{T-1}(s_t); where
+$$
+\begin{enumerate}
+  \item $R_T(s_t) = r_{t+1} + \gamma^1\lambda^1{r_{t+2}} + \cdots + 
+               \gamma^i\lambda^ir_{t+i+1} + \cdots$ 
+  \item $W_T(s_t) = \gamma^1\lambda^0(1-\lambda)V(s_{t+1}) + \cdots + 
+                \gamma^i\lambda^{i-1}(1-\lambda)V(s_{t+i}) + \cdots$
+\end{enumerate}
+$$
+\implies TD(\lambda) = V_T(s_t) = 
+(1-\lambda)(\lambda^0E_1 + \lambda^1E_2 + \cdots +
+\lambda^{k-1}E_k + \cdots + E_\infty) 
+$$
+$$
+TD(0 \leq \lambda \le 1) =
+\sum_{\forall{i}}{\lambda^{i-1}(1-\lambda)E_i}
+\text{ is a convex combination, where }  
+\sum_{\forall{i}}\lambda^{i-1}(1-\lambda) = 1
+$$
+*** Temporal Difference With Control
+$$
+Q(s,a) = R(s,a) + \gamma\sum_{\forall{s'}}T(s,a,s')\max_{\forall{a'}}Q(s',a') 
+\implies
+$$
+$$
+Given\ <s_{t-1}, a_{t-1}, r_t, s_t> QLearning: \\
+Q_T(s_{t-1}, a_{t-1}) = 
+Q_{T-1}(s_{t-1}, a_{t-1}) +
+\alpha_T(r_t + \gamma\max_{\forall{a}}
+Q_{T-1}(s_t, a) - Q_{T-1}(s_{t-1}, a_{t-1}))
+$$
+**** TD Learning With Control Algorithms
+$$
+\text{Q-Learning Off-Policy Model-Free Algorithm:}
+$$
+\begin{itemize}
+  \item $Choose\ Policy\ e.g.\ \pi(s) = 
+                \epsilon-greedy, \epsilon-soft, or\ softmax$
+  \item $Initialize/Guess\ \forall_{s,a}Q(s,a)$
+  \item $Start\ Episode: Initialize\ state=s$
+  \begin{enumerate}
+  \item $SARS: Given\ <state=s, action=a=\pi(s)>\ 
+                observe\ <reward=r, next-state=s'>$
+  \item $\Delta{Q(s,a)} \leftarrow
+                \alpha[r + \gamma\max_{\forall{a'}}Q(s', a') - Q(s,a)]$
+  \item $s \leftarrow s'\ until\ s'\ is\ terminal\ continue\ episode$
+  \end{enumerate}
+  \item $Repeat\ Next\ Episode$
+\end{itemize}
+
+Compared to Q-Learning, SARSA updates does not use maximum reward 
+for the next state. Instead, the new action and reward is selected using 
+the same policy that was used to determine original action.
+$$
+\text{SARSA On-Policy Model-Free Algorithm:}
+$$
+\begin{itemize}
+  \item $Choose\ Policy\ e.g.\ \pi(s) = 
+                \epsilon-greedy, \epsilon-soft, or\ softmax$
+  \item $Initialize/Guess\ \forall_{s,a}Q(s,a)$
+  \item $Start\ Episode: Initialize\ <state=s, action=a=\pi(s)>$
+  \begin{enumerate}
+  \item $SARSA: Given\ <state=s, action=a>\ observe\ 
+                <reward=r, next-state=s', next-action=a'=\pi(s')>$
+  \item $\Delta{Q(s,a)} \leftarrow
+                \alpha[r + \gamma{Q(s', a')} - Q(s,a)]$
+  \item $s \leftarrow s'\ \&\ a \leftarrow a'\ 
+               until\ s'\ is\ terminal\ continue\ episode$
+  \end{enumerate}
+  \item $Repeat\ Next\ Episode$
+\end{itemize}
+** Contraction & Convergence
+$$
+\text{B is a contraction mapping when: }
+\parallel B\circ{F} - B\circ{G} \parallel_{\infty} \leq 
+\gamma \parallel F - G \parallel_{\infty},\ 
+where\ 0 \leq \gamma < 1
+$$
+$\text{If B is a contraction mapping then: }$
+\begin{enumerate}
+  \item $F^* = B\circ{F}^*\ unique\ fixed\ solution\ exists$
+  \item $F_t = B\circ{F}_{t-1} \implies 
+               F_{t\rightarrow\infty}\ converges\ to\ F^*$
+\end{enumerate}
+
+$$
+\text{Bellman Operator Contracts: }
+\parallel B\circ{Q_1} - B\circ{Q_2} \parallel \leq
+\gamma\max_{\forall{s', a'}}
+{\parallel Q_1(s', a') - Q_2(s', a')\parallel}
+$$
+
+$$
+<s_{t-1}, a_{t-1}, r_t, s_t>: 
+\forall_{s,a}([B_t \circ {Q}]\circ{W})(s,a) = Q(s,a) + 
+\alpha_t(s,a)(r_t + \gamma\max_{\forall{a'}}W(s_t,a') - Q(s,a));
+where\ \alpha_t(s,a) = 0\ if s \neq s_{t-1}\ and\ 
+0 < \alpha_t(s,a) < 1\ otherwise
+$$
+$$
+\text{Convergence Theorem: }
+Q_{t+1} = [B_t\circ{Q_t}]\circ{Q_t}\ converges\ Q_t \rightarrow Q^*\ if: 
+$$
+\begin{enumerate}
+  \item $\forall_{U_1, U_2, s, a}
+                \parallel [B_t\circ{U_1}]\circ{Q^*}(s,a) - 
+                [B_t\circ{U_2}]\circ{Q^*}(s,a) \parallel \leq
+                (1 - \alpha_t(s,a)) \parallel U_1(s,a) - U_2(s,a) \parallel$
+  \item $\forall_{Q, U, s, a}
+                \parallel [B_t\circ{U}]\circ{Q^*}(s,a) - 
+                [B_t\circ{U}]\circ{Q}(s,a) \parallel \leq
+                \gamma\alpha_t(s,a) \parallel Q^*(s,a) - Q(s,a) \parallel$
+  \item $\forall_{s, a} \sum{\alpha_t} = \infty (\implies
+                 <s,a> \text{ must be visited infinitely many times})
+		 \ \&\ \sum{\alpha_t^2} < \infty$
+		 \end{enumerate}
+** Reward Shaping
+\begin{enumerate}
+  \item $\text{Multiply by +ve Constant: } 
+                R'(s,a) = cR(s,a) \implies Q'(s,a) = cQ(s,a) \\
+                \text{Optimal Policy Unchanged: } 
+                \pi'(s)_{Q'(s,a)} = \arg\max_{\forall{a}}Q'(s,a) = 
+		\arg\max_{\forall{a}}Q(s,a) = \pi(s)_{Q(s,a)}$
+  \item $\text{Add Constant: }
+                R'(s,a) = R(s,a) + c \implies 
+                Q'(s,a) = Q(s,a) + \frac{c}{1-\gamma};
+                \pi'(s)_{Q'(s,a)} = \pi(s)_{Q(s,a)}$
+  \item $\text{Potential function: }
+                R'(s,a,s') = R(s,a) + \psi(s) - \gamma\psi(s') \implies
+                Q'(s,a) = Q(s,a) - \psi(s);
+                \pi'(s)_{Q'(s,a)} = \pi(s)_{Q(s,a)}$
+  \item $\text{Q policy with good potential initialization: }
+                \psi(s) = max_{\forall{a}}Q^*(s,a) \implies \\
+		Q'(s,a) = 
+                \begin{cases}
+		0, & \text{if } a = \arg\max_{\forall{a}}Q^*(s,a), \\
+                <0, & \text{otherwise}.
+                \end{cases} \\
+                \text{Q values quickly converge with zero initialization 
+                when rewards are defined with optimal potential values.} \\
+		\text{Initialization of } Q(s,a) \leftarrow Q^*(s,a)
+                \text{ is equivalent in every iterative step to 
+		when rewards are defined with optimal potential values.}$
+\end{enumerate}
+
+** Exploration Exploitation
+\begin{itemize}
+\item $
+\text{PAC (Probably Approximately Correct) bounds number of mistakes } m\\ 
+(\text{a mistake is counted in each timestep whenever }
+Q(s_t, a_t) < \max\limits_{a}Q(s_t,a) - \epsilon)\\
+\text{ to polynomial in } k \text{ actions}, 
+n \text{ states}, \frac{1}{\epsilon} \text{ error}, 
+\frac{1}{1-\gamma} \text{ discount factor with } Pr(1-\delta).
+$
+\item $
+\text{KWIK (Know What It Knows) Learning is well suited to model learning.}\\
+\text{Uses Hoeffding bound to bound error in accuracy and probability of 
+being incorrect i.e. } \epsilon \ \&\ \delta \text{ respectively.}
+$
+
+\item $\text{RMAX and KWIK Learning}:$
+\begin{enumerate}
+\item $\text{KWIK Learn Model}: R(s,a)\ \&\ T(s,a,.)\ m\ times$
+\item $\text{For unknown parts, assume max possible reward}:
+\mathbb{Q}(s,a) = \frac{R_{max}}{1 - \gamma}$
+\item $\text{Solve for } \mathbb{Q} 
+\text{ and use resulting policy until new information discovered.}\\ 
+\text{This forces exploration of unknown state, action, reward spaces 
+if that knowledge makes any difference to optimal policy.}\\ 
+\text{Otherwise we are efficient and ignore those space.}$
+\item $m \approx \frac{n^2k}{((1 - \gamma)\epsilon)^3}$
+\end{enumerate}
+\end{itemize}
+
+$\text{Stochastic Bandit Arms Problem: }$
+\begin{enumerate}
+  \item $\text{Given } k \text{ bandits with varying 
+               reward probability but equal reward on success.}$
+  \item $\text{Define a policy to maximize long term 
+                discounted expected reward within the following bounds.}$
+  \item $\epsilon \text{ margin of error from estimate.}$
+  \item $(1 - \delta) \text{ confidence that best 
+               candidate bandit was chosen among candidate bandits.}$
+  \begin{itemize}
+    \item $\text{Policy: Record } n 
+                 \text{ outcome samples for each bandit is recorded.}$
+    \item $\delta' = \frac{\delta}{k}; (1 - \delta') 
+                  \text{ confidence interval chosen for each bandit} 
+                  \implies \\
+                  \text{Union Bound i.e. }
+                  p(\text{any of the bandit estimate incorrect}) \leq 
+                  k\times{p(\text{one of the estimate incorrect})} = 
+                  k\times{\delta'}=\delta$
+    \item $\epsilon' = \frac{\epsilon}{2} \text{ error bound for each bandit}
+                  \implies \\ 
+                  \text{error bound of overall estimate} = 
+                  error(\max_{\forall{i}}\hat{\mu}_i) \leq 
+                  2\times{error(\hat{\mu}_i)} = 2\times{\epsilon'} =  
+                  \epsilon$
+    \item $\text{Substituting in Hoeffding Bound: } 
+                  \frac{\sqrt{\frac{1}{2}\ln{\frac{2k}{\delta}}}}{\sqrt{n}} \leq
+                  \frac{\epsilon}{2} \implies n \geq \frac{2\ln{\frac{2k}{\delta}}}{\epsilon^2}$
+  \end{itemize}
+\end{enumerate}
+
+$\text{Deterministic MDP: } R_{max}$
+\begin{enumerate}
+\item $\text{Keep track of MDP: } t \leftarrow t + 1: $
+\item $\text{Any unknown state-action pair assumed } R_{max}$
+\item $\text{Solve the MDP to generate policy } \pi_t
+\text{ and execute accordingly.}$
+\item $\text{Record any newly visited <s,a,r> that doesn't match 
+previous MDP <state, action, reward>: Goto first step}$
+\end{enumerate}
+
+** Generalization
+Problems with zillions of states and/or action pairs makes exploration
+impossible. We need to generalize and approximate in RL using several
+function approximation mechanisms and several supervised learning 
+methods at our disposal.
+$$Approximation Models: $$\begin{itemize}
+\item $\text{Value: Atari, TDgammon, etc.: } 
+\forall_{s,a}\{F(s,a; \vec{\bold{w}}) \sim Q(s,a)\}; 
+\vec{\bold{w}}: \text{free parameter vector}$
+
+\item $\text{Policy: Robotics: } 
+\forall_{s,a}\{F(s; \vec{\bold{w}})\} \sim \pi(s)\}$
+
+\item $\text{Model: } 
+\forall_{s,a,s'}\{F(s,a,s'; \vec{\bold{w}})\} \sim T(s,a,s')\}\ and\ similarly\ 
+\forall_{s,a,s'}\{r(s,a,s')\cdots\}$ 
+\end{itemize}
+*** LSTD: Least-Squares Temporal-Difference Learning Algorithm
+\begin{itemize}
+  \item $\text{Q-Value Function Approximation 
+                via Supervised Learning: } \\
+                Q(s,a) = F(\vec{\bold{f}}(s), \vec{\bold{g}}(a)) \\
+                Linear: Q(s,a) = \vec{\bold{f}}(s)\cdot{\vec{\bold{g}}}(a) \\
+                DNN: Q(s,a) = 
+                \max(\vec{\bold{f}}(s)\cdot{\vec{\bold{g}}(a)}, 0)$
+  \item $\frac{\partial{Err^\pi}}
+                {\partial{\vec{\bold{w}}_{\pi}^a}}
+                \propto \Delta{Q^{\pi}(s,a)}\times
+		\frac{\partial{\Delta{Q^{\pi}(s,a)}}}
+		{\partial{Q^{\pi}(s,a)}}\times 
+                \frac{\partial{Q^{\pi}(s,a)}}
+		{\partial{\vec{\bold{w}}_{\pi}^a}} =
+		-\Delta{Q^{\pi}(s,a)}\times
+                \frac{\partial{Q^{\pi}(s,a)}}
+		{\partial{\vec{\bold{w}}_{\pi}^a}}
+                \implies \\ 
+		Err^{\pi} 
+                \text{ is minimized during gradient descent when }
+                \Delta{\vec{\bold{w}}_{{\pi}_t}^a} = 
+		\alpha\times
+		\Delta{Q^{\pi}_{t-1}(s,a)}\times
+                \frac{\partial{Q^{\pi}(s,a)}}
+		{\partial{\vec{\bold{w}}_{\pi_{t-1}}^a}}$
+  \item $Err^{\pi} \propto 
+                \{\sum_{\forall{s,a}}\Delta{Q^{\pi}}(s,a)^2 \} \\
+                where\ \Delta{Q^{\pi}}(s,a) = 
+                r_m(s,a) + \gamma{T_m(s,a,s')}Q^{\pi}(s',\pi(s')) - Q^{\pi}(s,a) \\
+                and\ r_m(s,a)\ \&\ T_m(s,a,s')\ are\ Model\ Constants$
+  \item $\Delta{Q^{\pi^*}}(s,a) = 
+                r_m(s,a)  + \gamma\arg\max_{\forall{a'}}
+		T_m(s,a,s')Q^{\pi^*}(s',a') - Q^{\pi^*}(s,a)$
+  \item $\text{Function Approximation is not necessarily 
+                well behaved and may not converge even for linear 
+		function approximation}$ 
+  \item $\text{Recent theoretical techniques  e.g. GTD2 
+                haved been proved to converge for linear approximators
+		and QFittedIteration have shown promise.}$
+\end{itemize}
+
+*** LSPI: Least-Squares Policy Iteration Learning Algorithm
+Inherently sound and comes with convergence guarantees of 
+approximate policy iteration, where it combines value-function 
+approximation with linear architectures and approximate policy 
+iteration. 
+
+**** LSTDQ: Learning for the State-Action Value Function
+\begin{itemize}
+\item $\text{Linear Architectures: }
+\hat{Q}^{\pi}(s, a; w) = \sum_{j=1}^k{\phi_j(s,a)w_j} = 
+\bold{\phi}w^{\pi}; \\
+\bold{\phi} = [\vec{\phi}(s_1, a_1), \cdots, 
+\vec{\phi}(s_{|S|}, a_{|A|})]^T; 
+\vec{\phi}(s_i, a_i) = [\phi_1(s_i, a_i), \cdots, 
+\phi_k(s_i, a_i)]^T; \\
+\text{Values are approximated by a linear parametric 
+combination of k basis functions.} \\
+\phi_j(s,a) \text{ are fixed basis functions\, 
+linearly independent of each other\, and can be non-linear 
+functions of s and a.}$
+
+\item $Critic: Policy\ Evaluation:$
+
+\begin{enumerate}
+  
+\item $\text{Least-Squares Fixed-Point Approximation: }\\
+T_{\pi}\vec{Q}^{\pi} = 
+\forall_{(s,a)}\{\vec{R} + \gamma{\bold{P}}
+\bold{\prod_{\pi}}\vec{Q}^{\pi}\};
+where\ P((s,a), s') = Pr(s,a,s')\ \& \ 
+\prod_{\pi}(s', (s', a')) = \pi(a';s') \implies \\
+T_{\pi}\vec{Q}^{\pi} = \vec{Q}^{\pi} \sim 
+T_{\pi}\hat{\vec{Q}}^{\pi} \approx \hat{\vec{Q}}^{\pi} \\
+\\
+T_{\pi}\hat{\vec{Q}}^{\pi}: 
+\text{ projected to } \phi
+\text{ space as it may not lie in the space of 
+approximate value functions.} \\
+Approach\ One:
+\hat{\vec{Q}}^{\pi} = 
+\boldsymbol{\phi(\phi^T\phi)^{-1}\phi}^T
+(T_\pi\hat{\vec{Q}}^{\pi}) \implies 
+\hat{\vec{Q}}^{\pi} = 
+\boldsymbol{\phi(\phi^T\phi)}^{-1}
+\phi^T(\vec{R} + 
+\gamma\boldsymbol{\prod_{\pi}}
+\hat{\vec{Q}}^{\pi}) \implies \\
+\boldsymbol{\phi}{\vec{w}^\pi} = 
+\boldsymbol{\phi(\phi^T\phi)^{-1}}
+\boldsymbol{\phi}^T(\vec{R} + 
+\gamma\boldsymbol{\prod}_{\pi}
+\boldsymbol{\phi}{\vec{w}^\pi})\ OR\\
+Approach\ Two:
+\hat{\vec{Q}}^{\pi} \approx T_{\pi}\hat{\vec{Q}}^{\pi} \implies
+\boldsymbol{\phi}\vec{w}^{\pi} = \vec{R} + 
+\gamma{\bold{P}}\boldsymbol{\prod_\pi}\boldsymbol{\phi} \implies
+\boldsymbol{\phi}^T\boldsymbol{\phi}\vec{w}^{\pi} = 
+\boldsymbol{\phi}^T(\vec{R} + 
+\gamma{\bold{P}}\boldsymbol{\prod_\pi}\boldsymbol{\phi}) \implies\\
+\vec{w}^\pi = \bold{A^{-1}}\vec{b}, where\ 
+\bold{A}\vec{w}^{\pi} = \vec{b},
+\bold{A} = \boldsymbol{\phi}^T
+(\boldsymbol{\phi} - \gamma{\bold{P}}
+\boldsymbol{\prod_\pi}\boldsymbol{\phi}), and\ 
+\vec{b} = \boldsymbol{\phi}^T\vec{R}.
+$
+
+\item $\bold{A} = 
+\boldsymbol{\phi}^T
+\boldsymbol{\Delta}_{\mu}
+(\boldsymbol{\phi} - 
+\gamma{\bold{P}}\boldsymbol{\prod}_\pi
+\boldsymbol{\phi})
+\ \&\ \vec{b} = 
+\boldsymbol{\phi}^T\boldsymbol{\Delta}_{\mu}\vec{R} 
+\ when\ <s,a> \sim \mu_{s,a} 
+\text{ is a non-uniform probability distribution of } (s,a). \\
+\boldsymbol{\Delta}_{\mu_{s,a}}
+\text{ is the corresponding diagnonal weighting matrix }
+\text{we need to reflect the contribution of state and } \\
+\text{action error on the overall approximation error}$
+  
+\item $\bold{A} = \sum_{\forall{s} \in S} \sum_{\forall{a} \in A} \{ 
+\vec{\phi}(s,a)\mu(s,a)(\vec{\phi}(s,a) - 
+\gamma\sum_{\forall{s' \in S}}
+P((s,a),s')\vec{\phi}(s', \pi(s')))^T \} \\
+where\ \vec{\phi}(s',\pi(s'))^T = 
+\sum_{\forall{a' \ni a' = \phi(s')}}
+\prod_{\pi}(s', (s', a'))\vec{\phi}(s', a')^T; \\
+\bold{A} = \sum_{\forall{s} \in S} \sum_{\forall{a} \in A} \{ 
+\mu(s,a)\sum_{\forall{s' \in S}}P((s,a), s')
+[\vec{\phi}(s,a)(\vec{\phi}(s,a) - 
+\gamma\vec{\phi}(s',\pi(s')))]\}$
+
+\item $\vec{b} = \boldsymbol{\phi}^T
+\boldsymbol{\Delta}_{\mu}\vec{R} = 
+\sum_{\forall{s} \in S} \sum_{\forall{a} \in A} \{ 
+\vec{\phi}(s,a)\mu(s,a)\sum_{\forall{s' \in S}}R(s,a,s')\} = \\
+\sum_{\forall{s} \in S} \sum_{\forall{a} \in A} \{ 
+\mu(s,a)\sum_{\forall{s' \in S}}\vec{\phi}(s,a)R(s,a,s')\}$
+
+\item $D = \{<s_1,a_1,s'_1,r_1>, \cdots, <s_L,a_L,s'_L,r_>\}
+\ data\ samples\ where\ <s_,a_>\ drawn\ from\ \mu
+\ and\ s'\ drawn\ from\ P(s,a,s'). \\
+\bold{A} \approx \tilde{\bold{A}} = 
+\frac{1}{L}\sum_{i=1}^L[\vec{\phi}
+(s_i, a_i)(\vec{\phi}(s_i, a_i) - 
+\gamma\vec{\phi}(s'_i, \pi(s'_i)))^T]_
+{<s_i, a_i, s'_i> \sim D} \\
+\vec{b} \approx \tilde{\vec{b}} = 
+\frac{1}{L}\sum_{i=1}^L[\vec{\phi}(s_i, a_i)r_i]_
+{<s_i, a_i, r_i> \sim D}$
+ 
+\item $\tilde{\bold{A}} = \frac{1}{L}\tilde{\boldsymbol{\phi}}^T
+(\boldsymbol{\tilde{\phi}} - 
+\gamma\boldsymbol{\widetilde{P\prod_{\pi}\phi}}) 
+\ \& \ \tilde{\vec{b}} = 
+\frac{1}{L}\boldsymbol{\tilde{\phi}}^T\tilde{\vec{R}} \\ 
+where\ \boldsymbol{\tilde{\phi}} = 
+[\vec{\phi}(s_1, a_1), \cdots, \vec{\phi}(s_L, a_L)]^T \\
+\boldsymbol{\widetilde{P\prod_{\pi}\phi}} = 
+[\vec{\phi}(s'_1, \pi(s'_1)), \cdots, 
+\vec{\phi}(s'_L, \pi(s'_L))]^T, and\ \\
+\tilde{\vec{R}} = [r_1, \cdots, r_L]^T$
+  
+\item $\vec{w}^\pi = \bold{A^{-1}}\vec{b} \approx
+\bold{\tilde{A}^{-1}}\tilde{\vec{b}} = 
+\bold{\hat{A}^{-1}}\hat{\vec{b}}; where\ 
+\bold{\hat{A}} = L\times{\tilde{\bold{A}}}\ \&\ 
+\hat{\vec{b}} = L\times{\tilde{\vec{b}}}$
+
+\item $\bold{\hat{A}}^{(t+1)} = \bold{\hat{A}}^{(t)} + 
+\vec{\phi}(s_t, a_t)(\vec{\phi}(s_t, a_t) - 
+\gamma\vec{\phi}(s'_t, \pi(s'_t)))^T\ \&\  
+\hat{\vec{b}}^{(t+1)} = \hat{\vec{b}}^{(t)} + 
+\vec{\phi}(s_t, a_t)r_t$
+\end{enumerate}
+
+\item $Actor: Policy\ Improvement:$
+\begin{enumerate}
+\item $\pi(s) = \arg\max_{\forall{a} \in A} \hat{Q}(s,a) = 
+\arg\max_{\forall{a} \in A}\vec{\phi}(s,a)^T\cdot\vec{w}$
+
+\item $\lVert A \rVert\ is\ infinite, continuous, or\ large \implies \\
+\text{Global optimization over all actions to 
+find a closed form solution.} \\
+\text{Otherwise explicitly compute maximization 
+over all actions in data.}$ \\
+\text{Critic part chooses best action, doesn't require 
+approximate policy representation, and thus eliminates any 
+source of error in actor part.}
+
+\item $Error\ Bound: 
+\forall_{m = 1, 2, \cdots, } 
+\lVert \hat{Q}^{\pi_m} - Q^{pi_m} \rVert \leq \epsilon 
+\implies
+\lim_{m\rightarrow\infty}\sup
+\lVert\hat{Q}^{\pi_m} - Q^* \rVert_{\infty} \leq 
+\frac{2\gamma\epsilon}{(1-\gamma)^2}$
+
+\end{enumerate}
+
+\end{itemize}
+
+Note traditional TD Learning RL algorithms for control, 
+such as SARSA and Q-learning, lack any stability or convergence 
+guarantees (may even diverge to infinity) when combined with most 
+forms of value-function approximation. 
+
+Contributory factors are learning rate and schedule, exploration policy 
+and schedule, initial value function, distribution of samples, order of 
+sample presentation, and relative magnitude of the gradient-based 
+parameter adjustments. LSPI has no parameters to tune and does not 
+take gradient steps, which means there is no risk of overshooting, 
+oscillation, or divergence.
+
+Policy search methods typically make a large number of relatively 
+small steps of gradient-based policy updates to a parameterized policy
+function. LSPI generally results in a small number of very large steps
+directly in policy space.
+
+*** Averagers
+\begin{itemize}
+\item $\text{Value of State is represented as an average
+convex combination of "basis" states.}$
+
+\item $V_{t}(s) = V_{t-1}(s) +  
+\max_{\forall{a}}\{
+r_m(s,a) + \gamma\times
+\sum_{\forall{s'}}T_m(s,a,s')V_{t-1}(s') \},
+where\ r_m(s,a)\ \&\ T_m(s,a,s')\ are\ Model\ Constants.$
+
+\item $V(s') = \sum_{\forall{s_b}}w(s',s_b)V(s_b); 
+\forall_{s_b}\{\forall_{s'}\sum{w(s',s_b)} = 1\ \& \ 
+0 \leq w(s',s_b) \leq 1 \};
+where\ s_b\ are\ basis\ states$
+
+\item $\Delta{V(s)} = \max_{\forall{a}}\{r_m(s,a) + \gamma\times
+\sum_{\forall{s'}}T_m(s,a,s')
+\sum_{\forall{s_b}}w(s',s_b)V(s_b)\} = \\
+\max_{\forall{a}}\{r_m(s,a) + \gamma\times
+\sum_{\forall{s_b}}\sum_{\forall{s'}}
+T_m(s,a,s')w(s',s_b)V(s_b)\} = \\
+\max_{\forall{a}}\{r_m(s,a) + \gamma\times
+\sum_{\forall{s_b}}T_{m'}(s,a,s_b)V(s_b)\} \\
+where\ T_{m'}(s,a,s_b) = \forall{s'}T_m(s,a,s')w(s',s_b)
+\ \& \ \sum_{\forall{s_b}}T_{m'}(s,a,s_b) = 1
+\ \& \ 0 \leq T_{m'}(s,a,s_b) \leq 1$
+
+\item $Note\ the\ following:$
+\begin{enumerate}
+
+\item $\Delta{V(s)} = 
+\max_{\forall{a}}\{r_m(s,a) + \gamma\times
+\sum_{\forall{s_b}}T_{m'}(s,a,s_b)V(s_b)\}
+\text{ is a Bellman Equation expression of an MDP 
+that we know is well behaved, has a unique value function, 
+and guaranteed to converge.}$
+
+\item $\text{Model m': } 
+T_{m'}(s,a,s_b) = \sum\limits_{\forall{s'}}T_m(s,a,s')w(s',s_b) \\
+\text{ represents a model where any transition 
+to a "non-basis" state is followed by a transition to
+one of the "basis" states.}$
+
+\item $\lVert s_b \rVert: 
+\text{ as the number of anchor points increases,
+the error in the value approximation function goes down i.e.
+we not only converge but do so closer to the right answer.}$
+\end{enumerate}
+\end{itemize}
+
+** POMDP - Partially Observable Markov Decision Process
+\begin{itemize}
+\item $MDP \{S,A,R,T, \gamma\} \rightarrow 
+POMDP \{S, A, R, T, Z, O, \gamma\} \\
+where\ Z = \text{partially observed state and }\\
+O = \text{set of observation probability that is 
+conditional on current state and previous action.}
+$
+
+\item $\vec{b}: Belief\ state\ vector \\
+where\ b(s) = p(S = s)$
+
+\item $R(\vec{b},a) = E[R(S,a)] = 
+\sum_{\forall{s}}b(s)R(s,a) = \vec{R}(s,a)\cdot\vec{b}$
+
+\item $V(\vec{b}) = E[V(S)] = \sum_{\forall{s}}b(s)V(s) = 
+\vec{V}\cdot\vec{b}$
+
+\item $\forall_{s}\{
+o(s,z)_a = p(Z=z \mid S=s, A=a)\} = \bold{O}_{s, z \mid a}$
+
+\item $
+\vec{b'}_{\mid \vec{b}, a, z'}:  
+\text{i.e. New Belief state given previous belief state, action 
+taken in previous belief state, and new observation}\\
+\vec{b'}_{\mid \vec{b}, a, z'} = \tau(\vec{b}, a, z'), 
+where\ \\
+\vec{b'}_{\mid \vec{b}, a, z'}(s') = p(S'=s' | \vec{b}, a, z') =
+p(s', z'|\vec{b}, a)/p(z'|\vec{b},a) = 
+p(z'|s', \vec{b}, a)p(s'|\vec{b},a)/p(z'|\vec{b},a) \implies\\
+\vec{b'}_{\mid \vec{b}, a, z'}(s') = 
+T_s(\vec{b}, a, s')o(s',z')_a/T_z(\vec{b}, a, z'), where\\
+p(z'|s', \vec{b}, a) = p(z'|s',a) = o(s',z')_a \\
+p(s'|\vec{b},a) = T_s(\vec{b}, a, s') = 
+\sum_{\forall{s}}p(s|\vec{b}, a)p(s'|s, \vec{b}, a) =
+\sum_{\forall{s}}p(s|\vec{b})p(s'|s, a) =
+\sum_{\forall{s}}b(s)T(s, a, s') =
+\vec{b}^T\bold{T}_{s,s' \mid a}\\
+p(z'|\vec{b},a) \text{ is a normalizing constant} =\\
+T_z(\vec{b}, a, z') = 
+\sum_{\forall{s'}}p(z'|s',\vec{b},a)p(s'|\vec{b},a) = 
+\sum_{\forall{s'}}T_s(\vec{b}, a, s')o(s',z')_a = 
+\vec{b}^T\bold{T}_{s,s' \mid a}\bold{O}_{s',z' \mid a}$
+\end{itemize}
+
+$$Value\ Iteration: $$
+\begin{enumerate}
+
+\item $\forall_{b}V_{t=0}(b) = 0$
+
+\item $
+\forall_{b}\{V_{t>0}(\vec{b}) = 
+\max_{\forall{a}}[R(\vec{b},a) + \gamma
+\sum_{\forall{z'}}T_z(\vec{b}, a, z')
+\mathcal{I}(\vec{b'}_{\mid \vec{b}, a, z'})
+V_{t-1}(\vec{b'}_{\mid \vec{b}, a, z'})]\} \\
+where\ 
+T_z(\vec{b}, a, z') = \vec{b}^T\bold{T}_{s,s' \mid a}\bold{O}_{s',z'};
+T_s(s, a, s') = \vec{b}^T\bold{T}_{s,s' \mid a} \ \&\ \\
+\mathcal{I}(\vec{b'}_{\mid \vec{b}, a, z'}) = 
+\begin{cases}
+1 \text{ if the belief update with arguments } 
+\vec{b}, a, and\ z'\ returns\ \vec{b'}\ i.e.\ 
+\vec{b'} = \tau(\vec{b}, a, z')\\
+0 \text{ otherwise}
+\end{cases}
+$
+
+\item $
+Compact\ Representations:\\
+\forall_{b}\{V_{t>0}(\vec{b}) = 
+\max_{\forall{a}}[R(\vec{b},a) + \gamma
+\sum_{\forall{z'}}T_z(\vec{b}, a, z')
+V_{t-1}(\tau(\vec{b}, a, z'))]\}, where\ 
+\vec{b'}_{\mid \vec{b}, a, z'} = \tau(\vec{b}, a, z')\\
+$
+
+\item $
+MDP\ Representation:\\
+\forall_{b}\{V_{t>0}(\vec{b}) = 
+\max_{\forall{a}}[R(\vec{b},a) + \gamma
+\sum_{\forall{\vec{b'}}}\tau(\vec{b}, a, \vec{b'})
+V_{t-1}(\vec{b'})]\}, where\ 
+\tau(\vec{b}, a, \vec{b'}) = 
+\sum_{\forall{z'}}T_z(\vec{b}, a, z')
+\mathcal{I}(\vec{b'}_{\mid \vec{b}, a, z'})
+$
+
+\item $
+\text{POMDP Policy Definition}:\\
+\begin{cases}
+\pi(\vec{b}) \rightarrow \mathbb{A} 
+\text{ if Policy is deterministic markov memoryless policy}\\
+\pi(a \mid \vec{b})_{a \in \mathbb{A}} \rightarrow 
+\mathcal{S}_{(\mathcal{S} \in Simplex)}
+\text{ if Policy is stochastic markov memoryless policy>}
+\end{cases}
+$
+
+\item $
+Value\ Function:\\
+V^{\pi}(\vec{b}_0) = \sum_{t=0}^{\infty}\gamma^tr(b_t, a_t) =
+\sum_{t=0}^{\infty}\gamma^tE[R(s_t, a_t) \mid \vec{b}_0, \pi] \implies\\
+\pi^{*} = \arg\max\limits_{\pi}V^{\pi}(\vec{b}_0)
+$
+
+\item $
+Optimal\ Value\ Function:\\
+V^{*}(\vec{b}) = \max\limits{a \in \mathbb{A}}
+[R(\vec{b}, a) + \gamma\sum\limits_{z' \in Z}
+T_z(\vec{b}, a, z')V^{*}(\tau(\vec{b},a,z'))]
+$
+\item $Scale\ Problem:$
+
+\begin{itemize}
+\item $\lVert[\vec{b}_1, \vec{b}_2, \cdots, ]\rVert = \infty \implies \\ 
+\text{Vector space that captures possible probability 
+distribution of all states is infinite.}$
+
+\item $\text{Define a functional way to define values at 
+different meta states i.e. } \\
+F(\vec{b}) \rightarrow R\ \ where\  V_t(\vec{b}) = 
+\max_{\forall{\vec{\alpha}^i_t \in \Gamma_t}}
+[\vec{\alpha}^i_t\cdot\vec{b}], 
+where\ \lVert \Gamma_t \rVert < \infty$
+
+
+\item $\text{Function Construction from Bellman Equation using 
+Piece Wise Linear and Convex (PWLC) functions.}
+$
+
+\item$
+\text{Proof by Induction}:
+$
+
+\item $Base\ Case: V_{t=0}(\vec{b}) = \max{\Gamma_0.\vec{b}}, 
+where\ \Gamma_0 = [\vec{0}] \ \&\ 
+\lVert \Gamma_0 \rVert = 1 < \infty$
+
+\item $Inductive\ Hypothesis: 
+V_{t-1}(\vec{b}) = \max_{\forall{\vec{\alpha}^{t-1}_i} 
+\in \Gamma_{t-1}}\vec{\alpha}^{t-1}_i\cdot\vec{b}$
+
+\item $Inductive\ Steps:$
+
+\item $V_{t>0}(\vec{b}) = 
+\max_{\forall{a}}\vec{V}^a_t(\vec{b})\cdot\vec{b} \\
+where\ \Gamma_t = \cup_{\forall{a}}\Gamma_t^a \ \&\ 
+\lVert \Gamma_t \rVert = 
+\lVert \Gamma_t^a \rVert \lVert A \rVert$
+
+\item $V^a_t(\vec{b}) = 
+\vec{V}^a_t(\vec{b})\cdot\vec{b} = 
+\vec{Q}^a_t(\vec{b})\cdot\vec{b} = 
+\sum_{\forall{z'}}\vec{V}^{a,z'}_t(\vec{b})\cdot\vec{b} \\
+where\ \Gamma_t^a = 
+\oplus_{\forall{z'}}\Gamma_t^{a,z'}\ \&\ 
+\lVert \Gamma_t^a \rVert = 
+\lVert \Gamma_t^{a,z'} \rVert^{\lVert Z \rVert} \implies 
+\lVert \Gamma_t \rVert = 
+\lVert \Gamma_t^{a,z'} \rVert^{\lVert Z \rVert} 
+\lVert A \rVert$
+
+\item $V^{a,z'}_t(\vec{b}) = 
+\vec{V}^{a,z'}_t(\vec{b})\cdot\vec{b} = 
+\frac{\vec{R}(\vec{b},a)}{\lVert z' \rVert}\cdot\vec{b} + 
+\gamma{T_z(\vec{b}, a, z')}\vec{V}_{t-1}(\vec{b'}) = \\
+\frac{\vec{R}(\vec{b},a)}{\lVert z' \rVert}\cdot\vec{b} + 
+\gamma{T_z(\vec{b}, a, z')}
+\max_{\forall{\vec{\alpha}^{t-1}_i} \in \Gamma_{t-1}}
+\vec{\alpha}^{t-1}_i\cdot\vec{b'} 
+\text{ (by inductive hypothesis)} = \\
+\max_{\forall{\vec{\alpha}^{t-1}_i} \in \Gamma_{t-1}}
+\frac{\vec{R}(\vec{b},a)}{\lVert z' \rVert}\cdot\vec{b} + 
+\gamma{T_z(\vec{b}, a, z')}
+\sum_{\forall{s'}}\alpha^{t-1}_i(s')b'(s') = \\
+\max_{\forall{\vec{\alpha}^{t-1}_i} \in \Gamma_{t-1}}
+\frac{\vec{R}(\vec{b},a)}{\lVert z' \rVert}\cdot\vec{b} + 
+\sum_{\forall{s'}}
+\gamma{T_z(\vec{b}, a, z')}
+\alpha^{t-1}_i(s')
+T_s(\vec{b}, a, s')o(s',z')_a/T_z(\vec{b}, a, z') = \\
+\max_{\forall{\vec{\alpha}^{t-1}_i} \in \Gamma_{t-1}}
+\sum_{\forall{s}}[
+\frac{\vec{R}(s,a)}{\lVert z' \rVert} + 
+\gamma\sum_{\forall{s'}}\alpha^{t-1}_i(s')o(s',z')_aT(s, a, s')]b(s) =\\ 
+\max_{\forall{\vec{\alpha}^t_i} \in \Gamma_t}
+\vec{\alpha}^t_i\vec{b}, 
+where\ \alpha^t_i(s)_{\forall{s}} = 
+\frac{\vec{R}(s,a)}{\lVert z' \rVert} + 
+\gamma\sum_{\forall{s'}}\alpha^{t-1}_i(s')o(s',z')_aT(s,a,s') \\
+Thus\ \lVert \Gamma_t^{a,z'} \rVert = 
+\lVert \Gamma_{t-1} \rVert \implies
+\lVert \Gamma_t \rVert =
+\lVert \Gamma_{t-1} \rVert^{\lVert Z \rVert} 
+\lVert A \rVert$
+
+\end{itemize}
+
+\end{enumerate}
+
+
+$\text{Learning POMDP}:$
+\begin{table}
+\caption{Markov Models}
+\centering
+\begin{tabular}{c c c}
+\hline
+TYPE                               & Uncontrolled & Controlled \\
+\hline
+Observed                      & MC                    & MDP            \\
+Partially\ Observed   & HMM               & POMDP       \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{enumerate}
+\item $\text{Model Based}:\\
+\text{Hidden states and the model of HMM can be learnt
+through Expectation Maximization (EM).}\\
+\text{Similarly, the hidden variables/state to observable state mapping }
+\bold{O}_{s,z} \text{ and the model } 
+\bold{T}_{s,s' \mid a}\ \&\ \bold{R}_{s,a}\\
+\text{can be learnt through EM. This could form the basis for 
+model based learning of POMDP.}
+$
+
+\item $\text{Model Free}:\\
+\text{Learn Stochastic Memoryless Policies in POMDP Setting.}\\
+\\
+\text{Bayesian RL: Keep a Posterior over possible alternate MDPs.}\\
+\text{Thus RL itself can be imagined as solving an POMDP with each 
+successive observation sharpening our belief on the Bayesian 
+posterior i.e. uncovering the underlying real MDP.}\\
+\text{The knowledge can then be used to optimally balance 
+exploration and exploitation, where RL is planning}\\
+\text{in a kind of continuous POMDP, where hidden state is
+set of parameters of MDP that we are trying to learn.}\\
+\text{The distinction between planning and learning is no longer
+important. "Learning" is just viewed as a way to improve our
+posterior beliefs.}\\
+text{We are always taking optimal action, where action is either 
+improve belief (learn) or generate rewards based on belief (exploit).}
+$
+\end{enumerate}
+
+$\text{PSR (Predictive State Representation)}:$
+\begin{enumerate}
+\item $\text{POMDP belief state is a distribution over underlying 
+MDP states that are never observable.}\\
+\text{How may one learn where notion of states may not be real  
+but very well a notion i.e. a tool to model observations?}$\\
+
+\item $\text{PSR is distribution of outcomes of future predictions
+based on tests i.e. sequence of actions.}$
+
+\item $\text{PSR Theorem}:\\
+\text{Any n-state POMDP can be represented by a PSR with no 
+more than n tests, each of which is no longer than n steps long.}
+$
+
+\item $
+\text{PSR Policy Definition: Maps finite sequences of observations
+to actions}:\\
+\pi([z_1, z_2, \cdots, z_k]) \rightarrow \mathbb{A}
+$
+
+\end{enumerate}
+** Generalization
++ Factors that make RL algorithms hard to scale
+++ Delayed Reward requires reasoning over time rather than 
+Supervised Learning with optimal action already given in training data.
+++ Bootstrapping: Requires exploration, estimations of value/policy, etc.
+++ Complexity superlinear in (#States, #Actions).
++++ State space solved by generalizing using function value
+approximators, such as F(f(s)) = V(s) or F(f(s),g(a)) = Q(s,a). 
+Idea is to assume one need not visit all states 
+infinitely many times as long as one visits one 'similar' state.
+
+*** Temporal Abstraction
+Create meta actions, such as take 20 steps or go to the east door. 
+Accelerates back propagation. Similarity of states clusters state 
+based on state based features or common actions taken  from state.
+**** Options
+\begin{enumerate}
+\item $
+Option = \{I, \pi, \beta\}\\
+\text{Generalization of primitive actions to include temporally 
+extended courses of action.}
+$
+\begin{itemize}
+\item $
+I \subseteq \mathbb{S}: 
+\text{Option is available in state s iff } s \in I.
+$
+\item $
+\pi: \mathbb{S} \times \mathbb{A} \rightarrow [0,1]\\
+\text{Actions are selected from any state at time step t 
+according to } \pi(s_t, .)
+$
+\item $
+\beta: \mathbb{S} \rightarrow [0,1]\\ 
+\text{Option terminates at time t after transition according to probability }
+\beta(s_{t+1})
+$
+\item $
+\text{Conceptually imagine an option as a "choice" or a procedure P, 
+where P is activated into execution at a set of initial states i.e. I.}\\
+\text{P is exectuted as sequence of states and actions } (s_t, a_t)
+\text{ based on based on a policy mapping i.e. } 
+a_t \sim \pi(s_t, .).\\ 
+\text{After P visits } s_{t+1},
+\text{it either terminates with probability }
+\beta(s_{t+1})
+\text{ or continues executing actions.}
+$
+\item $
+\text{Primitive action } \rho \text{ can be mapped into the 
+following option}:\\
+I = \{\forall{s \in \mathbb{S}} \ni s' \mid T(s, a, s') > 0 
+\text{ i.e. states s where action a is valid.}\}\\
+\forall_{s \in \mathbb{S}}\pi(s, a) = \begin{cases}
+1\ if\ a = \rho\\
+0\ otherwise 
+\end{cases}\\
+\forall_{s \in \mathbb{S}}\beta[s] = 1
+$
+\end{itemize}
+
+\item $
+\text{Semi Markov Decision Process (SMDP)}:
+V_{t+1}(s) = \max\limits_o(R(s,o) + \sum\limits_{s'}F(s,o,s')V_t(s'))\\
+R = E[r_1 + \gamma r_2 + \cdots + \gamma^{k-1} r_k \mid s, k\ steps]\\
+F(s,o,s') = E[\gamma^k \Delta_{s_k, s'} \mid s, k\ steps], where\ 
+delta\ function\\ 
+\Delta_{s_k, s'} = \begin{cases}
+1\ \text{ if we reach s' after k steps of actions given by option o.}\\
+0\ otherwise
+\end{cases}\\
+\text{SMDP: Allows us to use Bellman Equations but now with sequence
+of actions taken over multiple steps.}
+$
+
+\item $SMDP: 
+\text{Inherits "hierarchical" optimality, convergence, and stability.}\\
+\text{Avoids boring parts of the MDP.}\\
+\text{State abstraction and helps in exploration.}
+$
+
+\item $
+\text{Modular RL is Goal Abstraction: Instead of sequencing 
+actions and hierarchical optimization, think of options as a way}\\
+\text{to manage and arbitrate multiple goals, where } \beta
+\text{ comes into play when a goal is accomplished or another}\\ 
+\text{competing goal becomes more important.}
+$
+\begin{itemize}
+\item $
+\text{Greatest Mass Q-Learning}:
+Q(s,a) = \sum\limits_{Goal_i}Q_{Goal_i}(s,a);
+\pi(s) = \arg\max\limits_{a}Q(s,a)\\
+\text{Each of the Q functions are RL for its own goal.}
+$
+\item $
+\text{Top Q-Learning}:
+$
+\end{itemize}
+\end{enumerate}

@@ -1,0 +1,494 @@
+* A Review of Relational Machine Learning for Knowledge Graphs
+Statistical Relational Learning (SRL) is statistical analysis of 
+relational/graph-structured data, trained on large knowledge 
+graphs, and used to predict new edges/facts
+about the world.
+$Statistical\ Approaches$
+\begin{enumerate}
+\item $\text{Latent Feature Models e.g. Multiway NN.}$
+\item $\text{Mine observable patterns in the graph.}$
+\item $\text{Combine statistical graph models with text-based 
+IE methods e.g. Google Knowledge Vault.}$
+\end{enumerate}
+** Knowledge Graphs
+Knowledge represented as entities and relationships between them.
+Resource Description Framework (RDF) represents facts as SPO triples 
+(i.e. subject, predicate,object). 
+$$
+Subject(N)\ \implies_{Predicate}\ Object(N): 
+\text{KGs provide facts, type hierarchies, and type constraints.}
+$$
+\begin{enumerate}
+\item $\text{Lonard Nimoy IS\_A Actor  \& Leonard Nimoy IS\_A Person.}$
+\item $\text{A Person can only marry another Person, not a thing.}$
+\end{enumerate}
+
+KGs provide semantically structured information interpretable by computers
+that provides an important ingredient to build more intelligent machines.
+Google KG (18B facts and 570M entities) is used enrich search engine results, 
+such as identify/disambiguate entities, provide semantically structured 
+summaries, and provide links to related entities in exploratory search.
+These are key steps to transform text-based search into semantically aware
+Q&A services.
+
+$\text{Paradigms for interpretation of non-existing triples:}$
+\begin{enumerate}
+\item $\text{Closed world: non-existing triples indicates 
+false relationships.}$
+\item $\text{Open world: non-existing triples indicates 
+unknown relationships.}$
+\end{enumerate}
+
+$\text{Knowledge Graph classification based on Construction Methods:}$
+\begin{enumerate}
+\item $\text{Curated: Triples created manually by a closed 
+group of experts. Does not scale.}$
+\item $\text{Collaborative: Triples crowd sourced and created 
+manually by an open group of volunteers.} \\
+\text{Key attributes mandatory property of schema, such as 
+place of birth are missing for 71\% of all people in Freebase.} \\
+\text{Tough to scale in time. Growth of Wikipedia has been 
+slowing down.}$
+\item $\text{Automated semi-structured: extracted automatically 
+from semi-structured text, such as Wikipedia, via hand-crafted rules, 
+learned rules, or regular expressions.} \\
+\text{Accuracy via Manual inspection of Freebase estimated at 99\%.} \\
+\text{semi-structured text covers small fraction of the info on Web.}$
+\item $\text{Automated unstructured: extracted automatically
+from unstructured text via ML and NLP techniques.}$
+\end{enumerate}
+
+$\text{KB classification based on fixed/open lexicon of ERs:}$
+\begin{enumerate}
+\item $\text{Schema-Based: Entities and all possible Relationships 
+are predefined in a fixed vocabulary and globally identified by unique ID.}$
+\item $\text{Schema-Free: Entities and all possible Relationships 
+are identified using OpenIE techniques and represented via normalized
+but not disambiguated strings.}\\
+\text{Disadvantage of OpenIE systems is E or Rs, say "place of birth" 
+and "born in", are not disambiguated.}$
+\end{enumerate}
+
+$\text{Use Cases in KG:}$
+\begin{enumerate}
+\item $Link\ Prediction: Pr(Edge_{Typed}) \rightarrow\ Predict\ Facts$
+\item $\text{Entity Resolution: Deduplicate E references to same 
+object or disambiguating references to same name but different Es.}$
+\item $\text{Link-based clustering: Group entities based on 
+similarity of features and links a.k.a. community detection.}$
+\end{enumerate}
+
+** SRL for KGs
+SRL deals with creation of statistical models for relational data.
+
+$Probabilistic\ KGs:$
+\begin{enumerate}
+\item $\xi =\{e_1, \cdots, e_{N_\xi}\}\ entities$
+\item $\mathbb{R} = \{r_1, \cdots, r_{N_r}\}\ relation\ types$
+\item $y_{ijk} = (e_i, r_k, e_j)\ binary\ indicator\ rv \in \{0,1\} \\
+\bold{\underline{Y}} \in 
+\{0,1\}^{N_\xi{\times{N_\xi\times{N_r}}}} \ni 
+y_{ijk} = \begin{cases} 
+  1, & \text{if}\ (e_i, r_k, e_j)\ exists \\
+  0, & \text{otherwise}
+\end{cases}$
+\item $\text{Estimate Distribution over possible worlds:}
+P(\bold{\underline{Y}})
+from\ \bold{D} \subset \xi\times{\mathbb{R}}\times{\xi}
+\times{\{0,1\}}\ of\ observed\ triples.\\ D^{+} | D^{-}= 
+\textnormal{Set of observed positive/negative triples.}$
+\item $y_{ijk} = 0 \implies \begin{cases}
+  nonexistent, & \text{if closed} \\
+  unknown, & \text{if open world} \\
+  nonexistent, & \text{otherwise (local-closed) and} (i,j)\ are\ local \\
+  unknown, & \text{otherwise (local-closed) and} (i,j)\ are\ not\ local
+\end{cases}\\
+Objective: Find\ algorithms\ that\ is\ linear\ in\ N_\xi, N_r, and\  
+N_d = \lVert \bold{D} \rVert\ i.e.\ number\ of\ non-zero\ entries\ 
+of\ \bold{\underline{Y}}.$
+\end{enumerate}
+
+$Statistical\ Properties\ of\ KGs:$
+\begin{enumerate}
+\item $\text{Deterministic: Type constrainsts \& transitivity:}\\
+\text{if Leonard Nimoy was born in Boston and Boston 
+is in USA then we infer Leonard Nimoy was born in USA.}$
+\item $\text{Soft Statistical Patterns:}\\
+homophily: \text{Es related to Es with similar characteristics.}\\
+\text{US-born actors are more likely to star in US-made movies.}\\
+Block\ Structure: \text{Es divided into blocks where all members
+of group have similar relationship with members of other group.}\\
+\text{Sci Fi actors blocks related to Sci Fi movies.}\\
+Global\ and\ long-range\ statistical\ dependencies: \\
+\text{Citizenship of Leonard Nimoy (USA) depends statistically
+on the city of birth and} \\
+\text{dependency involves path over multiple entities 
+(Leonard Nimoy, Boston, USA) and}\\ 
+\text{relations (bornIn, locatedIn, citizenOf).}$
+\end{enumerate}
+
+$\text{SRL Model Types: Presence/Absence of triples are 
+correlated with presence/absence of other triples.}\\
+\text{Models of correlations for } y_{ijk}:$
+\begin{itemize}
+\item $\text{Conditional Independence of RV given 
+Feature Model:} \\
+p(y_{ijk}, y_{i'j'k'}|\vec{\theta}_{featuretype}) =
+p(y_{ijk}|\vec{\theta}_{featuretype})
+p(y_{i'j'k'}|\vec{\theta}_{featuretype}) \\
+f(x_{ijk};\vec{\theta}) \text{ represents model's confidence
+that the triple exists given latent parameters.} \\
+p(\bold{\underline{Y}}|\bold{D}, \vec{\theta}) = 
+\prod_{i=1}^{N_{\xi}}\prod_{k=1}^{N_r}\prod_{j=1}^{N_{\xi}}
+Ber(y_{ijk}|\sigma(f(x_{ijk};\vec{\theta}))); 
+Ber(y|p) = p^y(1-p)^{(1-y)} = \begin{cases}
+  p    &  if\ y = 1 \\
+  1-p & if\ y = 0
+\end{cases}
+$
+\begin{enumerate}
+\item $Latent\ Feature\ Model: 
+\vec{\theta}_{featuretype} = \vec{\theta}_{latent}$
+\item $Graph\ Feature\ Model: 
+\vec{\theta}_{featuretype} = \vec{\theta}_{graph}$
+\end{enumerate}
+\item $Markov\ Random\ Fields: \forall_{(i,j,k)}y_{ijk}\ 
+\text{have local interactions.}$
+\end{itemize}
+** Relational Latent Feature Models (RLFM) 
+Latent features (i.e. not directly observable in data) of entities explain 
+certain fact. 
+$$
+Example: (AlecGuiness, IsA, GoodActor\ <latent feature>) \implies
+(AlecGuiness, recipientOf, AcademyAward)
+$$
+
+\begin{enumerate}
+\item $e_{i^{th}\ {entity}} \rightarrow 
+\vec{e}_{i^{th}\ {latent\ features\ representation}} 
+\in \mathbb{R}^{H_\xi}\ \&\ 
+r_{k^{th}\ {relationship}} \rightarrow 
+\vec{r}_{k^{th}\ {latent\ features\ representation}}
+\in \mathbb{R}^{H_r} \\
+where\ H_\xi \ \&\ H_r\ are
+\lVert Latent\ Features\ in\ the\ model \rVert\ 
+for\ entities\ and\ relationships\ respectively.$
+\item $RESCAL: Bilinear\ Model\ 
+f_{ijk}^{RESCAL} = \vec{e}_i^T\bold{W}_k\vec{e}_j = 
+\sum_{a=1}^{H_\xi}\sum_{b=1}^{H_\xi}w_{abk}e_{ia}e_{jb} \\
+\bold{F}_k = \bold{E}\bold{W}_k\bold{E}^T \ni
+\bold{\underline{F}}_
+{\in \mathbb{R}^{N_\xi{\times{N_r\times{N_\xi}}}}}
+\text{ is matrix of all scores for all ERs and } \bold{F}_k
+\text{ is a slice of } \bold{\underline{F}} \text{ for relation } r_k,\\
+where\ \bold{W}_k \in \mathbb{R}^{H_\xi\times{H_\xi}}, 
+\text{ is a bilinear weight matrix for relation k.}\\
+w_{abk} \text{ entry represents how much latent 
+features a and b interact.}\\
+\text{Example: entry will have a high score when
+index 'a' represents 'good actors' and index 'b' represents 
+'prestigious award'.} \\
+\vec{\theta} = \{\forall_{i=1}^{N_\xi}\vec{e}_i, 
+\forall_{k=1}^{N_r}\bold{W}_k\} \\
+f_{ijk}^{RESCAL} = \vec{w}_k^T\vec{\phi}_{ij}^{RESCAL} \\
+where\ \vec{w}_k = vec(\bold{W}_k)_{column\ major} \ni
+\vec{w}_k[db + a] = \bold{W}_k[a, b];
+\vec{\phi}_{ij} = \vec{e}_j\otimes{\vec{e}_i} \implies
+\vec{\phi}_{ij}[db + a] = \vec{e}_i[a]\vec{e}_j[b] \\
+Note\ vec(f_{ijk}^{RESCAL}) = 
+vec(\vec{e}_i^T\bold{W}_k\vec{e}_j) = 
+(\vec{e}_j^T\otimes{\vec{e}_i^T})vec(\bold{W}_k) = 
+vec(\bold{W}_k)^T(\vec{e}_j\otimes{\vec{e}_i}) \\
+from\ kronecker\ property\ 
+(\bold{B}^T\otimes{\bold{A}})vec(\bold{X}) = vec(\bold{AXB})\\
+Number\ of\ Parameters:
+\mathcal{O}(N_{\xi}H_{\xi} + N_rH_{\xi}^{2})$
+
+\item $
+Entity\ Multi-Layer\ Perceptrons\ (E-MLP):\\
+f_{ijk}^{E-MLP} = \vec{w}_k^Tg(\vec{h}_{ijk}^a), 
+\vec{h}_{ijk}^a = \bold{A}_k\vec{\phi}_{ij}^{E-MLP}, and\ 
+\vec{\phi}_{ij}^{E-MLP} = [\vec{e}_i; \vec{e}_j]\\
+\\
+Entity\ Relationship\ Multi-Layer\ Perceptrons (ER-MLP):\\
+f_{ijk}^{ER-MLP} = \vec{w}^Tg(\vec{h}_{ijk}^c), \\
+where\ g(\vec{u}) = [g(u_1), g(u_2), \cdots]^T\ is\ a\ non-linear\ 
+(e.g.\ tanh)\ function\ applied\ element\ wise \\
+\vec{w} \in \mathbb{R}^{H_c}, 
+\vec{h}_{ijk}^c = \bold{C}^T\vec{\phi}_{ijk}^{ER-MLP}, and\ 
+\vec{\phi}_{ijk}^{ER-MLP} = [\vec{e}_i; \vec{e}_j; \vec{r}_k]\ 
+all\ vectors\ concatenated.
+Number\ of\ Parameters: 
+\mathcal{O}(H_{c}^{for\ \vec{w}} + 
+H_c\times{(2H_{\xi}+H_r)^{for\ \bold{C}}} + 
+N_rH_r^{for\ relationship\ embedding} + 
+N_{\xi}H_{\xi}^{for\ entity\ embedding}) \\
+\\
+Neural\ Tensor\ Networks: Combine\ MLPs\ and\ bilinear\ models:\\
+f_{ijk}^{NTN} = \vec{w}_k^Tg([\vec{h}_{ijk}^a; \vec{h}_{ijk}^b]), 
+h_{ijk}^a = \bold{A}_k^T[\vec{e}_i; \vec{e}_j], and\ 
+h_{ijk}^b = [\vec{e}_i^T\bold{B}_k^1\vec{e}_j, \cdots, 
+\vec{e}_i^T\bold{B}_k^{H_b}\vec{e}_j] \\
+Tends\ to\ overfit\ \&\ number\ of\ parameters >> 
+ER-MLP\ or\ RESCAL$
+
+\item $\text{Probability of relationship is derived from latent 
+relationships. } 
+p(\vec{e}_i \rightarrow_{\vec{r}_k} \vec{e}_j) \propto 
+\frac{1}{\lVert \vec{e}_i - \vec{e}_j \rVert} 
+\implies 
+f(\vec{e}_i, \vec{e}_j) = -d(\vec{e}_i, \vec{e}_j) \\
+Structured\ Embedding\ (SE): 
+f_{ijk}^{SE} = 
+- \lVert \bold{A}_k^{s^T}\vec{e}_i - \bold{A}_k^{o^T}\vec{e}_j \rVert_2 = 
+- \lVert \bold{A}_k\vec{e}_{ij} \rVert,
+where\ \bold{A}_k = [\bold{A}_k^s; -\bold{A}_k^o], and\ 
+\vec{e}_{ij} = [\vec{e}_i; \vec{e}_j]\\
+\\
+TransE: \text{Infer Distance via relation-specific offset instead of 
+matrix multiplication to reduce parameters.}\\
+f_{ijk}^{TransE} = -d(\vec{e}_i + \vec{r}_k, \vec{e}_j) =
+-(2\vec{r}_k^T(\vec{e}_i - \vec{e}_j) - 2\vec{e}_i^T\vec{e}_j + 
+\lVert \vec{r}_k \rVert_2^2 \\
+Note\ using\ \bold{A}_k = [\vec{r}_k; -\vec{r}_k], and\ 
+\bold{B}_k = \bold{I}, we\ get\ 
+f_{ijk}^{TransE} = -(2h_{ijk}^a - 2h_{ijk}^b + \lVert r_k \rVert_2^2)$
+\end{enumerate}
+
+** Relational Graph Feature Models (RGFMs)
+Existence of an edge can be predicted by extracting features from the 
+observed edges in the graph, where reasoning explains triples directly 
+from the observed triples in KG.
+$$
+Example: (John, parentOf, Anne) \ \&\ (Mary, parentOf, Anne) \implies
+(John, marriedTo, Mary)
+$$
+\begin{itemize}
+\item $\text{Similarity measures for uni-relational data:}\\
+\text{Used for prediction in Graphs with single relation,
+such as Social Network, Biology, and Web Mining.}$
+\begin{enumerate}
+\item $\text{Local similarity: } \vec{e}_i \sim \vec{e}_j \propto
+\text{number of common neighbors.}\\ 
+\text{Easy to compute and scales as computation depends 
+on direct neighborhood.}$
+\item $\text{Global similarity: } \vec{e}_i \sim \vec{e}_j \propto
+\text{Ensemble of all paths between Es or random walks on graph 
+(e.g. PageRank).} \\
+\text{Computationally expensive but provides better prediction.}$
+\item$\text{Quasi-local similarity: } \vec{e}_i \sim \vec{e}_j \propto
+\text{Ensemble of all paths and random walks of bounded length.} \\
+\text{Balances predictive accuracy with computational complexity.}$
+\end{enumerate}
+\item $\text{Rule Mining and Inductive Logic Programming:}\\
+\text{Extract rules via mining methods and uses the rules to 
+infer new links.}\\
+\text{Rule-based systems are interpretable but cover only a subset 
+of patterns in KGs and useful rules are challenging to learn.}$
+\item $\text{Path Ranking Algorithm (PRA):}\\
+\text{Extends the idea of random walks of bounded length for 
+predicting links in multi-relational KGs.}\\
+p(\vec{e}_i \rightarrow_{r_k} \vec{e}_j\ exists) = 
+f_{ijk}^{PRA} = \vec{w}_k^T\vec{\phi}_{ijk}^{PRA}, 
+where\ \vec{\phi}^{PRA} = [Pr(\pi): \pi \in \Pi_L(i,j,k)], \\
+\Pi_L(i,j,k) = [\pi_L(i,j,k,t_1), \cdots, \pi_L(i,j,k, t_N]
+\text{ is set of all paths of length L over path types t}, \\
+\pi_L(i,j,k,t) \text{ is path of length L of form }
+\vec{e}_i \rightarrow_{r_1} \cdots \rightarrow_{r_L} \vec{e}_j,\\
+\text{ t represents sequence of edge type } 
+\forall_{i}t_i = (r_1, \cdots, r_L), 
+Pr(\pi_L(i,j,k,t)) \text{ is probability of particular type t.}\\
+Example: (person, attendedCollege, college) \leftarrow 
+(person, draftedBy, coach) \ \&\ (coach, attendedCollege, college).\\
+\text{These inferences can be automatically learnt by learning 
+based on data and using sparsity promoting prior on } \vec{w}_k.$
+\end{itemize}
+
+** Combining Relational Latent and Graph Feature Models
+$\text{RLFMs and RGFMs are complementary in strength:}$
+\begin{enumerate}
+\item $\text{RLFMs: Models global relational patterns and computationally 
+efficient if triples are explained by few latent variables.}$
+\item $\text{RGFMs: Models local/quasi-local relational patterns and
+computationally efficient if triples are explained from neighborhood 
+entities or from short paths in graph.}$
+\end{enumerate}
+
+$Combination Models:$
+\begin{itemize}
+\item $\text{Additive Relational Effects (ARE = RESCAL + PRA):}
+f_{ijk}^{ARE} = [\vec{w}_k^{RESCAL}; \vec{w}_k^{PRA}]^T
+[\vec{\phi}_{ij}^{RESCAL}; \vec{\phi}_{ij}^{PRA}] \\
+\text{Alternately optimize RESCAL and PRA parameters. \\
+RESCAL now models only "residual errors" leftover by PRA allowing it 
+to use much lower latent dimensionality speeding up training.}$
+\item $ADD: f_{ijk}^{ADD} = 
+[\vec{w}_{k,j}^{(1)}; \vec{w}_{k,i}^{(2)}; 
+\vec{w}_k^{(3)}]^T
+[\vec{\phi}_i^{SUB}; \vec{\phi}_j^{OBJ}; \vec{\phi}_{ijk}^N], \\
+where\ \vec{\phi}_i^{SUB} \ \& \  \vec{\phi}_j^{OBJ}
+\text{ captures latent patterns of entities as subject/object.} \\
+\vec{\phi}_{ijk}^N = [y_{ijk'}: k' \neq k] 
+\text{ captures graph patterns where one relation predicts another.} \\
+Example\ (Leonard\ Nimoy, bornIn, Boston) \rightarrow_{high\ probability} 
+(Leonard\ Nimoy, livesIn, Boston)$
+\item $STACKING: \text{Use output of different prediction systems as 
+input to "fusion" system.} \\ 
+Example: Output = f_{BinaryClassifier}(Input^{PRA}, Input^{ER-MLP}) \\
+\text{Advantage is very flexible kind of models can be combined.}\\
+\text{Disadvantage is individual models are more complex as models
+are not trained jointly.}\\
+\text{Example: RESCAL needs more latent features than if it were fit 
+jointly with PRA.}$
+\end{itemize}
+
+** Training SRL models on Knowledge Graphs
+Discussion on how to handle open/closed-world knowledge assumption,
+handle sparsity of graphs, and perform model selection.
+\begin{itemize}
+\item $Penalized\ ML\ Training:\\
+D = \{(x^i, y^i)| i = 1, \cdots, N_d\}, 
+where\ x^i\ i-th\ triple, y^i is\ indicator\ variable\ for\ x^i.\\
+MAP: \arg\max_{\vec{\theta}}\sum_{i=1}^{N_d}
+\ln Ber(y^i|\sigma(f(x^i;\vec{\theta}))) + \ln p(\vec{\theta}|\lambda)\ or \\
+Regularized\ Loss\ Minimization: 
+\arg\min_{\vec{\theta}}\sum_{i=1}^{N_d}
+-\ln Ber(y^i, \sigma(f(x^i;\vec{\theta}))) + \lambda reg(\vec{\theta}) \\
+\text{Squared Loss is Efficient to use in CWA: } 
+\arg\min_{\bold{E, \{W_k\}}}
+\sum_k\lVert \bold{Y_k - EW_kE^T}\rVert_F^2 + 
+\lambda_1\lVert\bold{E}\rVert_F^2 + 
+\lambda_2\sum_k\lVert \bold{W}_k\rVert_F^2$
+
+\item $\text{Negative Examples: Ensures "implausible" negatives are not 
+generated by the model: }
+D^+ = {x^i \in D|y^i = 1} \\
+Note\ D^- = D - D^+\ \text{works for CWA\ (not\ OWA)\ and }  
+\lVert D^- \rVert >> 0 \text{ will cause scalability issues.} \\
+\text{Hence, generate negative examples: }$
+\begin{enumerate}
+\item $\text{Type Constraints - person is married to another person, 
+Valid Value Ranges - height of humans is below 3 meters, or Functional
+Constrants e.g. mutual exclusion - a person is born in one city 
+can be used but are scarce and deliver poorer results than "perturbing."}$
+\item $\text{OWA - Perturb starting from valid triples:}\\ 
+D^{-} = \{(e_l, r_k, e_j) | e_i \neq e_l \ \&\ (e_i, r_k, e_j) \in D^{+}\}
+\cup \{(e_i, r_k, e_l) | e_j \neq e_l \ \&\ (e_i, r_k, e_j) \in D^{+}\} \\
+\text{As opposed to CWA Perturbation generates "good" negative triples e.g. }
+(LeonardNimoy, starredIn, StarWars), (AlecGuiness, starredIn, StarTrek), 
+\cdots. \\
+(BarrackObama, starredIn, StarTrek) \text{ would not be 
+generated thereby focused on "plausible" negatives keeping a 
+reasonable size of } D^{-}.$
+\item $\text{Local-Closed World Assumption (LCWA): Given an existing
+subject predicate pair: } (e_i, r_k, e_j) 
+\text{ assume KG is locally complete and add non-existing triple to 
+negative set i.e. } D^{-} += \{(e_i, r_k, e_j')|j' \neq j \}$
+\item $\text{Pairwise Loss Training:}\\
+\text{Given that the negative training examples are not always 
+"really negative", we try to make the scoring function larger for 
+true triples than for "assumed to be false" triples.} \\
+\arg\min_{\vec{\theta}}\sum_{x^{+} \in D^{+} \ \&\ x^{-} \in D^{-}}
+L(f(x^{+}; \vec{\theta}), f(x^{-}; \vec{\theta})) + 
+\lambda\cdot{reg(\vec{\theta})}, 
+where\ L(f^{+}, f^{-}) = \max(1 + f^{-} - f^{+}, 0) \\ 
+\text{That is we tune the parameters such that positive sample scores
+exceeds negative sample score by at least one}.\\
+\text{Advantages: doesn't assume -ve sample scores are 
+-ve, just "more -ve than +ve," allows non proability function score, and 
+allows easy optimization using SGD with one +ve and -ve sample 
+which scales to large datasets.}\\
+\text{Disadvantage: takes long to converge whereas some models with 
+squared loss objective run faster using alternating least squares (ALS).}$
+\end{enumerate}
+\item $\text{Model (Hyperparameter) Selection: }\\
+\text{Model's performance is dependent on hyperparameters, such as
+latent feature dimensions for PRA, } \\
+\lambda \text{ for penalized maximum likelihood, etc. Optimal 
+values are figured out via cross-validation.}\\
+\text{Link Predication and Entity Resolution is evaluated using 
+area under the ROC curve or precision-recall (PR) curve.}\\
+\text{PR curve gives a clearer picture with for KGs with large 
+-ve examples.}\\
+\text{For entity resolution, mean reciprocal rank (MRR) of correct
+entity is often used.}$
+\end{itemize}
+
+** Markov Random Fields
+Drop the conditional independence assumption: 
+$$y_{ijk}\ in\ \underline{\bold{Y}}: 
+p(y_{ijk}, y_{i'j'k'}|\vec{\theta}_{featuretype}) \neq
+p(y_{ijk}|\vec{\theta}_{featuretype})
+p(y_{i'j'k'}|\vec{\theta}_{featuretype}).$$
+$$y_{ijk}\ in \underline{\bold{Y}} 
+\text{ can depend on any } N_\xi\times{N_\xi\times{N_r}}-1
+\text{ random variables.}$$
+$$\text{Hence, template based graphical models is used that 
+consider a small fraction of dependencies.}
+$$
+
+** Knowledge Vault: Relational Learning for KB Construction
+KV is a very large-scale auto constructed KB based on Freebase schema. 
+The KB extraction uses the following three steps:
+1. Extract facts from web sources, such as NL text, tabular data, page structure, 
+and human annotations.
+2. SRL model trained with Freebase as "prior" to compute pr(new edges).
+3. Confidence is auto extracted facts evaluated against extraction scores and
+the prior SRL model. 
+
+KV stacks both ER-MLP (RLFM) and PRA (RGFM). The scores from each model
+are further combined with features from the extracted triplets, such as 
+confidence of the extractors and number of de-duplicated Web pages.
+
+** Extensions and Future Work
+\begin{enumerate}
+\item $\text{Non Binary Relations:}$
+\begin{itemize}
+\item $\text{Unary relation e.g. height of person.}\\
+\text{Tensor matrix factorization approach to simultaneously learn 
+binary and unary relations via shared latent representation of entities.}\\
+\text{Likelihood function is modified as appropriate, such as Bernoulli 
+for boolean, Gaussian for numeric, and Poisson for count data.}$
+\item $\text{Higher-ary relation e.g. Time or Location dependent facts i.e. 
+CEO of Google changes with time. Prime Minister of country changes with 
+country and time.}\\
+\text{Represent n-arity relatinship using n+1 order tensor in RESCAL via 
+higher order tensor factorization or by NN models.}$
+\end{itemize}
+
+\item $\text{Hard Constraints: Types, Functional Constraints, 
+and Others:}\\
+\text{While Web Ontology Language OWL can formulate complex
+constraints, reasoning with ontologies is computationally demanding.
+ML methods are robust when faced with contradictory evidence and 
+hence deal with violation of hard constraints in real world data.}$
+\begin{itemize}
+\item $\text{Deterministic dependencies: Relations subClassOf and 
+isLocatedIn follow deterministic transitive dependency. One can 
+precompute (i.e. materialize) these triples and add them to KG.}$
+\item $\text{Type Constraints: Modelling explicitly requires complex
+manual work. Instead, learn approximate type constraints by 
+observing types of subject/object in a relation e.g. learn latent 
+representations for the argument slots in a relation.}$
+\item $\text{Functional Constraints and Mutual Exclusiveness: Model
+the graph to prevent values asserted that violate constraints once
+known value is asserted.}$
+\item $\text{Generalizing to new ERs: Mechanisms to ensure that the
+latent weigths or new entities and weight matrix of new relations are 
+calculated efficiently given the current model.}$
+\end{itemize}
+\item $\text{Querying probabilistic KGs: Complex join queries in 
+probabilistic KBs (e.g. KV/RESCAL) are expensive.}$
+\item $\text{Trustworthiness of KGs: Explicitly modeling error in
+extraction and separating it from error in source.}$
+\end{enumerate}
+
+** Conclusion
+KGs have important applications in QnA, structured/exploratory search, 
+and digital assistants. SRL in conjunction with machine reading and IE 
+automatically build massive machine-interpretable KGs with "semantic
+memory" of facts. 
+We're still missing representations of "common sense" (e.g. water is wet
+and wet floor is slippery) and "procedural" facts (e.g. how to send an email).
+Representing, learning, and reasoning with these knowledge remains the 
+next frontier of AI and ML.

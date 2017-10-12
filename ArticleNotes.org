@@ -1,0 +1,167 @@
+* Economist: Finding a Voice
+http://www.economist.com/technology-quarterly/2017-05-01/language
+
+** Speech Recognition
+*** English has about 44 “phonemes”, the units that make up the sound system.
+*** Speakers differ in timbre, pitch of voice, accent, pauses, 
+    idiosyncrasies, etc. 
+*** Language Model, Specific speaker/topic/DNN brought us to human accuracy.
+*** Issues: Children/Elderly/Background Noise
+
+** Speech Creation: 
+*** Concatenate short segments vs parametric synthesis.
+*** Prosody: modulation of speed, pitch and volume to convey meaning. 
+
+** Machine Translation
+*** Rule Based => Did not scale. "The pen/box is in the box/pen" => 
+    Statistical phrase based translation => Good for Similar structured 
+    languages e.g. Eng => French vs Chinese. => Limits due to feature 
+    engineering => DNN with attention
+*** Issues: Chained/Long Sentences. Lack of Training Data e.g. Greek => Urdu.
+*** Solution: Narrow Domain (e.g. Manuals or Speech-to-Speech for 
+    short/simple spoken language i.e. Skype); Use translation memories.
+*** Lexicalized Parser: Ambiguities galore: "One morning I shot an elephant 
+    in my pyjamas." "This (fountain) is not drinking water."
+
+** Conversation 
+*** Challenges: 
+**** Knowledge of real world to infer Meaning from Context and Chained 
+     Reasoning e.g. Turing => Winograd Test:  “The city councilmen 
+     refused the demonstrators a permit because they feared violence. 
+     Who feared violence?” 
+**** Lack of training data for "common sense."
+*** Meaning: Broad world understanding: “Can you reach the salt?” 
+    is not a request for information but for salt. 
+*** Context: PAs facilitate context driven narrow conversations. 
+**** TODO "Text my wife and tell her by when I'll be at home." 
+     Factors: Identity, Weather, Distance Home, Time? 
+**** "I’d like to take my wife from her office to nearby Italian 
+     restaurant.” Offer Italian cuisine places near "her i.e. wife's" 
+     office that are "open." 
+**** Only 1/3 smartphone use PAs regularly - 95% tried at least once 
+     but stopped.  
+*** Series of linked challenges: 
+**** Speech Recognition (word -> grammar -> phrase) => 
+     speech synthesis => syntactic analysis => semantic analysis => 
+     pragmatic understanding => dialogue => common sense => 
+     real-world knowledge (context, meaning, reasoning, etc. 
+     as conversation is threaded along)
+** New Areas
+*** Privacy, Security, and Management of Biometric Data 
+    Voice, Fingerprint, etc.
+*** Natural Language Semantic
+    Cortical.IO: API based service for semantic based search/query 
+    e.g. News Feed filtering.
+*** NSQL (Natural Speech Query Language) On Data
+    DataLingvo: Chat with your data.
+    Arria: Drop Data that is synthesized as Language (CFOs)
+*** Protected Jobs: 
+    Requiring creativity and skill at complex social interactions.
+
+* Deep Learning: Yann LeCun, Yoshua Bengio, & Geoffrey Hinton
+  http://www.cs.toronto.edu/~hinton/absps/NatureDeepReview.pdf
+  Many natural signals are compositional hierarchies, in which higher-level 
+  features are obtained by composing lower-level ones. In images, local
+  combinations of edges form motifs, motifs assemble into parts, and parts 
+  form objects.  In speech and text from sounds to phones, phonemes, 
+  syllables, words and sentences. 
+  DNN learns representations of data with multiple levels of abstraction. 
+  Deep CNN breakthroughs in image processing, video, speech, and audio 
+  whereas RNN on sequential data, such as text and speech.
+  Natural Language Understanding (NLU) domains solved by DNN include
+  Topic classification, sentiment analysis, question answering, and language
+  translation.
+** Choice of Classifier 
+    Shallow classifiers require a good feature extractor that solves the 
+    selectivity–invariance dilemma — one that produces representations 
+    that are selective to the aspects of the image that are important for 
+    discrimination, but that are invariant to irrelevant aspects such as the 
+    pose of the animal. Generic non-linear features, such as Gaussian kernel 
+    methods, don't allow the learner to generalize well far from the training 
+    examples. DNN uses a general-purpose learning procedure to extract
+    and learn good features automatically.
+** Saddle points rather than local minima
+    Recent theoretical and empirical results strongly suggest that local minima 
+    are not a serious issue in general. Instead, the landscape is packed with a 
+    combinatorially large number of saddle points.
+** Pre-training
+   For small data sets, unsupervised pre-training helps to prevent overfitting, 
+   or in a transfer setting where we have lots of examples for some ‘source’ 
+   tasks but very few for some ‘target’ tasks. 
+** Convolutional Neural Networks
+   Many data modalities are in the form of multiple arrays: 
+   + Colour Image RGB pixel intensities in 3x2D array.
+   + 1D for signals/sequences, 2D for images/audio spectrograms, 3D for
+     video/volumetric images.
+*** Convolutional Architecture Choice    
+    + Convolution: Detect local conjunctions of previous layer features. 
+      In array data such as images, local groups of values are often highly 
+      correlated, forming distinctive local motifs that are easily detected. 
+      Second, the local statistics of images and other signals are invariant 
+      to location. 
+    + Pooling: Merge semantically similar features into one facilitating
+      position invariance i.e. detect motifs by coarse graining the feature 
+      position to accomodate detection even when the relative positions 
+      of features vary.
+    + ConvNets won ImageNet comptetion in 2012 by halving the error 
+      rates of best competing approaches using GPUs, ReLUs, and Dropout.
+*** Distributed Representations and Language Processing
+    Learning distributed representations enable generalization to new 
+    combinations of the values of learned features via exponential 
+    combinations possible -     (v$2^n$ combinations with $n$ binary features. 
+    Composing layers of representation brings exponential compositional 
+    possibilities in depth.
+    NN discovers word vectors as a good way to factorize structured 
+    relationships between input and output symbols into multiple 
+    'micro-rules.'
+*** RNN
+     For tasks that involve sequential inputs, such as speech and language.
+     Success in MT suggests that sentence understanding and everyday 
+     reasoning involves many simultaneous analogies that contribute 
+     plausibility to a conclusion.
+     Augment RNNs with a memory module to capture working memory
+     needed for comprehension, QnA, and for tasks requiring reasoning 
+     and symbol manipulation. In Neural Turing Machine the network is 
+     augmented by a ‘tape-like’ memory that the RNN can choose to 
+     read/write. NTT can be taught simple 'algorithms.' In memory networks 
+     the network is augmented by an associative memory. It has been
+     show to answer questions requiring complex inference.
+*** Future of Deep Learning
+    + Human/Animal learning is largely unsupervised. Expect future progress 
+      in vision coming from systems trained end-to-end combining ConvNets 
+      with RNNs that use reinforcement learning to decide where to look.
+      Systems combining deep learning and reinforcement learning already 
+      outperform passive vision systems at classification tasks and produce 
+      impressive results in learning to play many different video games.
+    + RNNs with attention will perform much better to understand sentences 
+      or whole documents.
+    + Major progress in AI will come through systems that combine 
+      representational learning with complex reasoning.
+* RNN Effectiveness: Andrej Karpathy
+  http://karpathy.github.io/2015/05/21/rnn-effectiveness/
+  Sequence models broaden the use cases addressed by fixed input to 
+  fixed outputs. RNNs can be viewed as running a fixed program with 
+  certain inputs and some internal variables. Even if data is not in 
+  sequential form, one can formulate and train models that learn
+  stateful programs and process fixed-sized data sequentially.
+*** Vision
+    Video Classification, Image Classification, Video Captioning, 
+    and Visual QnA. https://arxiv.org/pdf/1406.6247.pdf blends
+    high-level direction via sequential processing and low-level
+    modeling using policy gradient methods. Hybrid learning are 
+    the next wave that combines Neural Networks and Reinforcement 
+    learning that perform non-differentiable computation.
+*** Reasoning, Memories, and Attention
+    *Soft* attention scheme is end to end differentiable, amenable 
+    to classic numerical optimization techniques, and learns 
+    via back propagation. Unfortunately one sacrifices efficiency 
+    i.e. akin to declaring a pointer points softly - defines an 
+    entire distribution over all addresses and dereferencing the 
+    pointer returns a weighted sum of the pointed content.
+    *Hard* attention samples a particular chunk of memory - thus 
+    is significantly more scalable and efficient but non 
+    differentiable. Reinforcement Learning techniques work with 
+    non-differentiable interactions. 
+
+    
+    

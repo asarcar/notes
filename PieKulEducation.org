@@ -1,0 +1,94 @@
+Q: What is the vision of future on which PieKul is built?
+
+A: Imagine an eLearning platform where students discover concepts 
+and navigate the inter-relationship of concepts by simply asking 
+questions. The system responds with follow on clarifying questions,
+if need be, or with an answer in the form of a highly cross linked 
+simulation aided rich multimedia/live content.
+
+PieKul is building the fundamental pieces required to deliver a 
+"Questions & Answers" (QnA) framework for an eLearning platform. 
+---
+Q: What need does PieKul fulfill?
+
+A: eLearning platforms are required to meet the diverse needs of 
+the following stakeholders:
+a) Students need content presentation to be multi-dimensionally 
+informative, engaging, accessible, collaboration friendly, and 
+exhaustive. 
+b) Educators need tools to design new learning opportunities and 
+set personalized goals for students. They need technologies that 
+can process data and analyse/evaluate the engagement, feedback, 
+progress, areas of need of students. 
+c) Publishers need tools to convert legacy content or publish 
+new digital content imbibed with the values needed for 21st 
+century learning as well as data-processing/analytics engines 
+to evaluate the engagement/feedback data of Students/Educators. 
+d) Parents need a system using which they can easily an even 
+proactively use to track the performance, progress, and engagement 
+of their student on the learning material as well as to 
+communicate/collaborate with the Educator/student to support 
+learning goals.
+
+Innovative companies are creating systems to imbibe game values 
+to make the content multi-dimensionally informative and engaging 
+through immersive experience. However, work remains to make the 
+content easily accessible, collaborative, and exhaustive.
+
+---
+Q: What is PieKul's product/service?
+
+A: We are building a SaaS hosted content data processing, learning, 
+and analytics QnA pipeline to power an eLearning system with a 
+conversational experience. 
+
+---
+Q: What benefits does PieKul provide?
+
+A: We provide the following benefit to the stakeholders:
+a) Students navigate and discover content by simply asking questions 
+using natural interfaces, such as natural language in semantic space. 
+When reviewing material, content is auto-summarized into snackable bits. 
+Non-trivial assessment questions, such as definitional questions, are 
+auto-paraphrased to ensure students are not rote learning. The system 
+allows non trivial answers, such as paragraphs, are accepted and 
+evaluations are instantly available. Students cover material via the 
+help of an embedded recommendation engine, which is powered by a 
+context model, which includes the performance of the student on 
+prior assessments, her interest, and the topics specified by the 
+Educator/Parent. The overall experience is heavily personified and 
+contextualized.
+b) Educators are relieved from the burden to support collaboration 
+channels as prior asked or obvious questions posed on the channel 
+are instantly answered by a QnA savant. The conversation interface 
+allows the Educator to set personalized goals and exercises for 
+students as well as easily extract visuals of multi-dimensional 
+analytic queries.
+c) Publishers convert legacy static content and/or non-QnA enabled 
+digital content to a conversational engine enable content using 
+our conversion pipeline. The automation of the process includes 
+the semantic indexing required for content navigation, generation 
+of summaries, generation of assessment questions, evaluation and 
+acceptance of phrased answers, etc.
+d) Parents use the intuitive and natural conversation interface 
+to easily extract any insight about their student’s performance, 
+progress, and attention to the learning material. The same 
+interface allows Parents to communicate/collaborate with the 
+Educator/student to support learning goals.
+
+---
+Q: How does PieKul's service work?
+
+A: Recent NLU/MachineLearning/AI breakthroughs, many
+as recent as 2015-2017- allows us to solve various 
+facets of our problem at scale. 
+As an example, for answering simple factoid QnA, we 
+first apply Information Retrieval techniques to select 
+a set of passages relevant to a question. Then we use 
+attention like mechanism to compare a question with 
+sequential token windows from each of the selected passages. 
+Similarly to solve simple reasoning about entailment, 
+we use RNN with Long Short Term Memory with attention 
+to do fine grained reasoning across words, phrases and 
+larger constructs across a pair of sentences.
+---

@@ -1,0 +1,48 @@
+* Artificial Intelligence: Patrick Winston
+** Learning
+*** Support Vector Machines
+\begin{enumerate}
+\item $\vec{w}\vec{x}_{i_+} + b \geq 0 \ \& \ 
+\vec{w}\vec{x}_{i_-} + b \leq 0 \ \& \ 
+\vec{w}\vec{x}_{=} + b = 0; \vec{x}_{=} 
+\textnormal{ are points on the divider of the lane}$
+\item $y_i(\vec{w}\vec{x}_i + b) \geq 1; y_i = +1/-1 
+\textnormal{ for +ve/-ve samples}; y_i(\vec{w}\vec{x}_i + b) = 1
+\textnormal{ for support vector points}$
+\item $ width = 
+\frac{\vec{w}}{\lVert w \rVert}\cdot(\vec{x}_{i_+} - \vec{x}_{i_-}) = 
+\frac{(1 - b) + (1 + b)}{\lVert w \rVert} \geq \frac{2}{\lVert w \rVert} \implies
+\textnormal{Objective: } \max{width} = \min{\frac{1}{2}{\lVert w \rVert}^2}$
+\item $L = \frac{1}{2}{\lVert w \rVert}^2 - 
+\sum_{\forall{i}}{\alpha_i[y_i(\vec{w}\vec{x}_i + b) -1]}; 
+\alpha_i \textnormal{ are Lagrange multipliers}$
+\item $\frac{\partial{L}}{\partial{\vec{w}}} = 
+\vec{w} - \sum_{\forall{i}}{\alpha_iy_ix_i} = 0 \implies
+\vec{w} = \sum_{\forall{i}}{\alpha_iy_ix_i};
+\textnormal{ i.e. w is a linear combination of (some?) samples!}
+$
+\item $\frac{\partial{L}}{\partial{\vec{b}}} = 
+\sum_{\forall{i}}{\alpha_iy_i} = 0$
+\item $\textnormal{Plugging w into L we get: }
+L = \frac{1}{2}(\sum_{\forall{i}}{\alpha_iy_i\vec{x}_i})^T
+(\sum_{\forall{j}}{\alpha_jy_j\vec{x}_j}) - 
+(\sum_{\forall{i}}{[\alpha_iy_i\vec{x}_i^T
+(\sum_{\forall{j}}{\alpha_jy_j\vec{x}_j})]} - 
+\sum_{\forall{i}}{\alpha_iy_i\vec{b}} + 
+\sum_{\forall{i}}{\alpha_i}; 
+\vec{b}\sum_{\forall{i}}{\alpha_iy_i} = 0 \textnormal{ from eqn above}
+\implies
+L = \sum_{\forall{i}}{\alpha_i} -
+\frac{1}{2}\sum_{\forall{i}}
+{\sum_{\forall{j}}\alpha_i\alpha_jy_iy_j[\vec{x}_i^T\vec{x}_j]} \implies
+L \textnormal{ only depends on pairwise dot products of samples!}$
+\item $\textnormal{Decision Rule: } \vec{u} \textnormal{ datapoint is +ve if }
+\sum_{\forall{i}}{\alpha_iy_i[x_i^T\vec{u}]} + \vec{b} \geq 0
+\textnormal{ i.e. decision depends on dot product of samples with datapoint!}$
+\item $\textnormal{Any kernel transformation where dot 
+products are available works: } (\vec{u}^T\vec{v}+1)^n, 
+e^{-\frac{\lVert x_i - x_j \rVert}{\sigma}}, etc.$
+\end{enumerate}
++ SVM is popular due to the following reasons:
+ ++ Convex: Guaranteed to provide a solution - is not stuck in local minimas.
+ ++ Flexible: Allows kernel transformations when data isn't linearly separable.

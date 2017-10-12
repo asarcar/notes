@@ -1,0 +1,36 @@
+* Human-level control through deep reinforcement learning
+Deep CNN are used to approximate the optimal Q Function (Action-Value) i.e. 
+
+$$
+Q^*(s,a) = max_{\pi}{E[r_t + \gamma{r_{t+1}} + \gamma^2{r_{t+2}} + \cdots |
+s_t = s, a_t = a, \pi]}; \pi = P(a | s) 
+\textnormal{ defines behavior policy i.e. action a on state s}
+$$
+$$
+\textnormal{Q-Learning: Action-Value} = Q(s,a) = 
+\textnormal{Target-Value} = r_t + \gamma\max_a'{Q(s', a')}
+$$
++ RN is unstable/diverges when nonlinear function approximate (e.g. NN)
+is used to approximate Q function:
+  ++ Observation sequences are correlated.
+  ++ Small Q updates significantly changes policy and change data distribution.
+  ++ Action values (Q) and target values are correlated.
+
+** Mechanism
+$$
+Q(s,a) \approx Q_{approx}(s,a;\theta_i); 
+\theta_i \textnormal{ are parameters of Q-network at interation i}
+$$
+$$
+D_t = \{e_1,\cdots, e_t\}; Experiences: e_t = (s_t, a_t, r_t, s_{t+1})
+$$
+$$
+L_i(\theta_t) = E_{(s,a,r,s') \sim U(D)}
+[(r_{(s,a)} + \gamma \max_{a'}Q(s',a'; \theta_i^-) - Q(s,a; \theta_i)]^2
+$$
+\begin{itemize}
+  \item $\theta_i: \textnormal{parameters of Q-network}$
+  \item $\theta_i^-: \textnormal{parameters of Q-network updated
+               every C steps otherwise held fixed in between}$
+\end{itemize}
+

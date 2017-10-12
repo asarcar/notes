@@ -1,0 +1,220 @@
+* COHESITY/RUBRIK
+** Backup
+*** Multiple entities to procure, maintain, manage, etc. - 
+    Veeam Backup, Data Domain Dedup Appliance
+*** Mgmt Cost Exponential - Point solutions cobbled together.
+*** Multiple and Single points of failure
+*** Different SW for different workloads, archival, cloud spill, etc.
+** Scalable NAS/Filer Service Companies: Next Gen NetApp
+** Copy Data Mgmt: - Actifio - Run Apps & Test/Dev on Production Data.
+** Big Data Analytics: Hadoop - MAPR
+
+** High Level Idea: Scale Out, Consolidated Workloads, and SW Defined 
+   runs on Commodity HW in the cloud but standard protocols NFS/SMB/iSCSI/S3 
+   exposed to VMs
+
++ Challenges:
+++ Two different Stacks:
+   +++ Enterprise Scale Up: NFS/SMB vs 
+   +++ Web Scale Out: GFS - Pay As you grow with seamless upgrade
+++ Workload Consolidation:
++++ Workload Mix: Seq WR, Random RD, Random WR, and Seq RD.
++++ Media mix: SSD/HDD to rescue: Seq Wr 3/4x faster.
++++ Data Layout mix - simple configurable compression/deduplication. 
+    concurrent workloads - DP/Backup Job, Restore VM, vs 
+    Test/Dev/MapReduce File I/O
+*** Comparison
+Rubrik is laser focused on Data Protection for VM workloads with a 
+fantastic gui and care less about Data Center Sprawl. 
+
+Cohesity is less feature rich in that DP but covers a wider market: 
+FileStore, TestAndDev, Big Data Analytics, DRaaS (including Cloud). 
+NAS, Search, DevTest Clone, and Big Data Analytics under one umbrella. 
+Idea is to control Data Center Sprawl and cost savings.
+
+Rubrik R&D is front end heavy and Data Protection focused vs 
+Cohesity R&D is back end heavy (honest file system) and covers 
+a wider generic problem of DC sprawl.
+
+*** Cohesity Details: 
+**** Oasis (Cohesity) Honest FileSystem with Quotas, RBACL, QoS, 
+    Journaling, ...: SMB, NFS, S3, iSCSI, Data Protect - sit 
+    on top of Oasis
+*** Data Protection SW works in tandem with the FS
+    Instant Restore - data is hydrated and ready for running 
+    workloads immediately.  
+*** SnapTree (distributed B+ tree system: 
+    Milli-sec snapshots - time machine infrastructure 
+*** Transactional Meta Data Store
+    Note traditional system providing writable systems don't have 
+    scale out. 
+*** Data Repository - optimized for large Rd/Wr
+*** Data Journal - Distributed. 
+    Provides Log Structured Framework to absorb random I/O storm.
++ All above sit on top of:
+  ++ Distributed Lock Mgr
+  ++ Distributed KV Store
+  ++ Cluster Manager
+
+*** General Capabilities 
++ Cohesity 
+  ++ Spinning up a cloned env for time period and destroying. 
+     Running up for backup verification. 
+     Running for analytic purposes.
+  ++ Swiss Army Knife of Storage. 
+  ++ Gen-II Dedup Product - unlike DataDomain, NetBackup Appliances
+  ++ Scale out Shared Nothing Architecture Node Based Target - unlike Data Domain which 
+     land locks itself to the controller.
+  ++ Built in Backup SW in the Box - unlike Netbackup.
+  ++ Global Dedup (across Nodes) EVERYTHING it sees
+  ++ NAS: Can host home/work directories
+  ++ Big Data Analytic Store
+  ++ All data is fully searchable
+  ++ Backups done fully or incrementally at any time.
+  ++ Data immediately usable on Cohesity Cluster - 
+     no need to restore or rehydrate - 
+     no prep required to ensure data is retrievable 
+     or even runnable.
+  ++ 25 TB File Server image brought up in minutes - 
+     does not need network or primary storage to be up - 
+     when network & primary storage is up just 
+     vMotion it to primary.
+  ++ Production Data available for Test/Dev - everything deduped - 
+     no extra storage.
+  ++ Easily replicate in case of disaster.
+  ++ Point other legacy backup products if one chooses
+  ++ Backup physical OS and not just VMs.
+BUT
+  ++ Lack of richness and features for Data Protection & Managment
+  ++ Not all file system services that we expect of NAS appliances
+  ++ Cannot directly run on Cohesity as it needs compute host as Hypervisor
+  ++ Extremely smart VM Store
+
++ Rubrik: 
+  ++ Laser Focused on VM Recovery: Backup, Search, Archival Requirements.
+  ++ Customers like the look/feel of GUI more than Cohesity
+  ++ Scale out Shared Nothing Architecture Node Based Target - 
+     unlike Data Domain which land locks itself to the controller.
+  ++ Built in Backup SW in the Box - unlike Netbackup.
+  ++ Global Dedupes Rubrik Data - same as NetBackup - 
+     only dedup the data they backup themselves.
+  ++ All Rubrik Data is fully searchable
+  ++ Backups done incrementally after first full.
+  ++ Data Immediately Usable - backup followed by immediate 
+     rehydration like Cohesity.
+  ++ No clone ability
+  ++ No big data analytics
+
+*** Market
+**** Veeam: $474M (2015) => $600M revenue
+*** PRODUCTION WORKLOADS
+**** Virtualized Servers
+**** Application Servers
+**** Database
+ 
+*** HYPER-CONSOLIDATION
+**** Meta Data (Master) Server - Repository to query where Backup Data Lives
+**** Media Server - Actually Copies Data from Primary and moved to Target Storage
+**** Target Storage - Dedup and Saves at very low cost per bit.
+*** USE CASES:
+**** Data Protection: $12B
+**** File Store: $25B
+*** DRaaS: Cloud for Workloads - not just archival and not just backup 
+    but apps bursting and running in Cloud.
+
+**** Requirements: Use Cases Created diverse competing requirements
+**** Data Protection: Global Dedupe, Snapshots, Sequential Writes, NFS
+**** File Services: SMB/CIFS, Quotas, Random Reads (Visio)
+**** Test/Dev: Writable Snapshots, Random Writes
+**** Analytics: Sequential Reads, Data Locality, Map/Reduce
+**** Platform: Scale Out, HA, Encryption, Cloud Tier, Compression, Replication, etc.
+* RECOMMENDATION SYSTEM
+** Gurmeet Manku 30-Jun-2017
+*** Background
+**** User Interaction Modes
+- Every user interaction is an opportunity to present choice
+  to the user, collect history of choice, and evaluate efficacy
+  of the recommendation system.
+- Modes of User Interaction: Websites, Apps, vAgent, and Phone Call.
+- Bootstrap: Present rule based choices or just random choices to 
+  gather ground truth. Recommendation initially could be just
+  randomly select among the past set of 10 choices she made.
+**** Overall Objective: Example is AD Impression.
+**** Define Scalar Metrics for Objective: Time spent watch AD
+Attribution Problem: Attributing whether the recommendation did 
+"well" or "succeeded" is not obvious. YouTube ad when seen may 
+not result in impression but user not skipping ad may be assumed 
+as proxy for impression.
+**** Feedback of Objective Metrics to Recommendation System
+*** Data Schema
+- User-Feature-1 (UF1), UF2, ..., UFm
+- Context-Feature-1 (CF1), CF2, ..., CFn
+- Recommendation-Aspect-1(RA1), ..., RAk
+- Outcome (Scalar): Outcome must be scalar as ultimately alternatives 
+  must be linearly ranked to compare and recommend "best."
+*** Model
+Goes over history and presents the best recommendation
+based on some function that models the outcome based on 
+features. Examples of models:
+- Decision Trees e.g. Random Forest, Boosting, ...
+- Linear/Logistic Regression
+- Deep Learning 
+
+**** Runtime Substitution
+- Requirement: Plan for experimentation. Put in a system allowing
+  experiment/tweak of different models on a subset of population, 
+  gather/analyze data, and replace live a better model.
+- Serving System: Reads from configuration file to serve
+  model A or B for 99% vs 1% of population. Log model-ID as 
+  well to differential population vs control group. 
+- Tracking Additional Data: In addition to outcome metrics
+  track lots of metrics useful for other purposes e.g. third
+  party app rendering, where other metrics gives valuable information.
+- MH: Metrics partitioned into equivalence classes to ensure
+  analysis of tons of metrics easy:
+  -- User Happiness Metrics
+  -- Ad related Metrics
+  -- Publisher related Metrics
+  -- Google related metrics
+- Dashboard: Add lots of visibility and dashboarding to help track 
+  how the engine is doing, which features are informative, etc.
+
+*** Feature Engineering
+Hand engineered features defined out of user/context/recommendation
+when done well significantly improves prediction of optimal 
+recommendation (hence outcomes). DNN representation learning obviates 
+the need for hand crafted complex features.
+
+*** Instantaneous vs Time Based
+- User Features: Historical vs Instantaneous search keywords used
+- Context: Historical vs Instantaneous Record of website 
+  from where user landed or Third Party Notification. 
+- Outcome: Immediate. Algorithms analyzing future outcome 
+  leads to reinforcement learning (RL) analysis.
+
+*** Recommendation
+Text (Next Topic) to learn for eLearning, ID of food to recommend, etc.
+
+**** Runtime Imperatives
+- Model serving time < 2-3ms. The recommendation engine has to rank 
+  score recommendation set and outcome. The large recommendation set 
+  causes problems. As such, recommendation is tupled with features
+  during analysis.
+- Diversification: User gets bored if similar recommendations 
+  are made e.g. YouTube videos in space. A diversification
+  layer runs on top recommendation engine to remove similar
+  recommendations from space. Recommendations made previously
+  in time are coupled into user/context features or hard
+  coded as rules.
+
+**** Reinforcement Learning
+Instantaneous outcome optimization is myopic. RL optimizes
+long term metrics but are harder to reason and debug.
+
+**** Scale
+When universe of recommendation is small a global scoring
+engine may be run. Otherwise, need to use some pruning
+strategy to reduce sample set (e.g. non english YouTube
+videos need not be presented to a user with English as
+primary language. M/B recommendation: top 100 scoring.
+

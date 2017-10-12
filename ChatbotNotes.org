@@ -1,0 +1,604 @@
+* Introduction
+- Challenge
+-- Understand: What did you ask?
+-- Knowledge: Domain, Discourse, and World Knowledge to generate coherent 
+and meaningful response sequences. 
+
+- Dataset: OpenSubtitles
+
+* Background Papers
+** Response Generation as Statistical MT (Ritter 2011). Exploit 
+high-frequency patterns with phrase-based MT: "I am" => "You are",
+"sick" => "get better", "lovely!" => "thanks!", etc.
+
+** A Diversity-Promoting Obj Fn for Neural Conversation Models (Jiwei 2016): 
+Likelihood of output (response) given input (message) is unsuited to 
+response generation tasks. 
+
+Neural coversation models tend to generate trivial or non-committal 
+responses optimizing for likelihood that give preference to high 
+frequency "safe" phrases, such as "I don't know" or "I'm OK" as opposed 
+to contentful but sparse responses. 
+
+The objective function promoting likelihood of output given input while 
+suited for MT is unsuited to generation of diverse outputs. Rather optimize
+both likelihood of response given message and likelihood of message
+given a response i.e. Maximum Mutual Information (MMI). Mao (2015) used 
+MMI in image caption retrieval.
+
+$$\text{Likelihood Based: Minimize Loss} = -\log p(target \mid source)$$
+$$\text{Mututal Information: How much uncertainity is removed in one 
+stochastic data when the other stochastic data is known.}
+$$
+$$MMI = I(X;Y) = \sum\limits_{x,y}p(x,y)\log{\frac{p(x,y)}{p(x)p(y)}} = 
+E_Y[D_{KL}(p(x \mid y) \parallel p(x))].
+$$
+In other words maximize the distribution of divergence of the 
+conditional probability distribution of target words given source words 
+from the naive probability distribution of target words.
+
+*** Related Work
+Conventional dialog systems are template or heuristic driven albeit
+with a statistical component. Ritter tried SMT for response generation
+and then rescored candidate phrasal outputs with SEQ2SEQ model
+that incorporates prior context. SEQ2SEQ models were finetuned
+to capture compositionality and long-span dependencies.
+
+Carbonell/Goldstein (1998) sought to product multiple mutually 
+diverse outputs that are either diverse or non-redundant summary 
+sentences using MMR (Maximal Marginal Relevance) metric - this
+metric seeks to present response alternatives that are relevant 
+to the conversation context and contains minimal similarity to 
+previously selected response.
+
+On the other hand, this paper attempts to produce a single non-trivial 
+output and learn conversational patterns from naturally occuring data. 
+
+*** Sequence-to-Sequence Models
+\begin{enumerate}
+
+\item $
+LSTM: \\
+i_k = \sigma(W_i[h_{k-1}; e_k]);
+f_k = \sigma(W_f[h_{k-1}; e_k]);
+o_k = \sigma(W_o[h_{k-1}; e_k])\\
+l_k = tanh(W_l[h_{k-1}; e_k]);
+c_k = f_k \circ c_{k-1} + i_k \circ l_k\\
+h_k^s = o_k \circ tanh(c_k); 
+W_i, W_f, W_o, W_l \in \mathbb{R}^{D\times{2D}}\\
+$
+
+\item $
+Input\ Sequence: X = \{x_1, \cdots, x_t\}\\
+Output\ Sequence: Y = \{y_1, \cdots, y_k\}\\
+p(Y \mid X) = \prod_{k=1}^{N_y}
+p(y_k \mid x_1, \cdots, x_t, y_1, \cdots, y_{k-1}) = 
+\prod_{k=1}^{N_y}
+\frac{\exp{f(h_{k-1}, e_{y_k})}}
+{\sum\limits_{y'}\exp{f(h_{k-1}, e_{y'})}}
+$
+
+\end{enumerate}
+*** MMI Models
+\begin{enumerate}
+\item $\text{Standard Objective Function}: 
+\hat{T} = \arg\max\limits_{T}f_{LL}(T), where\ 
+f_{LL}(T) =  Log\ Likelihood = \log{p(T \mid S)}$
+
+\item $\text{MMI Objective Function}:
+\hat{T} = \arg\max\limits_{T}f_{MMI-antiLM}, where\ 
+f_{MMI-antiLM} = \log{Mutual\ Information} = 
+\log{\frac{p(S,T)}{p(S)p(T)}}\\
+\text{This avoids favoring responses that unconditionally
+enjoy high probability.}\\
+\text{Instead bias towards responses specific to 
+given input.}\\
+\log{\frac{p(S,T)}{p(S)p(T)}} = \log{p(T \mid S)} - \log{p(T)}\\
+\text{Introducing a hyperparameter } \lambda 
+\text{ that controls the degree to which we penalize generic 
+responses we get }\\
+f_{MMI-antiLM} = \log{p(T \mid S)} - \lambda\log{p(T)} \implies\\
+f_{MMI-antiLM} = (1 - \lambda)\log{p(T \mid S)} + 
+\lambda\log{p(S \mid T)} + \lambda\log{p(S)}
+\ (As\ \log{p(T)} = \log{p(S)} + \log{p(S \mid T)} - \log{p(T \mid S)})\\
+\hat{T} = \arg\max\limits_{T}f_{MMI-antiLM} = 
+\arg\max\limits_{T}g_{MMI-bidi}, where\ g_{MMI-bidi} = 
+(1 - \lambda)\log{p(T \mid S)} + \lambda\log{p(S \mid T)}\\
+\text{i.e. MMI-bidi Objective function represents a tradeoff between 
+likelihood of sources given targets and targets given sources}$
+
+\item $\text{MMI-antiLM} = f_{MMI-antiLM} = 
+\log{p(T \mid S)} - \lambda\log{p(T)}\\
+\text{Second term functions as an anti language model. It penalizes 
+not only high-frequency, generic responses, but also fluent ones.}\\
+\text{Theoretically first term penalizes ungrammatical sentences and 
+should win over second term (for low lambda) but in practise the issue 
+remains.}\\
+\text{Target Language Model}: 
+p(T) = \prod_{k=1}^{N_t}p(t_k \mid t_1, \cdots, t_{k-1}) 
+\text{ replaced by}\\
+U(T) = \prod_{k=1}^{N_t}g(k)p(t_k \mid t_1, \cdots, t_{k-1}), where\ 
+g(k) = 
+\begin{cases}
+1\ if\ k \leq \gamma\\
+0\ otherwise
+\end{cases} 
+\text{i.e. decrements monotonically with k}\\
+\text{Intuitively: first few words significantly determines 
+remainder of sentence.}\\ 
+\text{Diversity is promoted by penalizing first few words but then
+we let LM take over to prevent ungrammatical segments}\\
+\text{This addresses the observation when most ungrammatical
+segments appeared towards the end of long sentences.}\\
+f_{MMI-LM} = \log{p(T \mid S)} - \lambda\log{U(T)}$
+
+\item $\text{MMI-bdi} = f_{MMI-bdi} = 
+(1 - \lambda)\log{p(T \mid S)} + \lambda\log{p(S \mid T)}\\
+\text{Second term requires completion of target generation before }
+p(S \mid T)\\
+\text{can be computed making decoding intractable given the 
+enormous search space for target T!}\\
+\text{Approach is use first term to genereate N-best lists.}\\
+\text{Rerank N-best lists using second term of objective function.}\\
+\text{Issues include non-globally-optimal of standard SEQ2SEQ objectives}\\
+\text{and sufficiently large N needed to create diverse candidates.
+Still MMI-LM and this tweak works well in practise.}$
+
+\item $Decoding:\\
+MMI-LM: \log{p(T \mid S)} - \lambda\log{U(T)} + \gamma N_t\\
+\text{Last term was to discourage generation of long responses.}\\
+MMI-bdi: (1 - \lambda)\log{p(T \mid S)} + \lambda\log{p(S \mid T)}
++ \gamma N_t\\
+\text{Generate N-best list based on } P(T \mid S) 
+\text{ and then rerank list by linearly combining } 
+(1 - \lambda)p(T \mid S) + \lambda p(S \mid T) + \gamma N_t,
+\text{ where MERT is used to tune } \lambda \ \&\ \gamma.
+$
+
+\item $Datasets:\\
+\text{Twitter Conversation Triple Dataset. 23M conversation
+snippets. 289M context-message-response triples.}\\
+\text{Contexts and messages are concatenated to form the source input.}\\
+\text{OpenSubtitles Dataset. 60-70M scripted lines.}\\
+\text{For evaluation one uses Movie Script DB that explicitly 
+identify the character speaking each script line.}\\ 
+\text{Thus conversation turns and message response pairs are accurately 
+identified.}$
+\end{enumerate}
+
+** Deep Reinforcement Learning for Dialogue Generation (Jurafsky 2016)
+NN based diagogue generation predict one utterance at a time ignoring
+the influence on future outcomes. This paper applies RL to model future 
+reward in dialogues.
+*** Introduction
+$MLE\ Objective=p(Response \mid ConversationContext) is a poor
+approximation of the goal of chatbots i.e. provide interesting, diverse, and
+informative responses that engages humans. 
++ MLE Problems:
+++ Generic responses e.g. "I don't know." MLE biases uninformative common 
+phrase responses used in any conversation context.
+++ Conversational black holes where systems get stuck in infinite loop 
+e.g. "See you later." MLE is unable to respond unfavorably to repitition.
+
++ Requirements of Conversation Framework
+++ Integrate developer defined rewards to realize goal of Chatbot.
+++ Model long term influence of generated response in dialogue.
+*** Statistical Dialogue Systems: Related Work
+Two approaches:
+1. SEQ2SEQ mapping from input msg to rsp from massive conversational data.
+a. Ritter '11: SMT Problem.
+b. Sordoni '15: Rescore SMT output with NN that looks at prior context. 
+c. Vinyals '15: End to End System: Encoder/Decoder msg => vec => rsp.
+d. Serban '16: Hierarchical NN to capture dependency over long conversations.
+e. Li '16: Mutual Information I(Msg; Rsp) to reduce generic responses.
+
+2. Building Task oriented RL dialogue systems to solve domain specific tasks. 
+a. Pieraccini '09: Model MDP with conversation specific objective rewards.
+b. Gasic '14: Model POMDP.
+c. Nio '14: Model statistically learns generation rules.
+
+RL based training of dialogue policies often rely on carefully limited 
+dialogue parameters or templates with state, action,  and reward signals 
+manually designed for each new domain. It does not extend to open-domain 
+scenarios. RL has been used for NLU, such as understanding of dialogues that 
+give navigation instructions.
+
+3. SEQ2SEQ and RL combined.
+a. Wen '16: E2E system links input representation to slot/value pairs in DB.
+b. Su '16: RL and Neural generation to improve dialogue with real users.
+
+*** RL for Open-Domain Dialogue
+Generated responses are viewed as policy driven actions defined by 
+RNN-Enc-Dec language model. The network is initialized using MLE 
+to produce plausible responses. Then RL algorithms are run to maximize 
+future reward using policy search. 
+
+$$
+\text{Q-Learning (SARS)}: 
+\Delta{Q(s,a)} \leftarrow
+\alpha[r + \gamma\max_{\forall{a'}}Q(s', a') - Q(s,a)]
+$$ 
+Policy gradient methods are used rather than Q-Learning value estimation 
+methods to optimize parameters towards maximum expected reward. 
+Q-Learning value estimates (rather than policy estimates) future expected 
+reward for each action which may drive the parameters orders of 
+magnitude away from MLE based LM friendly parameters.
+
+**** *$\text{Components}:$
+\begin{enumerate}
+\item $\text{Action i.e. Dialogue Utterance}: 
+a \in A; \lVert A \rVert = \infty$
+
+\item $\text{State i.e. previous two dialogue turns}:
+s = [p_i, q_i]; \vec{v}(s) = LSTM_{enc}(s)$
+
+\item $\text{Policy i.e. Model Parameters}: 
+\pi(a \mid s) = p_{RL}(p_{i+1} = a \mid s = [p_i, q_i]); 
+\text{Policy is stochastic. Deterministic policy is a discontinuous 
+objective that is difficult to optimize using gradient methods.}$
+
+\item $\text{Reward is observed after agent reaches end of sentence.}\\
+\text{Final Reward is a weighted sum of component rewards}:\\ 
+r(a, [p_i, q_i]) = \vec{\lambda}^T\vec{r} = 
+\sum\limits_i\lambda_ir_i, where\ \vec{\lambda} \in Simplex\\
+\\
+Objective_1: \text{Ease of Answering}\\
+\text{A conversation snippet should be such that it encourages 
+meaningful responses and discourages short trite responses.}\\
+r_1 = -\frac{1}{\parallel \mathbb{S} \parallel}
+\sum\limits_{s \in \mathbb{S}}
+\frac{1}{N_s}\log{p_{seq2seq}(s \mid a)}, where\\
+\mathbb{S} = \text{Set of dull responses, and } 
+N_s = \text{Number of tokens in dull response s}\\
+p_{seq2seq} = \text{likelihood by SEQ2SEQ model, whereas }\\
+p_{RL}(p_{i+1} = [p_i, q_i]) = 
+\text{Stochastic policy function optimized for long term future.}\\
+\\
+Objective_2: \text{Information Flow}\\
+\text{Contribute new information and avoid repetitive sequences.}\\
+r_2 = -\log{cos(h_{p_i}, h_{p_{i+1}})}, h_{p_i} = 
+\text{Encoder representation of } p_i.\\
+\\
+Objective_3: \text{Semantic Coherence}\\
+\text{Avoid generating ungrammatical and incoherent replies by 
+using mutual information of action a with previous turns.}\\
+\text{Scale by length of targets to control influence of length.}\\
+r_3 = \frac{1}{N_a}\log{p_{seq2seq}(a \mid q_i, p_i)} + 
+\frac{1}{N_{q_i}}\log{p_{backward\ seq2seq}(q_i \mid a)}$
+
+
+\end{enumerate}
+
+*** Simulation
+**** Supervised Learning
+RL system initialized using a general reponse generation policy learned 
+from a supervised setting. SEQ2SEQ model with attention trained on 
+OpenSubtitles dataset (~ 80M source/target pairs). Each turn in dataset 
+treated as target and concatenation of previous two sentences as source.
+
+**** Mutual Information
+$$
+r_3 = \frac{1}{N_a}\log{p_{seq2seq}(a \mid q_i, p_i)} + 
+\frac{1}{N_{q_i}}\log{p_{backward\ seq2seq}(q_i \mid a)}
+$$
+The second term requires target generated to compute the reward
+needed to generate! Treat the Maximum Mutual Information (MMI) 
+response generation as RL problem where reward for MI is observed 
+at end of sequence.
+
+$\text{Policy Gradient Method}:$
+\begin{enumerate}
+
+\item $p_{RL} \text{ intialized using pre-trained model } 
+p_{SEQ2SEQ}(a \mid p_i, q_)
+$
+
+\item $
+\text{Given input } [p_i, q_i], \text{ generate candidates }
+A = \{\hat{a} \mid \hat{a} \sim p_{RL}\}
+$
+
+\item $\text{Mutual Information}:\\ 
+m(\hat{a}, [p_i, q_i] )_{\forall_{\hat{a} \in A}} \text{ obtained from } 
+p_{seq2seq}(a | p_i, q_i)\ \&\ p_{backward\ seq2seq}(p_i, a)\\
+m \text{ reward is back propagated to encoder-decoder model to 
+generate sequences with high rewards.}
+$
+
+\item $
+J(\theta) = \mathbb{E}[m(\hat{a}, [p_i, q_i])] =
+\sum\limits_{\hat{a}}m(\hat{a}, [p_i, q_i])
+p_{RL}(\hat{a} | \theta) \implies\\
+\nabla{J(\theta)} = \nabla_{\theta}\sum\limits_{\hat{a}}
+m(\hat{a}, [p_i, q_i])p_{RL}(\hat{a} | \theta) = 
+\sum\limits_{\hat{a}}m(\hat{a}, [p_i, q_i])
+\frac{\nabla_{\theta}p_{RL}(\hat{a} | \theta)}
+{p_{RL}(\hat{a} | \theta)}p_{RL}(\hat{a} | \theta) \implies\\
+\nabla{J(\theta)} =\mathbb{E}_{p_{RL}(\hat{a} | \theta)}
+[m(\hat{a}, [p_i, q_i])\nabla_{\theta}
+\log{p_{RL}(\hat{a} | \theta)}] \implies\\
+\nabla{J(\theta)} \approx \frac{1}{\parallel Sample \parallel}
+\sum\limits_{s \in Sample; {\hat{a}^{(s)} \sim 
+p_{RL}(\hat{a} \mid \theta)}}m(\hat{a}^{(s)}, [p_i, q_i])
+\nabla_{\theta}\log{p_{RL}(\hat{a}^{(s)} | \theta)}
+$
+
+\item $
+\text{Curriculum Learning Strategy}:\\
+\text{For every sequence of token length } T,
+\text{we try to bias the model to general LM friendly tokens}.\\
+\text{Thus, we use MLE loss for first L tokens and RL for T-L tokens}, 
+\text{and gradually anneal L to zero}.
+$
+\item $
+\text{Decrease Learning Variance: baseline output}.\\
+\text{Additional NN inputs generated target, initial source, 
+and outputs baseline value b i.e.}\\ 
+\nabla{J(\theta)} \approx \frac{1}{\parallel Sample \parallel}
+\sum\limits_{s \in Sample; {\hat{a}^{(s)} \sim 
+p_{RL}(\hat{a} \mid \theta)}}
+[m(\hat{a}^{(s)}, [p_i, q_i]) - b]
+\nabla_{\theta}\log{p_{RL}(\hat{a}^{(s)} | \theta)}
+$
+
+\item $
+\text{Dialogue Simulation Between Two Agents}:\\
+Step0: \text{Message from Training set fed to first agent}\\
+Step1: \text{Agent encodes input message and decodes response}\\
+Step2: \text{Combine output from first agent with dialogue history}\\
+\text{Second agent updates state by encoding dialogue history and 
+decodes response}\\
+Step3: \cdots \\
+\\
+Optimization: \text{Initialize Policy Model } p_{RL} 
+\text{ with params from Mutual Information Model}\\
+\text{Use policy gradient to max expected future reward over 
+multiple turns}:
+J_{RL}(\theta) = \mathbb{E}_{p_{RL(a_{1:T})}}
+[\sum_{i=1}^{T}\mathbb{R}(a_i, [p_i, q_i])] \implies
+\nabla J_{RL}(\theta) = 
+\frac{1}{\parallel MultiTurnSamples \parallel}
+\sum\limits_{s \in MultiTurnSamples}
+\nabla_{\theta}\log{p(a_i^{(s)} \mid p_i, q_i)}
+\sum_{i=1}^{T^{(s)}}R(a_i, [p_i, q_i])
+$
+
+\item $
+\text{Curriculum Learning: Start by simulating dialogue for two turns.}\\
+\text{As the model settles gradually increase the number of 
+simulated turns generated by model.}
+$
+\end{enumerate}
+
+*** Results
+\begin{enumerate}
+\item $\text{Dataset: OpenSubtitles with lowest response eliciting 
+snippets e.g. "I don't know" removed.}
+$
+\item $\text{Automatic Evalution Factors (BLEU or Perplexity not used):}\\
+\text{Dialogue Length: dialogue ends when one agent generates dull 
+or highly overlapping response.}\\
+\text{Diversity: Number of distinct uni/bigrams of generated tokens and
+scaled down so as to avoid favoring long sentences.}\\
+\text{SEQ2SEQ and RL models generate using beam search 
+(beam size 10).}\\
+\text{Mutual Information model generates n-best list using } 
+p_{seq2seq}(t \mid s) \text{ and re-ranks candidates using } 
+p_{seq2seq}(s \mid t).\\
+\text{Human Evaluation: Single-turn general quality, Single-Turn ease to 
+answer, and Multi-turn general quality.}
+$
+\item $\text{RL based Conversation quality was marginally better 
+in single-turn generally quality, better in Single-Turn ease to answer, 
+and much better than others in Multi-Turn general quality.}
+$
+\end{enumerate}
+
+** Building E2E Dialogue Systems Using Hierarchical NN Models (Bengio 2016)
+POMDP view of task specific dialogue problem has been most successful so far.
+Most deployed sistems are limited to narrow domain as they use hand-crafted 
+features for state/action space and/or require large annotated task specific
+corpus and/or many humans interacting with the unfinished system.
+** POMDP-based Statistical Spoken Dialogue Systems: a Review (Young 2013)
+Overview of  development in POMDP-based spoken dialogue systems (SDS). 
+Dialogue systems need a data-driven framework to reduce cost of 
+manually crafting dialogue rules and reacting robustly to noisy 
+speech transcription. 
+
+POMDP provides that framework by modeling Bayesian uncertainity 
+explicitly and optimizing policy via rewards. Challenges are model 
+representation and optimization that require efficient approximate 
+algorithms.
+
+*** Introduction
+$\text{Spoken Dialogue Systems}:$
+\begin{enumerate}
+\item $
+\framebox{User} \underset{Input\ Speech}{\longrightarrow}
+\framebox{SLU: Spoken\ Language\ Understanding}
+\underset{\vec{u}_t: User\ Intent\ Encoding}{\longrightarrow}
+\framebox{State\ Estimator}
+\underset{\vec{s}_t: State\ Encoding}{\longrightarrow}
+\framebox{Policy}_{a_t = \pi(\vec{s}_t)}
+\underset{\vec{a}_t: Action\ Encoding}{\longrightarrow}
+\framebox{NLG: Natural\ Language Generation}
+\underset{System\ Response}{\longrightarrow} User \longrightarrow \cdots
+$
+
+\item $\text{Systems must account for unreliability and error sources}:\\
+\text{Speech to word transcription}: 15\%\ to\ 30\%, 
+\text{NLU Understanding}, and\ 
+\text{User Error}.
+$
+
+\item $
+\text{Dialogue evolves as POMDP starting at initial dialogue state}: s_0\\
+\text{Subsequent State Transition}: p(s_t \mid s_{t-1}, a_{t-1}), 
+\text{where state is not directly observable}\\
+\text{Output of SLU is noisy observation of user intent}: p(o_t \mid s_t)\\
+$
+
+\item $
+\text{Advantages of Belief State tracking.}\\
+\text{Models uncertainiy due to speech recognition errors.}\\
+\text{All possible dialogue paths are pursued simultaneously.}\\
+\text{As such, when user signal a problem, system switches 
+easily to the likely thematic threads based on a simple mapping 
+from belief state to action.}\\ 
+\text{There is no requirement to back-track or error correction 
+dialogues.}
+\text{Explicit representation allows incorporating RL primitives
+to maximize on and off line dialogue performace. Optimal 
+decision policy is modeled on the belief states where action is 
+based on rewards for state-action pairs without resorting 
+to manual tuning and hand-crafted designs.}
+$
+
+\item $
+CHALLENGES:\\
+\text{State-Action space is extremely large. Efficient representation
+and manipulation requires complex algorithms.}\\
+\text{Real time baysian inference and exact policy learning is tough.}\\
+\text{POMDP SDS parameters training requires many user interaction,
+which creates a need for user simulators.}
+$
+\end{enumerate}
+
+*** POMDP
+$\text{Formulation:}$
+\begin{enumerate}
+\item $
+POMDP: (\mathbb{S, A, T, R, O, Z}, \gamma, \vec{b}_0), where\\
+\mathbb{S}: \text{Set of States } s \in \mathbb{S}\\ 
+\mathbb{A}: \text{Set of Actions } a \in \mathbb{A}\\ 
+\mathbb{T}: \text{Transition Probability } P(s_t \mid s_{t-1}, a_{t-1})\\
+\mathbb{R}: \text{Expected immediate reward } r(s_t, a_t) \in \mathfrak{R}\\
+\mathbb{O}: \text{Set of Observations } o \in \mathbb{O}\\
+\mathbb{Z}: \text{Observation Probability } P(o_t \mid s_t, a_{t-1})\\
+\gamma: \text{Geometric Discount Factor } 0 \leq \gamma \leq 1, and\\
+\vec{b}_0: \text{Initial belief state i.e. a probability distribution over 
+our existence on the underlying MDP states.}
+$
+
+\item $
+\text{Value Function for Deterministic Policy}:\\
+V^{\pi}(\vec{b}_t) = r(\vec{b}_t, \pi(\vec{b}_t)) + 
+\gamma\sum\limits_{o_{t+1}}
+P(o_{t+1} \mid \vec{b}_t, \pi(\vec{b}_t))V^{\pi}(\vec{b}_{t+1})\\
+\text{Value Function for Stochastic Policy}:\\
+V^{\pi}(\vec{b}_t) = \sum\limits_{a_t}\pi(a_t \mid b_t)[r(\vec{b}_t, a_t) + 
+\gamma\sum\limits_{o_{t+1}}
+P(o_{t+1} \mid \vec{b}_t, a_t)V^{\pi}(\vec{b}_{t+1})]\\
+$
+
+\item $
+\text{Q-Function}: V^{\pi}(\vec{b}) = 
+\sum\limits_{a}\pi(a \mid \vec{b})Q^{\pi}(\vec{b}, a)\\
+\text{Bellman Optimality Equation}:\\ 
+V^{*}(\vec{b_t}) = \max\limits_{a_t}[
+r(\vec{b_t}, a_t)] + \gamma\sum\limits_{o_{t+1}} 
+P(o_{t+1} \mid \vec{b}_t, a_t)V^{*}(\vec{b}_{t+1})]\\
+\text{Optimal Policy maximizes Value}:\\ 
+\pi^{*}(\vec{b}) = \arg\max\limits_{\pi}V^{\pi}(\vec{b})\\
+$
+\end{enumerate}
+
+*** Belief State Representation and Monitoring
+\begin{enumerate}
+\item $
+s_t = (g_t, u_t, h_t), where\\
+s_t: \text{Current State}, g_t: \text{User's Goal},\\
+u_t: \text{User's actual utterance, and }\\
+h_t: \text{Tracks information wrt previous turns.}
+$
+
+\item $
+\text{Based on influence diagram of SDS POMDP Model}:\\
+P(o_{t+1} \mid s_{t+1}) = 
+P(o_{t+1} \mid u_{t+1}, h_{t+1}, g_{t+1}) = 
+P(o_{t+1} \mid u_{t+1})
+\text{ observation model: probability of observation 
+given actual utterance}\\
+P(s_{t+1} \mid s_t, a_t) = 
+P(u_{t+1}, h_{t+1}, g_{t+1} \mid u_t, h_t, g_t, a_t) =\\ 
+P(u_{t+1} \mid g_{t+1}, a_t)P(g_{t+1} \mid g_t, a_t)
+P(h_{t+1} \mid g_{t+1}, u_{t+1}, h_t, a_t)\\
+P(u_{t+1} \mid g_{t+1}, a_t) 
+\text{ user model: likelihood of user utterance 
+given previous system output/action and new system state}\\
+P(g_{t+1} \mid g_t, a_t)
+\text{ goal transition model: likelihood that user goal 
+has changed}\\
+P(h_{t+1} \mid g_{t+1}, u_{t+1}, h_t, a_t)
+\text{ history model: system's memory of dialogue to date.}\\
+\sum\limits_{s_t}b_t(s_t) = 
+\sum\limits_{g_t, u_t, h_t}b_t(g_t, u_t, h_t) = 
+\sum\limits_{g_t, h_t}b_t(g_t, h_t)\\
+Thus: b_{t+1}(s_{t+1}) = \eta P(o_{t+1} \mid s_{t+1}, a_t)
+\sum\limits_{s_t}P(s_{t+1} \mid s_t, a_t)b_t(s_t) \implies\\
+b_{t+1}(s_{t+1}) = 
+\eta P(o_{t+1} \mid u_{t+1}) \cdot
+P(u_{t+1} \mid g_{t+1}, a_t) \cdot
+\sum\limits_{g_t}
+P(g_{t+1} \mid g_t, a_t) \cdot
+\sum\limits_{h_t}
+P(h_{t+1} \mid g_{t+1}, u_{t+1}, h_t, a_t) \cdot
+b_t(g_t, h_t)
+$
+\end{enumerate}
+
+**** Approaches to reduce POMDP model Complexity
+***** N-Best Approaches
+Hidden Information State (HIS) Model: Partition user goals into few 
+partitions assuming that all goals in a partition are equally probable. 
+Partitions are tree structured and built using slot-value pairs.
+$$
+b_{t+1}(p_{t+1}, u_{t+1}, h_{t+1}) = 
+\eta P(o_{t+1} \mid u_{t+1}) \cdot
+P(u_{t+1} \mid p_{t+1}, a_t) \cdot
+\sum\limits_{h_t}
+P(h_{t+1} \mid p_{t+1}, u_{t+1}, h_t, a_t) \cdot
+P(p_{t+1}\mid p_t)b_t(h_t)
+$$
+where, Probability a partition will be split i.e. $$
+p_t \rightarrow \{p_{t+1}, p_t - p_{t+1}\} = 
+P(p_{t+1} \mid p_t)
+$$
+
+N-best approach can also be viewed as running N conventional dialogue 
+systems in parallel, such that each parallel thread tracks a different 
+interpretation of what user said.
+
+Issue is that number of partitions (frames) grows exponentially with 
+dialogue length, requiring pruning.
+
+***** Factored Approaches
+Factor the user goal into concepts based on a bayesian dependency graph.
+The stnadard belief propagation algorithm is used to update the beliefs.
+N-best approximation can be used, where we update beliefs for only
+the N-best list of values.
+
+*** Policy Representation and Reinforcement Learning
+\begin{enumerate}
+\item $
+\text{Policy Model } \mathcal{P} = \pi^{*}: 
+\arg\max\limits_{\pi}V^{\pi}(\vec{b}), where\ 
+\pi: \vec{b} \rightarrow a
+$
+
+\item $
+\text{Belief Space spans } \parallel \mathbb{S} - 1 \parallel 
+\text{ dimensional simplex. Points close in belief space share
+action.}
+$
+
+\item $
+\text{Space is constrained by using "summary" space for both
+belief and action}: (\hat{\vec{b}}, \hat{a})\\
+\text{Optimal Q-function is computed in this summarized space
+and then remapped to the master space}:\\
+\pi^{*}(\vec{\hat{b}}) = \arg\max\limits_{\hat{a}}
+\{Q^*(\vec{\hat{b}}, \hat{a})\}\\
+\text{Q-function may be parametric or non-parametric}
+$
+\end{enumerate}

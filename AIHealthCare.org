@@ -1,0 +1,36 @@
+* Summary
+* Chatbots
+https://tincture.io/chatbots-made-for-healthcare-fec631bc8462
+** Lack of Patient Engagement After Clinic Visit or Hopitalization
+  leads to Mediocre Outcome and even Higher Cost
+  http://healthaffairs.org/healthpolicybriefs/brief_pdfs/healthpolicybrief_86.pdf
+*** Medication Adherence
+*** Vital Sign Monitoring
+*** Self-Reporting of Symptoms
+*** Telemedicine Consults
+*** Behavior Coaching
+** mHealth Apps
+https://tincture.io/chatbots-made-for-healthcare-fec631bc8462
+*** Require a team of clinicians to follow up
+*** Pull not push: 
+**** Lack of Motivation: 
+Not engaging USX, Reminds of sorrow/illness, and requires patient to 
+install app remember to open, etc. 
+**** Not fun: 
+People prefer Games & Entertainment on mobile.
+**** Chat: 
+Brings engagement to patients in channels they already use.
+*** Louise: https://www.bu.edu/fammed/projectred/meetlouise.html
+    Talks to patients to go over medications and home care items at 
+    hospital discharge time.
+*** The Internet of Healthy Things - Chapter 1 - Dr. Kvedar.
+    https://tincture.io/chatbots-made-for-healthcare-fec631bc8462
+*** Xiaoice: Bot
+    https://www.nytimes.com/2015/08/04/science/for-sympathetic-ear-more-chinese-turn-to-smartphone-program.html
+** Healthcare Bots
+*** Sense.ly: Virtual nurse following discharged patients with treatment
+    plans and adherence.
+*** Your.MD: Diagnostics (Symptoms Triaging) personal health assistant.
+*** Babylon Health: Virtual Consultation. Determine what patient wants.
+*** MedWhat: Pharmacist answering questions, such as drug side effects.
+

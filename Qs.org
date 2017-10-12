@@ -1,0 +1,89 @@
+- How is your model relevant for Enterprise use cases with little data and many
+  domain specific and low frequency keywords?
+
+  - Canned set of Q&A
+
+  - Question Paraphrasing
+
+  - Rule based pattern matching (NE/Relationship recognition)
+
+  - Transfer Learning & retraining
+
+  - Domain specific keywords 
+
+- How many unlabelled data rows does the information source corpus need?
+
+- How many Question and Answer pairs (labelled data) does your model need?
+
+  - It depends the context or knowledge source and the type of question
+
+    - Getting answers for factual questions from a hand curated KB or from a
+      corpus of documents may require no data as we could use transfer learning
+
+- How do you measure accuracy of your answers?
+
+  - Accuracy @ Rank 1
+
+  - MRR
+
+  - MAP
+
+- What is the accuracy of your answers?
+
+  - Again depends on question type & knowledge souce
+
+    - Answering questions by simply parsing a corpus of documents might be
+      60-80%
+
+    - Answering paraphrase of canned questions might be 95%
+
+    - Answering factual questions from hand curated KBs might be 80-90%
+
+- How do you handle ill formed questions? Do you follow up with clarifying
+  questions to understand the question or provide a generic response?
+
+  - Yes, if a relation/entity is not in the KB, we can ask a clarifying question
+
+- Do you chain the thread of questions to improve answers progressively?
+
+  - Yes.
+
+- How much do you crawl outside the corpus to cover aspects of Qs that have
+  some knowledge outside the scope of corpus?
+
+  - We can use knowledge from Freebase, Wikipedia etc
+
+- What modes among text, audio, image, and video you support for corpus?
+
+  - All
+
+- What modes are supported for asking Questions? Delivering Answers?
+
+  - 
+
+- What are the file formats and languages you ingest? For example
+  ASCII/UTF-8/16 for text, english for language, jpg for images, ...?
+
+- What safeguards do you have to not answer unauthorized users?
+
+- How do you protect data and ensure you're compliant to safeguards
+
+- How long does it take for you train the model?
+
+- What is your reaction/prediction time once a question is asked?
+
+- How many active user sessions can your system support? How long do you keep
+  the session history?
+
+- What is the maximum data your system can ingest?
+
+
+- Value:
+  over IR, to enterprise etc
+- Amount of Data Required
+- Results
+- Conversation Aspects
+  - feedback on ill-formed questions, chaining of questions/context
+- Modes Supported
+- User experience
+  - reaction time of the model

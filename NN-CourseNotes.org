@@ -1,0 +1,1099 @@
+* Neural Networks: Geoffrey Hinton - Coursera
+** Learning Classes
+** Reinforcement Learning
+*** Goal
+    Maximixe expected sum of future rewards with a discount time factor
+*** Challenges
+**** Rewards are delayed
+     Hard to know where we went wrong
+**** Scalar Reward
+     Very limited information - dozens to hundred params rather than Ks to Ms.
+
+** Unsupervised learning
+*** Historically ignored
+    Clustering only practical example for long time
+*** Feature Extraction
+**** Efficiency: Input to Learning Pipeline
+     Create an internal representation useful for subsequent learning.
+     Example: Use reinforcement learning - with limited feedback information
+     to fine-tune algorithmic parameters of motion rather than extract
+     higher layer abstract visual features.
+**** Compact: Low dimensional representation
+     As opposed to PCA it is not limited to limited method
+**** Economical: 
+     Extract binary or real valued features where most of them are zero
+**** Clusters
+     Extreme sparse coding where only one features is accepted
+** Supervised Learning
+
+** Neural Networks
+** Perceptrons: Binary Threshold z = 1 if [W b]*[x 1]' > 0
+   Used for tasks with massive feature (Ms) vectors (e.g. Goog)
+**** Difference from Neural Networks
+     Tune weights towards generously feasible weight vector space 
+     versus Neural Network tune weights towards minimizing output 
+     error via back propagation.
+** Non-Linear Neuron
+   Significantly more powerful than linear neurons
+   Multiple layers can approximate very sophisticated functions.
+   Can be used for prediction and/or classification: NL Neuron can 
+   approximate Linear Neuron as well i.e. incoming
+   weights are close to zero (linear space given inputs) and
+   output weights scale input value to any desired value.
+*** Cost: Softmax (not Square) 
+**** Sigmoid
+     E = -y'log(y); y = sigmoid(z)
+     dE/dz = dE/dy*dy/dz = -(y'/y)*y*(1 - y) = y-1 
+**** Softmax
+     E = sum-i[-y'ilog(yi)]; yi = softmax([z1 z2 ... zn])
+     dE/dzi = -sum-j[dE/dyj*dyj/dzi]
+     = -{y'i/yi*yi(1-yi) - sum-j!=i[y'j/yj*yi*yj]}
+     = -{sum-j[y'j*yi] - y'i} = (yi - y'i)
+**** Square
+***** Penalizes when you get something very right. 
+***** Probability Constraint Agnostic 
+      Does not incorporate the knowledge that sum(prob) = 1 i.e. if
+      the likelihood of one class increases, it can only happen in 
+      a constrained way i.e. probability of other classes have to go down.
+***** Cannot backpropagate error gradient when you get very wrong: 
+      $$
+      E = -\frac{(t - y)^2}{2}; y = \sigma(z) \implies
+      \frac{\partial{E}}{\partial{z}} = 
+      \frac{\partial{E}}{\partial{y}}\frac{\partial{y}}{\partial{z}} = 
+      -(t-y)y(1-y) \implies
+      \vert \frac{\partial{E}}{\partial{z}} \vert \approx 0 
+      \ when \ t=1/y=10^{-5} \ or \ t=0/y=(1-10^{-5}) 
+      $$
+      Choosing cross entropy error solves the problem:
+      $$
+      E = -t\log{y} - (1-t)\log(1-y); y = \sigma(z) \implies
+      \frac{\partial{E}}{\partial{z}} = 
+      -(\frac{ty(1-y)}{y} - \frac{(1-t)y(1-y)}{1-y} = -t(1-y) +(1-t)y = y-t 
+      \implies \vert \frac{\partial{E}}{\partial{z}} \vert \approx 1 
+      \ when \ t=1/y=10^{-5} \ or \ t=0/y=(1-10^{-5}) 
+      $$
+      Observe that effect of disappearing gradient y(1-y) is balanced by 
+      magnification of Error sensitivity to y.
+*** Use: Logistic Regression
+    Simple and Works amazingly well with well crafted hand features used
+    extensively in production systems by Google, Netflix, etc. 
+**** Issue:
+    Feature identification is manual e.g. cannot disambiguate 
+    images under wrap-around if the features are binary (0/1) pixels.
+
+** Multi Layer Perceptrons
+*** Feature Identification Example: Speech Recognition
+**** Phoneme Identification Imperfect
+     Acoustic I/P ambiguous, noisy, accented, slurred, etc.
+**** Context => Hearing: 
+***** Standard Trigram Method = p(new) >> p(neb)
+      Implicitly use Language Model: 'Recognize Speech' vs 'Wreck a nice beach'
+      Larger context (ngram) would improve result but not possible
+      as too many possibilities and very sparse. 'Back-off to digrams' when 
+      count 3-gram ~0 e.g. 'dinasaur cheese pizza' when predicting 'pizza'
+      count('dinasaur cheese') => digram => count('cheese') => predict 'pizza'
+***** Issue: Semantic similarity lost: 
+      n-gram does not understand similary of 'garden/yard', 'friday/monday',...
+      which may help us predict other sentences by imputing counts
+***** Softmax Layer
+      Last Layer and Previous Layer needs |V| incoming weights. Cannot ignore 
+      rare words as training lesser of the "rares" is required.
+****** Serial Architecture
+       Feed top k (W1,.., Wk) candidate words (chosen by another algorithm, 
+       say TriGram) one by one as I/P word. The last layer spews out a 
+       logit score (S1,..,Sk). When all scores are available, Si is assumed
+       softmax score (vote) on Wi and errors are backpropagated as usual.
+       This does not need separate encoding for U/V (Ip vs Op embeddings).
+****** Tree Architecture
+       Input words => Prediction Vector v. Tree of nodes (ui). Words at leaf.
+       p(right-ni)=sigmoid(v'*ui); p(left-ni)=sigmoid(-v'*ui)=1-sigmoid(v'*ui)
+       p(w) = product-i[sigmoid(+/-v'*ui)] => Backpropagate errors.
+       Max(log(p(w))) = sum-i[log(sigmoid(+/-v'*ui))]
+       Training Time: O(log(N)) vs O(N) computation.
+       Test Time: No saving. Compute top candidates until max identified. 
+****** Window of Words with Logit (Collobert and Weston 2008)
+       No language model to predict next but mid word of 11 word window. 
+       Train on ~600M words. Learn mid vs random word fits 10 word window.
+       Mid word should push up vs random word push down prob of final logit.
+*** Vision:
+**** Object recognition is hard
+     Segmentation - objects cluttered
+     Lighting - intensity function of object and lighting
+     Deformation - Non-affine transformation e.g. hand written 2 variations
+     Affordances - wide nomenclature based on usage: chairs vary in look 
+     widely but share name of "chair" as all are used to sit
+     Viewpoint: Dimension hopping - image "2" may appear in different pixel 
+     area of win or age/weight of patient swaps dimension position in medical 
+     DataBase.
+**** Viewpoint Invariance Approaches
+     Invariant Feature: Extract large redundant features invariant under 
+     transformation - translation, rotation, and scaling - not good for object
+     recognition to form features from parts of object.
+     Box: Define orientation correlating shape and box defines coord system.
+     that is invariant under translation, rotation, scale, shear, stretch - 
+     segmentation erros, occlusion, unusual orientations -chicken and egg-
+     recognize the shape to get the box orientation right!
+     Replicated Feature: Many different copies of same feature detector with 
+     different positions - scale/orientation replication is expensive. 
+     Reduces # of free parameters. Several feature types with own map allows 
+     each image patch represented in several ways. Equivariant activity &
+     Invariant knowledge: feature detector in one location is available in 
+     all locations. Pooling (max) outputs of replicated feature detectors 
+     summarizes output, allows more feature maps, and provides some 
+     translation invariance; but ... precise positional accuracy lost.
+**** Priors/Prejudice:  Incorporate by Choosing Different Methods
+     Connectivity, Weight Constraints, or Neuron Activation Functions
+     Synthesize training data that reflects prior bias.
+**** Comparison of Two Approaches
+     Mc. Nemar Test: Incorrect(Model1) && Correct(Model2) :
+     Correct(Model1) && Incorrect(Model2)
+**** 3D Object Recognition
+     Considerably tougher than digit recognition: 100x Classes, 100x prixes, 
+     2D projection of 3D scene, Cluttering, Many objects in image, etc.
+**** Optimization
+***** Linear Neurons has quadratic surfaces. 
+***** Non linear neurons are quadratic in small regions. 
+      Learning rate big => weights slosh to/from across deep ravine.
+      Move quickly in directions with small/consistent gradients but
+      slowly in directions with big/inconsistent gradients.      
+***** Elliptical contours make learning zig-zag along minor axis. 
+      Simplistic learning with all weight derivatives updated by one 
+      learning rate accross all axis makes learning slow i.e. high 
+      learning rate on minor axis diverges minima finding and
+      and low learning rate on major axis slows learning process.
+***** General Approach: 
+      Speed learning rate when gradient is small/consistent and slow
+      rate when gradient is large and inconsistent.
+**** Mini-Batch: Choice for Neural Learning
+***** Large/Redundant Data
+      Batch learning waste time computing same gradient on redundant
+      data. Online learning does not waste time computing gradient
+      but incurs update weight cost and zig-zags due to myopic view.
+      Big Mini-batches on GPUs/FPGAs to save computation works well.
+***** Unbalanced Data in Mini-Batch
+      Unbalanced distribution of classes in each Mini-Batch - classes in 
+      each mini-batch is not representative of overall class distribution -
+      leads to oscillation. One approach is the batch rows are randomized
+      before mini-batches are carved for the next epoch.
+***** Learning Approach for Gradient Descent
+      Error oscillating/deteoriating => Decrease learning rate
+      Error falling consistently but slowly => Increase learning rate
+      Error-Decrease stopped i.e. reaching end of mini-batch learning 
+      => Decrease learning rate to dampen fluctuations in weights 
+      due to variations between mini-batched. NOTE: All Error 
+      estimates are performed on entire validation set as mini-batch 
+      errors by definition are estimates with inherent volatility.
+***** Initialization: Random/Small Weights
+      2 Neurons same Win/Wout => Same gradient => Learn same features
+      fan-in(Neuron) >> 0 => small Win change saturates Neuron
+      Initialize = 1/sqrt(fan-in)
+***** Shift & Scale Input
+      Any cost surface approximated as quadratic surfaces, is better handled
+      with zero data mean and unit data variance. Consider linear Equation
+      $$
+      Err = \frac{\lVert(Ax + y -b)\rVert^2}{N} = 
+      \frac{(Ax + y - b)^T\cdot{(Ax + y - b)}}{N}
+      \textnormal{ for best fit of } Ax + y = b \implies
+      $$
+      $$
+      y_{min} = \arg\min_{\forall_y}{Err} = \frac{(\delta{Err})}{\delta{y}} = 0
+      \implies y_{min} = \frac{\sum_{\forall_{i}}{b_i}}{N} - 
+      \frac{[1, 1, \cdots, 1]^T\cdot{A}}{N}\cdot{x} = \bar{b} - \bar{A}\cdot{x};
+      $$
+      $$
+      where \ \bar{b} = \frac{\sum_{\forall_{i}}{b_i}}{N} \ and \ 
+      \bar{A} = [\bar{A}_{column0}, \cdots, \bar{A}_{columnM}]
+      $$
+      $$
+      x_{min} = (A^TA - \bar{A}^T\bar{A})^{-1}\cdot{(A^Tb - \bar{A}^T\bar{b})}
+      $$
+      $$
+      \ b_{new} = {\sigma(b)}^{-1}\cdot{(b - \bar{b})}; 
+      A_{new} = D_A^{-1}\cdot{(A-\bar{A})},\ where 
+      D_A = diag[\sigma(A_{column0}), \cdots, \sigma(A_{columnM})]
+      \implies
+      $$
+      $$
+      y_{min-new} = \bar{b}_{new} - \bar{A}_{new}\cdot{x} = 0 \ \& \ 
+      x_{new-min} = \frac{D_A}{\sigma(b)}\cdot{x_{min}}
+      $$
+      Transform each component of input vector to zero mean (shift) and 
+      unit variance (scale) over all training set. Steepest descent works 
+      well on (a) circular vs elliptical quadratic well curve and 
+      (b) even curvature along all axis associated with weights.
+****** Intermediate Units: Hyperbolic Tangents
+       Hyperbolic Tangents produces activations with roughly zero mean.
+       $\mu_{\forall{i}}(tanh(x_i) = 2\sigma(2x_i) - 1) \approx 0$. However,
+       sigmoid is better to model binary signals and squelch effects of
+       extreme (+ve/-ve) weights.
+***** Decorrelate Input - more thorough than scale
+      Hard to learn when variables are correlated. All input data of diet
+      may have correlated serving of chips/salad, which makes learning
+      of their contribution to price very difficult.
+      PCA => drop low eigenvalues => re-scale components: converts
+      elliptical error surface to circular.
+***** Common Problems
+      Plateau Beware: Big Learning Rate => Big Weights => Sigmoid Flat
+      => Learning Stops as backpropagation choked by vanishing gradient
+      Premature learning rate decrease reduces learning
+**** Solutions to Speed Mini-Batch Learning
+***** Momentum
+      Instantaneous gradient defines acceleration which impacts the 
+      velocity of the direction of descent which impacts position. 
+      Imagine a ball on error surface. Starts off by moving opposite to 
+      the gradient but after it picks up speed, it has momentum - a tendency 
+      to maintain its previous direction. Damps oscillations in high 
+      curvature directions - combine gradients with opposite signs - 
+      yet build up speed in gentle/consistent gradient direction.
+      $$
+      \Delta{w(t)} = v(t) = \alpha{v(t-1)} - \epsilon\frac{\partial{E(t)}}{\partial{w(t)}}
+      = \alpha{\Delta{w(t-1)}} - \epsilon\frac{\partial{E(t)}}{\partial{w(t)}};
+      \alpha \textnormal{ is friction factor; }
+      $$
+      Improvement of Momentum: Nesterov Gamble=>Correct not Correct=>Gamble
+      $$
+      \Delta{w_1}=\alpha{v(t-1)} \ \& \  
+      \Delta{w_2}= -\epsilon\frac{\partial{E}}{\partial{w}} \textnormal{ evaluated at }
+      w = w(t-1) + \Delta{w_1} \implies w(t)=w(t-1) + \Delta{w_1} + \Delta{w_2}
+      $$
+      Terminal Velocity: $$ 
+      v(t=\infty) = \frac{1}{1-\alpha}(-\epsilon\frac{\partial{E}}{\partial{w}})
+      $$
+      $\alpha = 0.99 \implies$ going 100 times faster than without momentum.
+****** Momentum of Momentum
+       Start with small (e.g. 0.5) momentum to listen to large gradients as
+       initial weights may be obviously very wrong - converge 'quickly' to 
+       get to the hard problem of tackling small gradient ravines. 
+       Then raise momentum smoothly to final value (e.g. 0.99) - small 
+       learning rate with large momentum - rather than large learning
+       rate and small momentum - allows one to effectively use a 
+       larger learning rate than the maximum possible "stable" learning rate 
+       one can use without momentum without causing divergent oscillations.
+***** Separate Adaptive Learning rate per parameter
+      Adjust rate based on consistency of the gradient for that parameter.
+      For example, if gradient sign keeps changing reduce learning rate.
+      Reason is very different gradient magnitudes among layers - gradients 
+      can get very small in early layers. Large fan-in causes overshoot 
+      due to wave of changes on all incoming weights. 
+****** Gain Factor
+       Modulate $\epsilon$ global learning rate with $g_{ij}$ a local 
+       gain factor that is additively increased or multiplicatively decreased 
+       (AIMD) based on whether gradient sign is consistent or not.
+       $$
+       \Delta{w_{ij}} = -\epsilon{g_{ij}}\delta(t); where \ 
+       \delta_{w_{ij}}(t) = \frac{\partial{E}}{\partial{w_{ij}}}(t);
+       \textnormal{if } \delta_{w_{ij}}(t)\delta_{w_{ij}}(t-1) > 0 \implies
+       g_{ij}(t) = g_{ij}(t-1) + 0.05 \textnormal{ else } g_{ij}(t) = g_{ij}(t-1)*0.95
+       $$
+       $$
+       g_{ij}> 1 \implies MD > AI; g_{ij}< 1 \implies MD < AI; 
+       p(sign(\delta(t)\delta(t-1) = +/-ve) = 50\% \implies g_{ij} = 1
+       $$
+       Adaptive learning rates only deal with axis-aligned effects whereas 
+       momentum does not care about axis alignment.
+       + Practical Suggestions:
+         ++ Limit gains to reasonable range [0.1,10]
+	 ++ Big mini-batches - sign changes of gradients aren't sampling error
+	 ++ Combine with momentum: $$ 
+               aimd = f(\delta_{w_{ij}}(t)v_{w_{ij}}(t-1) > 0) $$ gradient and velocity 
+               of gradient (i.e. accumulation of gradient) for that weight. 
+***** RmsProp: Root Mean Square Proportional
+****** rProp
+       Choosing single learning rate is hard - magnitude of gradient can be 
+       very different accross space (different weights) and time. rProp uses
+       gradient sign and adapts step size accross time and space. MI/MD 
+       (1.2/0.5) for $w_{ij}$ if signs of last two gradients agree/disagree.
+       rProp doesn't work on SGD as at small learning rate the effect is 
+       not of averaging over many mini-batches.
+****** RmsProp: rProp for mini-batches
+       Learning Rate for Weight divided by running average of magnitude
+       of recent gradients - equivalent of taking unit steps - combines 
+       robustness of rprop - not stuck in plateaus of tiny gradients and 
+       not unstable when large gradients scaled by large learning rate - 
+       and efficiency of mini-batches - somewhat tolerates redundant 
+       data without compromising efficiency of direction by effective 
+       averaging over mini-batches. Simpler as learning rate is 
+       automatically adapted accross space and time.
+       $$
+       \Delta{w_{ij}}(t)=lr_{w_{ij}}(t){G_{w_{ij}}(t)};
+       lr_{w_{ij}}(t) = \frac{\eta}{RMS(w,t)};
+       G_{w_{ij}}(t) = \frac{\partial{E}}{\partial{w_{ij}}}(t);
+       RMS(w_{ij},t)^2 =   
+       0.9RMS(w_{ij},t-1)^2 + 
+       0.1G_{w_{ij}}^2 + \epsilon
+       $$
+       Combination of rmsprop with Nesterov momentum has worked well.
+**** Wisdom Summary: 
+***** Small DataSet or Non-redundata DataSet: 
+      Full Batch (<10K cases): Conjudate Gradient/LBFGS, Adaptive Learning Rate, rprop, ...
+***** Big Redundant Datasets: Mini Batches
+      - Stochastic Gradient Descent + Momentum + Global Learning Rate
+      - Global learning rate adaptive: sign changes, RmsProp
+      - Uncharted: RmsProm with momentum, adaptive step sizes for each 
+      weight, LeCun's latest recipe on SGC on mini batches
+      - No simple recipe due to varying net structures and varying tasks
+
+** Modeling Sequences
+** Examples: 
+*** Sequence In Domain A => Sequence in Domain B e.g. MT, Speech Recognition
+*** Sequence => Next Element e.g. Language Modeling
+** Memoryless Models: w(t-k), w(t-k+1), ..., w(t-1) => Hidden Layer => w(t)
+** Hidden State Models: 
+*** Stochastic: 
+    Non Deterministic but posterior probability distribution over hidden 
+    state given observed data is deterministic.
+**** Linear Dynamical Systems (LDS): 
+     Sequence: I/P => Hidden State => Output. Gaussian Translations & Noise.
+**** Hidden Markov Model (HMM): 
+     Hidden State (one of N). Transitions: Stochastic with Transition Matrix.
+     Output produced by state are stochastic. 
+     Memory is lgN bits as state {1..N} captures all history. Not Enough!
+     Speech needs to remember Syntax (number/tense), semantics, intonation, 
+     accent, rate, volume, vocal tract characteristics, etc. => N >> 0
+*** Deterministic: 
+**** Recurrent Neural Network (RNN):
+***** Benefits
+****** Distributed Hidden State: R^N 
+       Lots of past information compactly and efficiently stored. 
+       Several hidden units active & non-linear.
+       Hidden state captures equivalent of the deterministic probability 
+       distribution of LDS/HMM.
+****** Feature Representation Power: Compact and Exponential
+       Finite State Automota: Square # of States = S^2
+       Binary addition - 4 Moore States 00, 01, 10, 11 i.e Carry/Emit Digit
+       RNN: Double hidden activity units = 2*S
+****** Variable Length Inputs: 
+       Vanilla MLPs sizing requires sizing to maximum possible input size.
+****** Captures History - akin to Working Memory
+****** Data Efficient - Also true for DNN
+       - Requires much less training data to reach same level of 
+       performance as other models. 
+       - Improves faster than other methods as dataset gets bigger.
+       In general, Deep Neural Network architectures would be very hard
+       to beat as they make very better use of faster computers and 
+       big datasets. 
+**** Training Challenges
+     Forward propagation is non-linear: e.g. logistic function bounds
+     all values between zero and one.
+     Backward propagation is *linear* i.e. double error derivatives at
+     output layer doubles *all* error derivatives as gradients at all
+     Neurons are *fixed* at the forward propagation stage (f'(z)). 
+     Iteration of linear systems suffer from exploding/dieing gradient:
+     Per SVD: dE proportional to |W^n| = |U*S^n*V'| = |S|^n. 
+     |weights| >< 1 => gradients shrink/explode exponentially with time
+     Initializing wt helps. RNN's struggle processing long term dependency.
+**** RNN Learning Ways: LSTM, HF Optimizer, ESN, ESN with Momentum
+***** Hessian Free Optimizer
+****** Math Background
+       $$
+       F(\bold{a}+\bold{x}) - F(\bold{a}) =
+       \nabla{F(\bold{a})}^T\cdot\bold{x}+
+       \frac{1}{2}\cdot\bold{x}^T\cdot{H(\bold{a})}\cdot{\bold{x}}
+       \implies
+       \frac{\partial{F(\bold{a}+\bold{x})}}{\partial{\bold{x}}} = 
+       \nabla{F(\bold{a})} + H(\bold{a})\cdot{\bold{x}}
+       \implies
+       \frac{\partial^2{F(\bold{a}+\bold{x})}}{\partial{\bold{x}^2}} = 
+       H(\bold{a})
+       $$
+       $$ 
+       \textnormal{Linear Optimization Dictates: } \bold{x} = 
+       -\epsilon\times{\nabla{F(\bold{a})}} \implies F(\bold{y}) 
+       \textnormal{ decreases at the  neigborhood of } \bold{a}.
+       $$
+       $$
+       \textnormal{Quadratic Optimization Dictates: } \bold{x} = 
+       -\epsilon\times{H(\bold{a})^{-1}}\nabla{F(\bold{a})} \implies
+       $$
+       $$
+       F(\bold{y}) 
+       \textnormal{ decreases/increases at the neighborhood of }
+       \bold{a} \textnormal{ when Hessian Matrix is positive/negative 
+       semi-definite respectively.}
+       \implies
+       $$
+       $$
+       \textnormal{Greedy descent not optimal for ellipitical (non circular)
+       contours i.e. direction of } 
+       \nabla{F(\bold{a})} \neq H(\bold{a})^{-1}\nabla{F(\bold{a})}
+       $$
+       Apply linear transformation to input variable so that contour lines 
+       are circular i.e. gradient descent is directionally correct i.e. $$
+       H(\bold{a}) = k\cdot{IdentityMatrix}
+       $$
+****** Character Prediction Algorithm.       
+       Input chooses the hh (hidden to hidden) matrix. The Matrix is created
+       via factorization to constrain number of free parameters that require
+       training. hin(t) = sum_i(wf[c]*v*u')*hout(t-1). 
+       Spectral Analogy: Choose top K spectral vectors that vectors are the 
+       same for every character. The top K factors are unique and determined
+       by the character. Weight Matrix for factor f =
+       W[f] = lambda[f][c]*[sum_i{w[f][c]*v[i]*u'[i]}]
+***** Echo State Networks
+      MLP: Early Layer random/fixed. Last linear model layer training 
+      sufficient as enough input features captured to betray the pattern.
+      RNN: Fix Input=>Hidden & Hidden=>Hidden. Train Linear Hidden=>Output.
+      Inner Weights "carefully" initialized so activity doesn't explode/die.
+****** Sensible Initialization
+******* Hidden=>Hidden Weights
+	Ensure |Activity Vector| stays same: 
+        $$\lVert h_{t+1} \rVert \approx \lVert h \rVert \implies$$
+	Equivalent for Linear System: $$
+	\lVert W\times{h} \rVert \approx \lVert h \rVert; 
+	\max_{\forall{\sigma}}{\lVert W_{\sigma_{spectralradius} \rVert}} 
+	\approx 1 
+	$$ 
+	allows input to echo around in the network for long time.
+	Sparse Connectivity: $W[i,j] = 0$ for most i,j. $W[i,j] >> 0$
+	large for few. Creates lots of loosely coupled oscillators.
+******* Input=>Hidden Weights 
+	Scale very "Carefully": Drive "loosely coupled oscillators" without
+	wiping out past information.
+***** Aspects of ESN
+****** Trains very fast: Just fit a linear output model    
+****** Careful/Sensible Initialization of Inside Layer Weights & Sparseness
+       Learning sensible parameters is fast allowing quick exploration
+****** Modeling Results
+******* Impressive for one-dimensional time series but poor for high dim data 
+	e.g. frames of video/acoustic cofficients (pre-processed speech).
+******* Dim(h_esn) >> Dim(h_rnn) that learns hidden=>hidden weights (W_h=>h)
+****** ESN/RNN Mix Model: Ilya Sutskever (2012) improved training RNN Networks
+       ESN Weight Initialization => RNN Training with RmsProp with momentum
+
+** Overfitting
+** Reason: Sampling Error 
+   Data Contains real and accidental regularities due to sampling error =>
+   Model learns from Data both Ip->Op & Bias mapping => Poor Generalization
+** Resolution Approaches
+*** More Data
+*** Limit Model Capacity
+    Difficult - need just enough to fit true but ignore spurious regularities
+    Way to limit capacity. Combination of below methods are used.
+***** Methods: 
+****** Architecture: #Hidden Layers or #Units/Layer
+****** Early Stopping: Initialize with small weights & stop learning when 
+       performance stops as weights grow. Note that small weights are low
+       capacity models as net operates in linear range of non-linear units.
+       We assume low capacity models find/map true regularities in data 
+       before spurious ones.
+****** Weight Decay: 
+******* Weight Penalty: L1/L2/LN Regularization i.e. penalize large weights. 
+	Use weights on feature where hypersensitivity to change exists. 
+	Weights are more distributed against similar inputs. Fewer & smaller
+	weights ensures a smooth output function to input change. L1 
+	regularization drives unimportant feature weights to zero (rather 
+	than small) helping interpretation. Schemes exist to penalize 
+	small weights but not large weigths to concentrate on few features.
+******* Weight Constraint: Truncate Incoming Weight-Vector-Unit to Max
+	Vs Weight Penalty Pros: Easier to set a sensible value. 
+	Prevent hidden units stuck near zero as tiny weights allowed to grow 
+	unconstrained. Prevents big weight explosion. Unit hits limit on 
+	weights with big gradients effecting redistribution of "energy" 
+	from smaller to bigger weights to normalization - more effective
+	way than fixed penalty to push irrelevant weights to zero.
+****** Noise: Add to weights or activities
+******* Gaussian Noisy Inputs $\implies$ L2 Regularizer on Weights.
+	$$
+	E[(y_{noisy} - t)^2] = E[(\sum_{\forall{i}}{w_i(x_i + e_i) - t})^2] =
+	E[(y + \sum_{\forall{i}}(w_ie_i) - t)^2] = 
+	E[(y-t)^2] + \sum_{\forall{i}}{w_i^2E(e_i^2)} =
+	E[(y-t)^2] + \sigma_{e=\forall_{i}{e_i}}^2\sum_{\forall{i}}{w_i^2} \implies
+	\sigma_{e}^2 \textnormal{ operates as L2 regularizer on } w_i
+	$$
+******* Gaussian Noisy Weights
+	Not equivalent to L2 weight penalty. Works better especially in RNN.
+	Basically forces model to "make up mind" and push away from low 
+	value linear region.
+******* Noisy Activity
+	MLP with logistic units: Forward pass treats units binary/stochastic
+	but backward pass done as usual. Works when all units contribute.
+	Worse results on training set and training is slower but generalizes
+	much better on test set.
+****** Summary
+       L2 regularization penalizes high weight values. 
+       L1 regularization penalizes weight values that do not equal zero. 
+       Adding noise to the weights during learning ensures that the learned 
+       hidden representations take extreme values. 
+       Sampling the hidden representations regularizes the network by pushing 
+       the hidden representation to be binary during the forward pass which 
+       limits the modeling capacity of the network.
+***** Tuning Hyper/Meta Parameters
+      Wrong to use test set for choosing best meta parameters. Use validation
+      set for tuning meta parameters. Performance in test < validation.
+****** N-fold Cross Validation
+       Partition D into n+1 subsets. S1, S2, ..., Sn, Sn+1. Sn+1 left for test.
+       Train n times leaving aside one subset for validation: 
+       T1 on S2..Sn and V1 on S1, T2 on S1, S3..Sn and V2 on T2, ...
+       N different train/validation error estimates: on T1/V1, ..., Tn/Vn
+*** Bayesian: Framework assumes prior distribution for everything
+    Single NN architecture votes with different weight vectors: Average
+    Instead of looking at the frequentist answer i.e. MLE of parameters, we 
+    consider *all probable settings* of parameters and for each how probable
+    is the parameter given the data we observed i.e. balances the likelihood
+    of prior with the likelihood of observed data. 
+    argmax_W p(W|D) = argmax_W p(D|W)*p(W)
+**** Supervised MLE
+     $$
+     y_c = f(Input_c, W);
+     \textnormal{Assume } p(t_c|y_c) = Normal(y_c, \sigma^2) \implies
+     \min{-\log{p(t_c|y_c)}} = \min{k + 
+     \frac{1}{2}(\frac{t_c - y_c}{\sigma})^2} \implies 
+     \max(log\ prob\ under\ Gaussian) = \min(error^2)
+     $$
+**** MAP: Maximum a Posteriori
+     Find full posterior distribution over all weight vector space -
+     hopelessly difficult for non-linear net with many weights.
+     MAP finds parameters that maximizes the probability of producing 
+     target values on all training data) given the prior beliefs.
+     $$
+     p(D|W)=\prod_{\forall{input_c}}{p(y_c=t_c|W)} =
+     \prod_{\forall{input_c}}{p(y_c=t_c|y_c=f(input_c, W))} \implies
+     $$
+     $$
+     \log p(D|W)  = \log \prod_{\forall{input_c}}{p(y_c=t_c|y_c=f(input_c, W))}
+     $$
+     $$
+     p(W|D)=p(W)*\dfrac{p(D|W)}{p(D)} \implies
+     -\log p(W|D)=-\log p(W) + \log p(D) - \log p(D|W);
+     $$
+     $$
+     \max_{\forall{W}}{p(W|D)}=
+     \min_{\forall{W}}{-\log p(W|D)} = 
+     \min_{\forall{W}}{-\log p(W) +\log p(D) - \log p(D|W)} \implies
+     $$
+     $$
+     p(W) = \prod_{\forall i}{\dfrac{e^{-\dfrac{(w_i-0)^2}{2\sigma_{w_i}^2}}}
+     {\sqrt{2\pi\sigma_{w_i}^2}}}
+     = \dfrac{e^{-\sum_i{\dfrac{(w_i-0)^2}{2\sigma_w^2}}}}
+     {\sqrt{2\pi\sigma_w^2}^N}
+     \textnormal{ assuming } \forall i: \sigma_{w_i}=\sigma_w
+     $$
+     $$
+     c=\dfrac{1}{2}{\sum_c{\dfrac{(y_c - t_c)^2}{\sigma_d^2}}} + 
+     \dfrac{1}{2}{\sum_i{\dfrac{w_i^2}{\sigma_w^2}}}; 
+     = err^2 + (\dfrac{\sigma_d}{\sigma_w})^2\sum_i{w_i^2}; 
+     note: \mu_{w_i}=0 \implies \min_w{\sum{w_i^2}}=\min_w{-\log p(w)}; 
+     $$
+     assuming: model is gaussian prediction & gaussian prior for weights
+     lambda regularizer is variance ratio of gaussian noise output and weight prior
+**** mackay's quick/dirty method of fixing weight costs
+     determine weight penalty of neural network without validation set
+     thus allowing different weight penalties for different nn subsets.
+     hack: use data to estimate noise and prior params.
+***** estimate $Var(d) = \sigma_d^2$
+      $var_D =$ variance of residual errors of data after learning i.e.
+      fit neural output vs target to gaussian noise output
+***** estimate $Var(w) = \sigma_w^2$
+      $Var_w =$ Variance of weights after learning i.e. fit $\mu_w = 0$
+      Guassian to one-dimensional distribution of learned weights
+      We learn different variances for different weights (e.g. layers)
+      More data efficient - no validation set needed as $\lambda$ computed - 
+      and allows one to use different lambda for different layers that
+      is very expensive object with validation set use.
+***** Algorithm
+      - Start with guess of $(\dfrac{\sigma_d}{\sigma_w})^2$ *Variance ratio* of noise and weight_prior.
+      - Do some learning using the guessed ratio as lambda/regularizer.
+      - Reset Variance_Noise to the variance of residual errors observed.
+      - Reset Variance_Weight_Prior to the variance of weights learnt.
+      - Loop to learning step until bored!
+*** Average 
+    Ensemble: Use disparate models with different forms
+    Bagging: Trained on different subset data               
+**** Rational
+     Tradeoff on improving model capacity to fit true regularities of data vs 
+     overfitting sampling error. Average predictions of many models, specially 
+     model making very different predictions (operates well on different data) 
+     reduces overfitting.
+***** Bias/Variance Trade off: Error = Bias + Variance
+      $$
+      E[(t-y_i)^2]=E[((t-E(y))-(y_i-E(y)))^2]=E[(t-E(y))^2]+E[(y_i-E(y)))^2] \implies 
+      E(Err^2) = \textnormal{Bias + Variance, and } E[(t-y_i)^2]>E[(t-E(y))^2]
+      $$
+      Bias measures -model undercapacity- how poorly the model approximates 
+      true function. Variance measures -model overcapacity- how excessively 
+      the model fits sampling error.
+      "Averaging Model" that averages accross high capacity models allows it 
+      to realize a low bias and low variance characteristic. "Combining 
+      Predictors" are better than individual predictors when they disagree
+      a lot - different errors tend to cancel each other: 
+***** Averaging Model Prediction reduces Error 
+      - Prediction/Target Squared Error: 
+      $$Err^2 = \dfrac{1}{2}((y_1-t)^2+(y_2-t)^2); 
+      \textnormal{ Assuming } 
+      y_{avg}=(\dfrac{1}{2}(y_1+y_2) -t); y_{spread}=\dfrac{1}{2}(y_2-y_1) \implies 
+      Err^2 = \dfrac{1}{2}((y_{avg}-y_{spread})^2+(y_{avg}+y_{spread})^2) = 
+      y_{avg}^2+y_{spread}^2 > y_{avg}^2 = Err_{avg}^2
+      $$
+      - Prediction/Target Cross Entropy Error: 
+      As $-\log{y}$ is a convex function of input $y$
+      $$
+      XentErr = -\dfrac{\log{p_{y_1}} + \log{p_{y_2}}}{2} > 
+      -\log{\dfrac{p_{y_1} + p_{y_2}}{2}} = XentErr_{avg}
+      $$ 
+      where $p_{y_i}$ is probability of $model_i$ instances predicting the 
+      correct target $y$.
+***** Choice of Disparate Models: 
+      Model predictors should differ and operate well on different data. 
+      - Learning stochasticity of model i.e. if we start at random initial 
+      points we'll end in different local optima.
+      - Algorithms: Decision Trees, Gaussian Process Models, SVMs, ...
+      - Hyper Parameters: 
+        + #Layers, #Units, NonLinear (ReLu, tanh, sigmoid)
+        + Regularization Techniques (Wt Penalty/Constraint, Gaussian Noise)
+        + Learning Algorithms (Full Batch, Mini Batch)
+****** Bagging
+       Train models on different data subset sampled with replacement
+******* Random Forests: 
+	Average of lots of DTs trained using bagging e.g. ConnectBox
+	Bagging with NN works but computationally expensive for NN 
+	during training/test time. DTs work well on models that are 
+	fast/cheap allowing one to run many instances.
+****** Boosting: 
+       Train each model on whole data set but weight training cases 
+       differently for each model in sequence. Up-weight cases that
+       previous models got wrong and down-weight cases it got right.
+       Next model in sequence focuses on needs improvement cases.
+       e.g. MNIST: NN sequences focused computation on modeling 
+       tricky cases.
+*** Mixture of Experts
+    Manager assigns specialist to one of M NN. Each specializes in different 
+    parts/regimes of dataset. Data is fractured among specialists but with
+    massive datasets it has promise. Good if dataset has different regimes 
+    with different $Ip \implies Op$ relationship. Note Boosting weights 
+    different models but a given model has same weight on every test case. 
+    e.g. Financial data exhibits different relationship based on economy.  
+**** Challenge: Partitioning into Regimes    
+     How we identify diffent regimes i.e. partition data to make each 
+     expert model focus on specific cases it is doing well than other 
+     experts and ignore cases it isn't good at modeling. The partitioning
+     requires special kind of "clustering," where training cases are 
+     categorized based on similarity of $Ip \implies Op$ relationship 
+     rather than just similarity of input data.
+***** Model Cooperation vs Specialization
+****** Cooperation
+       Average of Error rather Error of prediction averages during training. 
+       Backpropagation of error from averaging predictions 
+       ($Err = (t-E(y_i))^2$) overfits badly vs training as each predictor 
+       tries to individually compensate for the error of other models
+       even when its prediction is reasonably accurate.
+****** Specialization
+       Compare each predictor/target separately and then use a manager to 
+       determine expert based on probability of expertize:
+       $$
+       Err = \bold{E_{\forall Model_i}}(Err_{Model_i})=
+       -\sum_{Model_i}{\log{p(t|output=y_i)}} \textnormal{ or }
+       \sum_{Model_i}{(t-y_i)^2}
+       $$
+       Note that most experts ignore most data and focus on few where it 
+       is extremely accurate.
+******* Simple CostFn: 
+	$$
+	Err = \sum_{Model_i}{p_{Model_i}^c(t^c-y_i^c)^2}; 
+	p_{Model_i}^c = softmax[x_0^c,x_1^c, ...]); 
+	$$
+	$$
+	dErr/dy_i^c=-2p_{Model_i}^c(t^c-y_i^c); 
+	dErr/dx_i^c=p_i^c(t^c-y_i^c)^2-p_i^cErr = p_i^c(Err_{Model_i} - Err)
+	$$ 
+	Back propation wrt model output is weighted towards experts 
+	i.e. those with high $p_{Model_i}^c$. Back propagation wrt expert 
+	choice is such that models showing less than average error on this 
+	data have their $p_{Model_i}^c$ raised and models exhibiting 
+	poorer results have their $p_{Model_i}^c$ reduced.
+******* Mixture of Experts: Gaussian Mixture Model
+	$$
+	Err=-log(p(t^c|MoE))=-log(\sum_{Model_i}{M_{Model_i}^c}); 
+	M_{Model_i}^c=p_{Model_i}^cN(t^c-y_i^c,1); 
+	p_{Model_i}^c = softmax[x_{Model_0}^c,x_{Model_1}^c, ...])
+	$$
+	$$
+	dErr/dy_{Model_i}^c \propto 
+	-\dfrac{M_{Model_i}^c}{p(t^c|MoE)}(t^c-y_{Model_i}^c);
+	dErr/dx_{Mode_i}^c \propto 
+	-\dfrac{p_{Model_i}^c(N(t^c-y_i^c,1) - p(t^c|MoE))}{p(t^c|MoE)}
+	$$ 
+	Back propation wrt model is weighted toward experts
+	i.e. those with relatively high ownership of prediction 
+	i.e. high $M_{Model_i}^c=p_{Model_i}^cN(t^c-y_i^c,1)$.
+	Back propagation wrt expert choice is such that models 
+	voting with more confidence than the mixture probability 
+	of the correct target have their expertize softmax score 
+	raised $x_{Model_i}^c$ and vice versa for models 
+	exhibiting poorer results.
+*** Full Bayesian Learning (FBL)
+    FBL learns the probability distribution of parameters i.e. p(w|Data).
+    MLE/MAP learns "Best single" parameter. 
+    $$
+    MLE = \arg\max_w{p(Data|w)} 
+    \textnormal{ i.e. w is fixed} 
+    $$
+    $$
+    MAP = \arg\max_w{p(w|Data)} = \arg\max_w{p(Data|w)p(w)}
+    \textnormal{ i.e. compute one 'w' with best posterior probability}
+    $$
+    Overfitting disappears with Bayesian Learning even when using a 
+    complex model with less data as the prior operates like a regularizer 
+    to the learning process.
+**** Approximating FBL in NN
+     Evaluate in a grid of parameter possibilities $p(w|Data)$:
+     $$
+     p(y_{test}|input_{test}, D) = 
+     \sum_{\forall g}{p(W_g|D)p(y_{test}|input_{test},W_g)}
+     $$
+**** Practical Approach To FBL
+     Exponential number of parameters $$
+     \left\vert{W_g}\right\vert >> 0 \implies
+     $$ 
+     Use Sampling according to weight parameter grid posterior $p(W_g|D)$. 
+     Estimate of  $$
+     p(t_{test}|input_{test}) = 
+     \sum_{W_{g\textasciitilde}p(W_g|D)}{p(t_{test}|input_{test},W_g)}
+     $$
+***** Sampling Technique: Markov Chain Monte Carlo (MCMC)
+      Error descent starting on random vectors => Add "right" amount of 
+      noise at each iteration => Sample weight after "long enough" =>
+      Weight Vector is an unbiased sample of posterior: $p(W_g|D)!$
+      MCMC allows full Bayesian learning with 1000s of parameters.
+***** FBL with Mini-Batches 
+      Compute gradient on random mini-batches i.e. sampling noise as proxy 
+      for MCMC noise => FBL possible on large network with lots of parameters
+      - we have to train with mini-batches to have any hope of training.
+*** Dropout: Efficient way to combine neural nets
+    Mixture - probability weighted arithmetic mean of model outputs.
+    Product - probability weighted geometric mean (GM) of model outputs.
+    In this case models have veto power to reject a prediction.
+**** Process:
+     Training: For each training data, randomly keep $p_h=d$ hidden units,
+     drop the rest, and randomly keep input units with $p_i>d (why?)$.
+     Test: Reduce the trained weights $w_i$ to $pw_i$ so that the 
+     GM of each model is computed. For example if number of hidden units
+     is H and dropout p is $\dfrac{1}{2}$, we have a total of $2^H$ 
+     different models where $Model_x$ has all those hidden units on or off
+     based on whether the binary bit representation of number x is turned
+     on or off.
+     $$
+     p(t^c = k) = 
+     {\prod_{\forall Model_i=1}^{Model_i={2^H}}
+     {p(t^c=y_{Model_ik}^c)}}^{\dfrac{1}{2^H}};
+     softmax(Model_i) = [x_{Model_i1}, ...., x_{Model_iH}]
+     $$
+     Assuming a simple 1:1 hidden to softmax output mapping 
+     unit, reducing all weights $w_i$ to $\dfrac{1}{2}w_i$ computes the
+     effective GM accross $2^H$ models as every hidden layer would be 
+     off $\dfrac{1}{2}$ the time due to dropout and contributing its
+     fair share the remaining $\dfrac{1}{2}$ the time.
+     $$softmax_{average}(Model_i) = 
+     [\dfrac{x_{Model_i1}}{2}, ...., \dfrac{x_{Model_iH}}{2}]
+     $$
+     Note arithmetic mean at softmax level is equivalent to geometric mean
+     at probability output level due to exponentiation.
+**** Explanation-A
+     For single hidden layer with H hidden units, dropout p of 1/2 is akin
+     to taking the GM of 2^H models, where models share weights
+     thereby regularizing output. For multiple hidden layers the process
+     is akin to a fast approximation of GM.
+**** Explanation-B
+     If a Hidden Unit "knows" which other hidden units are present and
+     dominant for given training data, it can co-adaptation to them 
+     i.e. it'll try to fix up (backpropagate) any error that is 
+     only left over when the other dominant hidden units have had their 
+     say => overfits => likely to go wrong on test data as any is required
+     to misfire of the lots of complex weave of adapted interactions 
+     that must work to predict correctly. Rather force hidden units to 
+     work well combinatorially with others, contribute something 
+     individually useful, and deliver signals that are marginally useful 
+     given what its co-workers achieve rather than being lazy/dependent.
+**** Alternative:
+     Run the stochastic model with dropout several times on same input and 
+     average accross models. Also provides uncertainty of estimate.
+**** Summary:
+     If DNN/NN is overfitting use Dropout with "early stopping" at the cost 
+     of taking longer to train. If not overfitting use big enough NN that
+     we overfit and then use Dropout with "early stopping."
+** Hopfield Nets
+  Non-linear binary threshold units with *symmetric* recurrent connections
+  forming an arbitrarily connected bidirectional graph. HNs allows units 
+  to compute locally its contribution to a global quadratic energy function: 
+** Energy Equation
+   $$
+   -E(\bold{s, W}) = \sum_i{s_ib_i} + \sum_{i<j}{s_is_jw_{ij}} = 
+   \bold{s^{T}*W*s}
+   $$
+   $$
+   \textnormal{Energy Gap} =  \Delta{E_i} = E(s_i=0)-E(s_i=1) \textnormal{ i.e. }
+   \bold{\Delta{E} = (W^T+W)s + diagonal({W})\circ(1-2s)},
+   $$
+   $$
+   \textnormal{where } W_{ij}=W_{ji}=\dfrac{w_{ij}}{2}
+   \textnormal{, } W_{ii}=b_i=w_{ii}
+   \textnormal{, and } \Delta{E_i} = b_i+\sum_{j\neq{i}}{s_jw_{ij}}
+   $$
+** Energy Minimum State: Binary Threshold Decision Rule (BTDR)
+   Start from a random state $\rightarrow$ update units one at a time in random 
+   order to whichever of two states with lower global energy.
+*** HF Nets as Memory Storage Process: 
+    Hopfied 1982 observed the energy minima of NN with symmetric weights 
+    defines the binary vector memory as represented by the states. 
+    The CAM memory can be accessed by knowing *partial* content.
+    Contents can be reconstructed using BTDR even in the face of 
+    hardware damage.
+**** Weight Update Process
+     Activity States of +1/-1: $\Delta{w_{ij}}=s_is_j$
+     Activity States of 0/1: $$\Delta{w_{ij}}=
+     4(s_i-\dfrac{1}{2})(s_j-\dfrac{1}{2})$$
+     Capacity of totally connected net with N units: 
+     $$
+     0.15N^2 = 0.15N MemoryStates \times N bits/MemoryState
+     $$
+**** Memory Limitation - "spurious minima"
+     Net doesn't use efficiently bits needed to store weights/biases=
+     $N^2\log(2M+1)=N^2 weights\times\log{[-M,M]} bits/Weight$
+     Reason: Two nearby minima merge to create min at an intermediate
+     location thereby blurring the ability to distinguish disparate states.
+**** Unlearning - Avoiding Spurious Minima a.k.a. pseudo likelihood
+     Unlearn to get rid of spurious minima to increase memory capacity.
+     Elizabeth Gardiner: Instead of trying to store vectors in one shot,
+     cycle through the training set several times. Use perceptron 
+     convergence procedure generalized to symmetric weights where we train
+     each unit to have correct state given the states of all other units.
+*** HF Nets as Interpretation of Sensory Input
+    Representations: Input by visible units, interpretation by hidden unit 
+    states, and "badness" of interpretation by energy.
+**** Noisy networks find better energy minima
+     HNs *always* acts to lower energy $\rightarrow$ 
+     no escaping local minima $\rightarrow$ use random noise to 
+     escape shallow valleys. 
+     "Simulated annealing" starts with lot of noise progressively 
+     reduce to allow system to settle in deep minimum.
+***** Noise Adding Mechanism
+      Replace binary threshold unit with binary stochastic units making
+      biased random decisions - temperature controls "noise" level i.e.
+      decreases energy gaps between barriers separating configurations.
+      $p(s_i=1)=\dfrac{1}{1+e^{-\Delta{E_i/T}}}; T>>0 => p=0.5$
+      i.e. s_i is in binary on/off state; 
+      $T\approx{0} => sign(Energy Gap) -ve => p=0 \textnormal{ else }p=1$ 
+      i.e. adopts deterministic lower state aka binary threshold unit.
+      High temperature T increases transition probabilities of 
+      systems accross possible configurations but also allows more 
+      configurations to be stuck in local minima as it reduces overall 
+      ratio of transition probability between global vs local minima. 
+      Low temperature T reduces overall chance of transition but 
+      makes the global energy minima configurations more stable 
+      increasing ratio vs local minima. "Simulated Annealing" allows 
+      quick transitions initially to escape local minima valleys and 
+      later settle to global minima states.
+*** Boltzman Machines
+    $$
+    p(\vec{\bold{v}}) = 
+    \dfrac{\exp(-E(\vec{\bold{v}}))}{\sum_{\forall{u}}{\exp(-E(\vec{\bold{u}}))}};
+    -E(\vec{\bold{v}}) = \sum_i{s_ib_i} + \sum_{i<j}{s_is_jw_{ij}};
+    \vec{\bold{v}} = \vec{\bold{s}} = [s_0, s1, \cdots, s_n]^T; 
+    $$
+   **** Binary Stochastic Units at Temperature of 1
+     Standard Logistic Fn in Energy Gap: $$
+     p(s_i=1)=\dfrac{1}{1+e^{-EnergyGap}}$$
+**** Thermal Equilibrium at Temperature of 1
+     Probability Distribution over configurations have settled - note
+     that a given system need not be settled into one low/lowest energy 
+     configuration.
+***** Initialization: 
+      Start with any distribution over all identical systems i.e. start
+      with all systems in one configuration with p=1 or equal number
+      of systems in each possible configuration.
+***** Update
+      Keep applying stochastic update rule $\rightarrow$ 
+      next config of each system.
+***** Stationary Distribution <=> Thermal Equilibrium
+      After some time, fraction of systems in each config is constant.
+      Any given systems keeps changing config but fraction doesn't change.
+** Boltzmann Machine (BMs) - Stochastic HF Nets with Hidden Units
+  Model set of binary vectors, where given a set of binary vectors we fit a 
+  model assigning probability to every possible binary vector. 
+** Use Cases:
+*** Document Identification: 
+    Given co-occurent words (binary vectors) identify most likely origin doc.
+*** Anomaly Detection of Catastrophic Events
+    Detect unusual behavior by observing usual behavior pattern is *not* met 
+    i.e. detection of anomaly without actually having trained to the event. 
+*** Identify Distribution Triggering Events
+    Given models of several different distributions, BMs computes the posterior
+    probability of a distribution producing the data i.e. 
+    $$
+    p(Model_i|D) = 
+    \dfrac{p(D|Model_i)*p(Model_i)}{sum_jp(D|Model_j)*p(Model_j)} = 
+    \dfrac{p(D|Model_i)}{sum_j{p(D|Model_j)}}
+    \textnormal{ as no prior basis implies }{p(Model_i) = 
+    p(Model_j)}\forall{i,j}$$
+** Generative Model - Mechanisms To Generate Data 
+*** Causal Model Generated Data:
+    Pick Hidden States $\rightarrow$ Pick Visible States from hidden states.
+    Probability of generating visible vector v: $p(v) = \sum_hp(h)*p(v|h)$
+    Each hidden state is an "explanation" of v.
+*** Boltzman Machine Generates Data:
+    Energy based model define energies of *joint configurations* $E_g$ of 
+    the visible and hidden units. 
+**** Mathematical Representation
+     An equivalent model is the stationary probability distribution of the 
+     network in a given joint configuration after the stochastic binary units
+     have settled down: 
+     $$
+     p(\bold{v,h}) =
+     \dfrac{e^{-E(\bold{v,h})}}{PF} 
+    \textnormal{, where PartitionFunction }PF={\sum_{\bold{u,g}}e^{-E(\bold{u,g})}} 
+    $$
+    $$
+    p(\bold{v,h}) \propto e^{-E(\bold{v,h})} 
+    \textnormal{, where }-E(\bold{v,h})=
+    $$ 
+    $$
+    \sum\nolimits_{_i \in vis}v_ib_i + 
+    \sum\nolimits_{_k \in hid}h_kb_k + 
+    \sum\nolimits_{_{i<j}}v_iv_jw_{ij} + 
+    \sum\nolimits_{_{i,k}}v_ih_kw_{ik} + 
+    \sum\nolimits_{_{k<l}}h_kh_lw_{kl} =
+    $$
+    $$
+    \bold{v^{T}W_{vv}v + v^{T}W_{vh}h + h^{T}W_{hh}h}
+    \textnormal{, where }
+    $$
+    $$
+    W_{vv}[i,i]=b_i
+    \textnormal{, }W_{hh}[k,k]=b_k
+    \textnormal{, }W_{vv}[i,j]=W_{vv}[j,i]=\dfrac{w_{ij}}{2}
+    \textnormal{, }W_{vh}[i,k]=W_{vh}[k,i]=\dfrac{w_{ik}}{2}
+    \textnormal{, and }W_{hh}[k,l]=W_{hh}[l,k]=\dfrac{w_{kl}}{2}
+    $$
+    $$
+    \textnormal{Probability of a configuration of visible units }
+    p(\bold{v}) =  \dfrac{\sum_{\bold{h}}{e^{-E(\bold{v,h})}}}{PF}
+    $$
+**** Challenge and MCMC to the rescue
+     The computing units in the normalizing term (i.e. Patition Function PF) 
+     exponentially grows with the number of hidden units. We use MCMC
+     to get samples from the model:
+     1 Start from a random global configuration.
+     2 Pick units at random. Stochastically update state based on energy gaps.
+     3 Loop until T=1 thermal equilibrium or stationary distribution reached.
+     Model is sampled at probability of a global configuration related to its 
+     Boltzman distribution energy: $p(\bold{v,h}) \propto e^{-E(\bold{v,h})}$
+**** Distribution of Model Generating Data
+     Exponential number of hidden vector configurations may generate the 
+     visible data vector. Sample using MCMC with visible vector units 
+     clamped to given data vector. Samples from posterior needed for
+     learning the weights. Each hidden configuration provides explanation of 
+     observed visible configuration. Better explanations have lower energy.
+** Boltzmann Machine Learning Algorithm:
+  $$
+  \max{\sum_{t_i \in training}{\log(p_{BoltzmanMachine}\vec{\bold{v}}_i)}};
+  p(\bold{\vec{v},\vec{h}}) = 
+  \frac{\sum_{\forall{\bold{\vec{h}}}}\exp(-E(\bold{\vec{v}, \vec{h}}))}
+  {\sum_{\forall{\bold{\vec{u}, \vec{r}}}}{\exp(-E(\bold{\vec{u},\vec{r}}))}}
+  $$ 
+  $$
+  \frac{\partial\log{p(\bold{\vec{v}})}}{\partial{w_{ij}}} = 
+  \frac{\sum_{\forall{\bold{\vec{h}}}}
+  \exp(-E(\bold{\vec{v}, \vec{h}}))
+  {\frac{\partial{-E(\bold{\vec{v}, \vec{h}})}}
+  {\partial{w_{ij}}}}}
+  {\sum_{\forall{\bold{\vec{g}}}}\exp(-E(\bold{\vec{v}, \vec{g}}))} -
+  \frac{\sum_{\forall{\bold{\vec{u}, \vec{r}}}}
+  \exp(-E(\bold{\vec{u}, \vec{r}}))
+  \frac{\partial{-E(\bold{\vec{u}, \vec{r}})}}{\partial{w_{ij}}}}
+  {\sum_{\forall{\bold{\vec{p}, \vec{t}}}}{\exp(-E(\bold{\vec{p}, \vec{t}}))}} =
+  \sum_{\forall{\bold{\vec{h}}}}
+  {s_i\cdot{s_j}}\cdot{\frac{p(\bold{\vec{v}, \vec{h}})}{p(\bold{\vec{v}})}} - 
+  \sum_{\forall{\bold{\vec{u}, \vec{r}}}}
+  {s_i\cdot{s_j}}\cdot{p(\bold{\vec{u}, \vec{r}})} = 
+  \sum_{\forall{\bold{\vec{h}}}}
+  {s_i\cdot{s_j}}{p(\bold{\vec{h}|\vec{v}})} -    
+  \sum_{\forall{\bold{\vec{u}, \vec{r}}}}
+  {s_i\cdot{s_j}}\cdot{p(\bold{\vec{u}, \vec{r}})}
+  \implies 
+  $$
+  $$
+  E_{\vec{\bold{v}} \in data}[\frac{\partial\log{p(\vec{\bold{v}})}}{\partial{w_{ij}}}] = 
+  E_{s_i\cdot{s_j}}|_{\vec{\bold{v}} \in data} -   E_{s_i\cdot{s_j}} \implies
+  \Delta{w_{ij}} \propto \langle s_i\cdot{s_j} \rangle_{data} - 
+  \langle s_i\cdot{s_j} \rangle_{model}
+  $$ 
+  Above equation suggests the weight update process is balancing updates
+  as prescribed by Hopfield Nets with the unlearning required to 
+  avoid spurious minima.
+** Restricted Boltzmann Machines
+   Bipartite graph: One layer of visible/hidden units. No connections between 
+   hidden/visible units. Reaches thermal equilibrium in one step with visible 
+   data vector clamped. $$
+   \forall{j}: p_{j_v} = p(h_j = 1)_v 
+   \textnormal { can be computed in one step in parallel. }
+   $$
+   Contrastive Divergence Learning facilitates learning on RBMs: 
+   + Starting with data vector, $\vec{\bold{v}} $, on the visible units, update all hidden units 
+   in parallel: $$
+   \langle v_ih_j \rangle_{\bold{v}} = 
+   p(h_{j}=1|\vec{\bold{v}}) = 
+   \sigma(b_j + \sum_{i \in vis}{v_iw_{ij}}) = 
+   \frac{1}{1 + \exp(-b_j - \sum_{i \in vis}{v_iw_{ij}}))}
+   $$
+   Then reconstruct all visible units in parallel: 
+   $$
+   \langle v_ih_j \rangle_{\bold{data}} = 
+   p(v_i=1|{\vec{\bold{v}}}) = 
+   \frac{1}{1 + \exp(-b_i - \sum_{j \in hidden}{h_jw_{ij}})}
+   $$
+   After averaging the pairwise statistics over one or more training cases,
+   update weights in parallel: $$
+   \Delta{w_{ij}} \propto  \langle v_ih_j \rangle_{\bold{v}} -  
+   \langle v_ih_j \rangle_{\bold{data}}
+   $$
+   Use cases include vision (digit recognition), collaborative filtering, etc.
+** Real Belief Networks
+  Belief Net is a DAG composed of stochastic variables.
+  + Inference Problem: Infer state of unobserved given observed variables.
+  + Learning Problem: Adjust interaction between variables to make the
+     network more likely to generate the training data.
+** Statistics vs AI
+  Statistics deals with relatively clean low-dimensional data with simple 
+  structure whereas AI deals with noisy, high dimensional data,
+  with sophistical structures. Statistics tries separating
+  true structure from noise using SVP/GP wheas AI tries to figure out and 
+  learn representations of complex structure.
+*** SVM Interpretation
+    Clever incarnation of perceptrons using kernel tricks map input features
+    to non-linear/non-adaptive features. Use one layer of adaptive weights 
+    and maximum margin hyperplanes it efficiently learns weights and control 
+    overfitting. 
+** Backpropagation 
+   Challenges:
+    + Requires labeled training data whereas most data is unlabelled.
+    + Learning time scales poorly with scale of network #(layers, units, etc.)
+    + Gets stuck in poor local optima.
+    Solutions:
+    + Unsupervised learning for modeling structure that generate the input.
+    + $$\textnormal{objective function: } \max{p(Data)} \neq p(label|Data)$$
+** Type - Generative NN Composed of Binary Stochastic Neurons (BSN)
+   + Energy-Based Nets - BMs with BSNs symmetrically connected.
+   + Causal - Sigmoid Belief Nets with BNS connected via DAG.
+*** Wake-Sleep Algorithm
+    SBN are hard to learn as it is hard to get an unbiased sample let alone 
+    infer the posterior distribution over hidden configurations given a 
+    datavector. 
+**** Approach
+    We sample assume that posterior over hidden configurations 
+    factorizes into product of distributions for each separate hidden unit: 
+    $$ P([h_{1,\cdots, n}]|Data) = \prod_{j=1}^{n}{P(h_j|Data)}. $$ 
+    This assumption is correct for RBM but not for SBN.
+**** Factorial Distribution: 
+     Binary vectors of length N have $2^{N-1}$ degrees of freedom whereas 
+     factorial distribution have N  degrees of freedom: $$
+     p(\vec{\bold{v}}=[b_1, \cdots, b_n) = \prod_{i=1}^{n}{p(v_i=b_i)}.
+     $$
+     Alternate Wake phase and Sleep phase until learning is complete:
+     + Wake Phase: Forward pass data using recognition weights to infer 
+     hidden unit states. Treat states as sample from true posterior 
+     distribution given data and we do Maximum Likelihood learning 
+     on generative weights that define the model.
+     + Sleep Phase: Reverse pass using generative weights to generate 
+     unbiased sample from the model for each layer of hidden unit and data.
+     Train and recover the recognition weights to reconstruct activities in 
+     each layer from layer below.
+     

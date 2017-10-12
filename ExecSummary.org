@@ -1,0 +1,170 @@
+* Executive Summary
+** High level Blocks
+- Question Analysis
+  - Template Qs vs Free-form Qs
+    - Identify entities and relations
+  - Definition, Reasoning etc.
+- KB lookup
+- Search
+- Sentence Selection
+- Comprehension
+- Answer Scoring & Response Generation
+
+
+
+** Example Implementation Workflow
+- Use a 2 pronged approach
+  - Closed domains can have a set of highly curated Question & Answer
+    Templates. So we can use them to answer business critical questions
+    accurately (modeled after PARALEX paper)
+  - We can also answer free-form questions if our model can predict an answer
+    with high confidence (with tunable threshold)
+*** Curated Q&A Templates
+- Start with a curated set of top 20 Q Templates (e.g. seeded from FAQ) with
+  their answers Templates
+  - Identify entities & relations in those Qs
+- Allow Paraphrase of these Qs using an ML model trained on a Paraphrase Corpus
+  - A question is mapped to a fixed Q Template
+  - Entities and relations are extracted using ML model + Handcrafted Rules
+- Using a relation Relation/Entity Tuple, we look-up a auto-generated/curated
+  KB/DB to answer a Q
+- Semi auto-generated KB
+  - Automatically extract a KB using Information/Relation Extraction Techniques
+  - Curate it using humans
+
+*** Free-form Q&A
+- Read Corpus of Documents
+- Use *IR Search* to identify a set of candidate answer passages
+- Use *sentence selection* to identify top 5 relevant passages
+- Use *Machine Comprehension* to identify the answer in the passage
+
+*** Caution
+- Note that Q&A is highly domain dependent & dependent on Question Types as well
+  as answer types. For example, definition Qs or reasoning Qs. These may
+  require implementing new pipelines
+
+
+** Implementation
+- The following papers have been implemented with state of the art results:
+
+*** Machine Comprehension: Factoid Q&A using Wikipedia
+- *Goal:* The goal here was to answer a factoid question about Movies using
+  Wikipedia. The answer is a single entity, e.g. an actor name or a movie name
+- *Overview from Paper:*
+  - For each question, apply IR techniques (e.g. inverted index without
+    low-idf/stop words) to select a set of passages from Wikipedia Articles
+    relevant to that question
+    - Here the passages are divided into sequential windows (of 7 words each)
+      with an entity at its center
+    - the window is the key and the entity at the center is the value
+  - *Key Addressing:* The question is compared with each of the windows
+    (i.e. the key) to compute a relevance score for each window wrt the
+    question. This is essentially a soft attention mechanism to find the keys
+    which are most similar to the question.
+  - *Value Reading:* values from the memory locations are read by taking their
+    weighted sum using the relevance score.
+  - This result is combined with the question to formulate a new query which is
+    used to repeat *Key Addressing* and *Value Reading*. These 2 steps are
+    repeated a few times (i.e. # of hops)
+    - The motivation for doing this is that new evidence (i.e. the value read)
+      can be combined with the query to focus and retrieve more pertinent
+      information in subsequent accesses
+  - The combination of the value read from the last access (hop) and the the
+    last version of the query is compared against every entity (potential
+    answer) in the vocabulary to find the most similar entity which is output
+    as the answer.
+  - At a conceptual level, what we implemented is a content (key) based memory
+    addressing. Executing Multiple hops is similar to walking a entity
+    relation graph to find an entity multiple hops away from the entity and
+    relation specified in the question
+- *Data:*
+  - WikiMovies: 120k QA pairs of programatically generated questions using
+    templates derived from SimpleQuestions (open-domain Q&A dataset based on
+    Freebase posed by human annotaters using crowd-sourcing). Questions
+    pertaining to the Movie genre were identified from the SimpleQuestions
+    dataset and the entities in these were replace by entities in the
+    OMDB/Wikilens based KB. Only those Questions which are answerable using
+    Wikipedia were kept.
+  - Wikipedia: 17K documents pertaining to movies were selected relevant to 
+    the WikiMovies Questions
+- *Results on our Implementation:*
+  - We achieved the result of 76% precision (at rank 1) specified in the paper
+    and what is the state of the art.
+  - Our implementation was faster than the paper's own implementation
+    (e.g. our training take around 5 hours while the paper's own
+    implementation takes a couple of days). This could be because of several
+    factors (use of aggressive negative sampling, GPUs etc). We get convergence
+    in about 40 epochs
+- *Observations:*
+  - Aggressive negative sampling is quite beneficial. Without it, convergence
+    is slow (150 epochs) and we loose 1% in accuracy (from 76% to 75%)
+  - Length normalization is also quite helpful. Without it convergence is slow
+    (it takes 114 epochs to get 76% accuracy)
+  - 2 hops is beneficial compared to 1 hope. The performance loss is 2% (74%
+    with 1 hop and 76% with 2 hops)
+  - *Some observations on why a question may not get answered*
+    - Missing Coreference resolution
+    - Weakly trained embedding for a specific word (as it may not have
+      encountered often during training) doesn't affect the result as much as
+      it should
+    - High frequency symbols like u'1:.' or u'and' have high norm and seem to
+      add a lot of noise
+- *Problems with data*
+  - Parsing ambiguity in answer string in "train1.txt', e.g. "No Retreat, No
+    Surrender 2" is 1 answer, but we currently assume that a list of answers is
+    a comma separated list
+  - mismatch in entity name b/w entities.txt and the wiki due to difference in
+    case of a starting letter, e.g. "Anthony ward" in wiki vs "Anthony Ward" in
+    entities.txt. Also 'anti-semitism' in entities.txt is incompatible with
+    'antisemitism' and 'anti-Semitism' in wiki.txt.
+  - "Why Did I Get Married Too?" is not recognized as an entity by the parser
+    which uses '\\b<entity-name>\\b' to match an entity but '\\b' is not
+    compatible with non-alphanumeric character at the boundary of the entity
+    name
+    
+*** Sentence Selection
+- [[https://www.semanticscholar.org/paper/Sentence-Similarity-Learning-by-Lexical-Wang-Mi/6f1b6007638724124e2763f818ee4ebf2da3ae86][Sentence Similarity Learning by Lexical Decomposition and Composition - IBM research - COLING 2016]]
+- *Goal:* Given a set of sentences relevant to a Question, select the sentence
+  that best answers a question
+- *Paper Overview:*
+  - Uses a CNN model with max-pooling to measure similarity between questions
+    and answers. It specifically addresses 3 issues in comparing similarity
+    between question and answer:
+    - Use of different lexicons (words)
+      - This is addressed using word vectors
+    - Similarity comparision at various levels of granularity, i.e. word-level,
+      phrase level, syntax level
+      - This is addressed in 2 ways:
+        - For each word in the Q find the closest word(s) in the sentence and
+          vice-versa
+        - Use CNN filters of varying size to capture similarities at unigram,
+          bigram and trigram levels
+    - Dissimilarity between Q and Sentence is also a significant clue
+      - The word vector for each word in the Q is decomposed into similar and
+        dissimilar  components (by projecting it onto a weighted sum of most
+        similar words in the Sentence). The same is done for each word in the
+        sentence)
+- *Data:*
+  - WikiQA: The knowledge source here is Wikipedia and the Questions are
+    created based on real Bing Queries. There are approximately 2.3K questions
+    in this corpus (2K for training, 100 for validation and 250 for test)
+- *Results:*
+  - We achieved the result of 73% MRR (mean reciprocal rank) and 70% MAP (mean
+    average precision) as specified by the paper and what is the state of the
+    art.
+*** Natural Language Inference
+- [[https://www.semanticscholar.org/paper/Reasoning-about-Entailment-with-Neural-Attention-Rockt%C3%A4schel-Grefenstette/12db83e66e50152e170d5009c425c925ad2e2c2a][Reasoning about Entailment with Neural Attention - 2015]]
+- *Goal:* Given a pair of sentences, denoted premise and hypothesis, to
+  determine if the hypothesis is entailed/contradicted by the premise. This is
+  a useful task for many NLP applications like Relation Extraction and Question
+  & Answering
+- *Paper Overview:* The idea here is to use RNN (with LSTMs) with attention to
+  do fine grained reasoning across words, phrases and larger constructs across
+  a pair of sentences.
+- *Data:* Stanford Natural Language Inference Corpus consisting of 570K pairs
+  of sentences (created by human annotaters)
+- *Results:*
+  - We achieved results which were 3 percentage point below the results claimed
+    in the paper. But this was because we did not put any effort in fine tune
+    hyper-parameters.
+ 

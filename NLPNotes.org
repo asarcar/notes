@@ -1,0 +1,555 @@
+$\text{Latent Dirichlet Allocation}:$
++ Introduction
+LDA is an unsupervised learning algorithm to automatically 
+annotate collections of data, which can then be used to 
+organize the corpus. 
+
++ Methodology
+++ Hierarchican Construct:
+The hierarchical construct for text is that a corpus 
+is seen as a collection of documents. A document 
+is seen as a probabilistic collection of "topics." A "topic"
+is seen as a probabilistic collection fo words. Similar
+constructs are defined for image corpus as well.
+++ Steps
+Steps include feeding a large corpus of documents to a 
+generative probabilistic model with hidden latent variables 
+that reflect the thematic structure of the documents. 
+
+The posterior distribution of the hidden variables given 
+the data lends to a hierarchical bayesian model allowing
+us to group data and infer automatically discover the 
+hidden topics. 
+
+++ Post Processing
+Annotating any new document with a set of topics that best 
+describe the document. 
+
+Finally, using the set of topics as a proxy representing the 
+document to run algorithms, such as similarity, clustering, 
+etc. to help us organize, index, search, the data.
+
++ Importance of LDA
+++ Domains: E-Discovery, Social Media, Scientific Data
+++ NLP Apps 
+++ Word Meaning, Polysemy, amd Word Sense Disambiguation: 
+monetary bank vs river bank
++++ Discourse Segmentation: Track how discussion topic changed over time.
++++ Machine Translation: Depends on word sense in source/target language.
++++ Inference is simple.
+  
++ Matrix Factorization Approach
+++ $$
+\bold{D}_{\in \mathbb{P}^{M \times V}} =
+\bold{T}_{a \in \mathbb{P}^{M \times K}} \times 
+\bold{T}_{d \in \mathbb{P}^{K \times V}}; 
+P \in {0,1}\ and\ (\bold{D}, \bold{T}_a, \bold{T}_b)\ 
+are\ row\ markovian\ matrices.
+$$
+++ Latent Semantic Analysis used in IR uses SVD for factorization.
+
+$\text{Variable Definitions}:$
+\begin{itemize}
+\item $K: \text{number of topics e.g. 50}$
+\item $V: \text{number of words in vocabulary e.g. 50K-1M}$
+\item $M: \text{number of documents in corpus}$
+\item $N_d: \text{number of words in document d}$
+\item $N = \sum_{d=1}^MN_d: \text{Total words accross all documents.}$
+\item $z^{d,w}_{k| \in \mathbb{B}, where\ \mathbb{B} \in \{0, 1\}}: 
+\text{Indicator variable for w th word in d th doc belonging to k topic i.e. }
+Z_{d,w} = k$
+\item $u^{v}_{w| \in \mathbb{B}, where\ \mathbb{B} \in \{0, 1\}}: 
+\text{Indicator variable for w th word in d th doc 
+belonging to v th vocabulary.}$
+\item $N_{d}^{k,v}: \text{num occurrences of v th word in vocabulary
+from document d that are manifesting as topic k i.e. } 
+N_d^{k,v} = \sum_{w=1}^{N_d}z_k^{d,w}u^v_w$
+\item $N_{d}^{k,*}: \text{num occurrences of all words in document d
+that are manifesting as topic k i.e. } 
+N_d^{k,*} = \sum_{w=1}^{N_d}z_k^{d,w}$
+\item $N_{*}^{k,v}: \text{num occurrences of v th word in vocabulary
+manifesting as topic k accross all documents in corpus i.e. }
+N_{*}^{k,v} = \sum_{d=1}^MN_d^{k,v}$
+\item $N_d^{k,v, -(m,n)}: 
+\text{num occurrences of v th word in vocabulary
+from document d that are manifesting as topic k except counting 
+the m th document and n th word in the document.}$
+\item $\vec{\alpha}_{\in \mathbb{R}^K \ \&\ \mathbb{R}>0}: 
+\text{Dirichlet parameter for prior of topics in any document}$
+\item $vec{\beta}_{\in \mathbb{R}^{V} \ \&\ \mathbb{R}>0}: 
+\text{Dirichlet parameter for prior of words in a given topic}$
+\item $\boldsymbol{\varphi}_
+{\in \mathbb{R}^{K\times{V}}\ \&\ 
+\vec{\varphi}[k] \in\ pmf\ i.e.\  
+0 \leq \varphi[k][v] \leq 1
+\ \&\ \sum_{v=1}^V\varphi[k][v]=1}: 
+\text{pmf of word for any topic.}$
+\item $\boldsymbol{\theta}_{\in \mathbb{R}^{M\times{K}}\ \&\ 
+\vec{\theta}[d] \in\ pmf\ i.e.\ 
+0 \leq \theta[d][k] \leq 1
+\ \&\ \sum_{k=1}^K\theta[d][k]=1}: 
+\text{pmf of topic for each document.}$
+\item $\bold{Z}_{\in \mathbb{Z}^{M\times{N_d}}
+\ \&\ 1 \leq \mathbb{Z} \leq K}: 
+\text{Identity of topic of words in each document.}$
+\item $\bold{W}_{\in \mathbb{Z}^{M\times{N_d}}
+\ \&\ 1 \leq \mathbb{Z} \leq V}: 
+\text{Identity of word as the vocabulary index each document.}$
+\end{itemize}
+
+
+$$
+\text{Generative Process - For each topic: }
+\boldsymbol{\varphi} = 
+[\vec{\varphi}_1, \cdots,  \vec{\varphi}_K]^T |
+\vec{\varphi}_k \sim Dir(\vec{beta})\\
+i.e.\ p(\boldsymbol{\varphi} | \vec{\beta}) = 
+\prod_{k=1}^Kp(\vec{\varphi}_k | \vec{\beta_k}), 
+where\ p(\vec{\varphi}_k | \vec{\beta}) = 
+\frac{\Gamma(\beta_0)}{\prod_{v=1}^V\Gamma(\beta_v)}
+\prod_{v=1}^V\varphi_{k,v}^{\beta_v-1}
+\text{For each document } \bold{d}_{\in \bold{D} | d=1 \cdots M}:
+$$
+\begin{itemize}
+\item $Choose\ N_d \sim Poisson(\xi)$
+\item $Choose\ \vec{\theta}_d \sim Dir(\vec{\alpha})_{K}\ 
+i.e.\ p(\vec{\theta}_d|\vec{\alpha}) = \frac{\Gamma(\alpha_0)}
+{\prod_{k=1}^K\Gamma(\alpha_k)}
+\prod_{k=1}^K\theta_{d,k}^{\alpha_k-1}$
+\item $\text{For each word pos } w =1 \cdots N_d: \\
+Choose\ Topic\ Z_{d,w} \sim 
+p(Z_{d,w} = k | \vec{\theta}_d) =
+Categorical(k)_{\vec{\theta}_d \in \mathbb{S}_K} = \theta_{d,k} \\
+Choose\ Word\ W_{d,w} \sim 
+p(W_{d,w} = v| Z_{d,w} = k, \boldsymbol{\varphi}) =
+Categorical(v)_{{\varphi}_k \in \mathbb{S}_V} = 
+\varphi_{k,v}$
+\end{itemize}
+
+$\text{Joint Distribution Over All Variables}:$
+\begin{itemize}
+\item $
+p(\boldsymbol{\varphi}, \boldsymbol{\theta}, 
+\bold{Z}, \bold{W} |
+\vec{\alpha}, \vec{\beta}) =
+\prod_{k=1}^K
+p(\vec{\varphi}_k|\vec{\beta})
+\prod_{d=1}^M
+p(\vec{\theta}_d|\vec{\alpha})
+\prod_{w=1}^{N_d}
+p(Z_{d,w}| \vec{\theta}_d)
+p(W_{d,w}| Z_{d,w}, \vec{\varphi}_{Z_{d,w}}) =
+\prod_{d=1}^M
+p(\vec{\theta}_d|\vec{\alpha})
+\prod_{w=1}^{N_d}
+p(Z_{d,w}| \vec{\theta}_d)
+\prod_{k=1}^K
+p(\vec{\varphi}_k|\vec{\beta})
+\prod_{d=1}^M
+\prod_{w=1}^{N_d}
+p(W_{d,w}| Z_{d,w}, \vec{\varphi}_{Z_{d,w}})$
+
+\item $
+p(\bold{Z}, \bold{W}|\vec{\alpha}, \vec{\beta}) = 
+\int_{\boldsymbol{\theta}}\int_{\boldsymbol{\varphi}}
+p(\boldsymbol{\varphi}, \boldsymbol{\theta}, 
+\bold{Z}, \bold{W} |
+\vec{\alpha}, \vec{\beta}) 
+d\boldsymbol{\theta}d\boldsymbol{\varphi} = 
+p(\bold{Z}, \bold{W}|\vec{\alpha}, \vec{\beta}) = 
+\prod_{d=1}^M
+f_d(\bold{Z}|\vec{\alpha})
+\prod_{k=1}^K
+g_k(\bold{Z, W}|\vec{\alpha}, \vec{\beta}), where\\
+(\vec{\theta}_{d1}, \vec{\theta}_{d2})_{d1 \neq d2}\ 
+are\ independent\ given\ \vec{\alpha} \ \&\  
+(\vec{\varphi}_{k1}, \vec{\varphi}_{k2})_{k1 \neq k2}\ 
+are\ independent\ given\ \vec{\beta}, \\
+f_d(\bold{Z}|\vec{\alpha}) = 
+\int_{\vec{\theta}_d}
+p(\vec{\theta}_d|\vec{\alpha})
+\prod_{w=1}^{N_d}
+p(Z_{d,w}| \vec{\theta}_d)d\vec{\theta}_d, and\\
+g_k(\bold{Z, W}|\vec{\alpha}, \vec{\beta}) = 
+\int_{\vec{\varphi}_k}
+p(\vec{\varphi}_k|\vec{\beta})
+\prod_{d=1}^M
+\prod_{w=1}^{N_d}
+p(W_{d,w}| Z_{d,w}, \vec{\varphi}_{Z_{d,w}})^{z_k^{d,w}}
+d\vec{\varphi}_k$
+
+\item $
+f_d(\bold{Z}|\vec{\alpha}) = 
+\int_{\vec{\theta}_d}
+p(\vec{\theta}_d|\vec{\alpha})
+\prod_{w=1}^{N_d}
+p(Z_{d,w}| \vec{\theta}_d)
+d\vec{\theta}_d = 
+\int_{\vec{\theta}_d}\frac{1}{B(\vec{\alpha})}
+\prod_{k=1}^K\theta_{d,k}^{\alpha_k-1}
+\vec{\theta}_{d,k}^{\sum_{w=1}^{N_d}z_k^{d,w}} \implies\\
+f_d(\bold{Z}|\vec{\alpha}) = 
+\int_{\vec{\theta}_d}\frac{1}{B(\vec{\alpha})}
+\prod_{k=1}^K\theta_{d,k}^{\alpha_k-1}
+\prod_{k=1}^K\theta_{d,k}^{N_d^{k,*}}, 
+where\ N_d^{k,*} = \sum_{w=1}^{N_d}z_k^{d,w} \implies\\
+f_d(\bold{Z}|\vec{\alpha}) = 
+\frac{B(\vec{\alpha}_d^{new})}{B(\vec{\alpha})}
+\int_{\vec{\theta}_d}
+\frac{1}{B(\vec{\alpha}_d^{new})}
+\prod_{k=1}^K\theta_{d,k}^{\alpha_{k,d}^{new} - 1}
+d\vec{\theta}_d \implies \\
+f_d(\bold{Z}|\vec{\alpha}) = 
+\frac{B(\vec{\alpha}_d^{new})}{B(\vec{\alpha})},
+where\ \vec{\alpha}_d^{new} = 
+[\alpha_1 + N_d^{1,*}, \cdots, \alpha_K + N_d^{K,*}]^T$
+
+\item $
+g_k(\bold{Z, W}|\vec{\alpha}, \vec{\beta}) = 
+\int_{\vec{\varphi}_k}
+p(\vec{\varphi}_k|\vec{\beta})
+\prod_{d=1}^M
+\prod_{w=1}^{N_d}
+p(W_{d,w}| Z_{d,w}, \vec{\varphi}_{Z_{d,w}})^{z_k^{d,w}}
+d\vec{\varphi}_k \implies\\
+g_k(\bold{Z, W}|\vec{\alpha}, \vec{\beta}) = 
+\int_{\vec{\varphi}_k}
+\frac{1}{B(\vec{\beta})}
+\prod_{v=1}^V\varphi_{k,v}^{\beta_v-1}
+\prod_{v=1}^V
+\varphi_{k,v}^{\sum_{d=1, w=1}^{M, N_d}z_k^{d, w}u_w^v} 
+d\vec{\varphi}_k =
+\frac{B(\vec{\beta}_k^{new})}{B(\vec{\beta})}
+\int_{\vec{\varphi}_k}
+\frac{1}{B(\vec{\beta}_k^{new})}
+\prod_{v=1}^V\varphi_{k,v}^{\beta_{k,v}^{new}-1}
+d\vec{\varphi}_k \implies\\
+g_k(\bold{Z, W}|\vec{\alpha}, \vec{\beta}) = 
+\frac{B(\vec{\beta}_k^{new})}{B(\vec{\beta})}, 
+where\ \vec{\beta}_k^{new} = 
+[\beta_1 + N_{*}^{k,1}, \cdots, \beta_V + N_{*}^{k, V}]^T
+$
+
+\item $\text{Joint Distribution over Observation and Latent Topics}:\\
+p(\bold{Z}, \bold{W}|\vec{\alpha}, \vec{\beta}) = 
+\prod_{d=1}^M
+f_d(\bold{Z}|\vec{\alpha})
+\prod_{k=1}^K
+g_k(\bold{Z, W}|\vec{\alpha}, \vec{\beta}) \implies \\
+p(\bold{Z}, \bold{W}|\vec{\alpha}, \vec{\beta}) = 
+\prod_{d=1}^M
+\frac{B(\vec{\alpha}_d^{new})}{B(\vec{\alpha})}
+\prod_{k=1}^K
+\frac{B(\vec{\beta}_k^{new})}{B(\vec{\beta})},\\
+where\ \vec{\alpha}_d^{new} = 
+[\alpha_1 + N_d^{1,*}, \cdots, \alpha_K + N_d^{K,*}]^T \ \&\ 
+\vec{\beta}_k^{new} = 
+[\beta_1 + N_{*}^{k,1}, \cdots, \beta_V + N_{*}^{k, V}]^T$
+
+\end{itemize}
+
+$\text{Conditional Distribution of Latent Topics given Data}$
+\begin{itemize}
+\item $
+p(\bold{Z}| \bold{W}; \vec{\alpha}, \vec{\beta}) 
+\text{ is estimated using Gibb's sampling, which in turn estimates 
+the different sample ratio of }\\
+p(Z_{(m,n)}| \bold{Z}_{-(m,n)}, \bold{W};\vec{\alpha}, \vec{\beta})
+\text{ for different values of } Z_{(m,n)}\\
+p(Z_{(m,n)} = t|\bold{Z}_{-(m,n)},\bold{W};\vec{\alpha},\vec{\beta})
+\propto 
+p(Z_{(m,n)} = t,\bold{Z}_{-(m,n)},\bold{W};\vec{\alpha},\vec{\beta})\\
+\text{Assuming } Z_{(m,n)} \text{ word is at vocab index } r, 
+\text{we separate out the terms independent versus dependent on }
+Z_{(m,n)} = t.$
+
+\item $
+p(Z_{(m,n)} = t,\bold{Z}_{-(m,n)},\bold{W};\vec{\alpha},\vec{\beta})=
+\prod_{d=1}^M
+\frac{B(\vec{\alpha}_d^{new})}{B(\vec{\alpha})}
+\prod_{k=1}^K
+\frac{B(\vec{\beta}_k^{new})}{B(\vec{\beta})}
+\implies\\
+p(Z_{(m,n)} = t,\bold{Z}_{-(m,n)},\bold{W};\vec{\alpha},\vec{\beta})=
+(\frac{1}{B(\vec{\alpha})})^M
+(\prod_{d \neq m}B(\vec{\alpha}_d^{new}))
+(\frac{1}{B(\vec{\beta})})^K
+(\prod_{k=1}^K\prod_{v \neq r}\Gamma(\beta_{k,v}^{new}))
+B(\vec{\alpha}_m^{new})
+(\prod_{k=1}^K\frac{\Gamma(\beta_{k,r}^{new})}
+{\Gamma(\beta_{k,0}^{new})})
+\implies\\
+p(Z_{(m,n)} = t,\bold{Z}_{-(m,n)},\bold{W};\vec{\alpha},\vec{\beta})
+\propto
+B(\vec{\alpha}_m^{new})
+(\prod_{k=1}^K\frac{\Gamma(\beta_{k,r}^{new})}
+{\Gamma(\beta_{k,0}^{new})})=
+(\frac{\prod_{k=1}^K\Gamma(\alpha_{m,k}^{new})}
+{\Gamma(\sum_{k=1}^K{\alpha_{m,k}^{new}})}
+(\prod_{k=1}^K\frac{\Gamma(\beta_{k,r}^{new})}
+{\Gamma(\beta_{k,0}^{new})}) 
+\implies\\
+p(Z_{(m,n)} = t,\bold{Z}_{-(m,n)},\bold{W};\vec{\alpha},\vec{\beta})
+\propto
+(\prod_{k=1}^K\Gamma(\alpha_{m,k}^{new}))
+(\prod_{k=1}^K\frac{\Gamma(\beta_{k,r}^{new})}
+{\Gamma(\beta_{k,0}^{new})}) \\
+Note\ \sum_{k=1}^K{\alpha_{m,k}^{new}}\ and\ hence\  
+\Gamma(\sum_{k=1}^K{\alpha_{m,k}^{new}})
+\text{ is constant wrt chosen topic type of } Z_{(m,n)}\ and \\
+\vec{\alpha}_d^{new} = 
+[\alpha_1 + N_d^{1,*}, \cdots, \alpha_K + N_d^{K,*}]^T \ \&\ 
+\vec{\beta}_k^{new} = 
+[\beta_1 + N_{*}^{k,1}, \cdots, \beta_V + N_{*}^{k, V}]^T$
+
+\item $
+Assuming\ Z_{(m,n)} = t\ and\ W_{(m,n)} = r:$
+
+\item $
+N_m^{k,*} = \begin{cases}
+N_m^{k,*,-(m,n)}\ if\ k \neq t,\\
+N_m^{t,*,-(m,n)} + 1\ otherwise
+\end{cases}
+$
+
+\item $
+\prod_{k=1}^K\Gamma(\alpha_{m,k}^{new})=
+\prod_{k=1}^K\Gamma(\alpha_k + N_m^{k,*})=
+\prod_{k \neq t}\Gamma(\alpha_k + N_m^{k,*, -(m,n)})
+\Gamma(\alpha_m + N_m^{t,*, -(m,n)} + 1) \implies \\
+\prod_{k=1}^K\Gamma(\alpha_{m,k}^{new})=
+\prod_{k \neq t}\Gamma(\alpha_k + N_m^{k,*, -(m,n)})
+(\alpha_t + N_m^{t,*, -(m,n)}) 
+\Gamma(\alpha_t + N_m^{t,*, -(m,n)}) \implies \\
+\prod_{k=1}^K\Gamma(\alpha_{m,k}^{new})=
+(\alpha_t + N_m^{t,*, -(m,n)})
+\prod_{k}\Gamma(\alpha_k + N_m^{k,*, -(m,n)})$
+
+\item $
+N_*^{k,v} = \begin{cases}
+N_*^{k,v,-(m,n)}\ if\ k \neq t\ or\ v \neq r\\
+N_*^{t,r,-(m,n)} + 1\ otherwise
+\end{cases}
+$
+
+\item $
+\prod_{k=1}^K
+\frac{\Gamma(\beta_{k,r}^{new})}
+{\Gamma(\beta_{k,0}^{new})} = 
+\prod_{k=1}^K
+\frac{\Gamma(\beta_r + N_{*}^{k,r})}
+{\Gamma(\sum_{v=1}^V\beta_v + N_{*}^{k,v})}=
+(\prod_{k \neq t}
+\frac{\Gamma(\beta_r + N_{*}^{k,r, -(m,n)})}
+{\Gamma(\sum_{v=1}^V\beta_v + N_{*}^{k,v,-(m,n)})})
+(\frac{\Gamma(\beta_r + N_{*}^{t,r, -(m,n)} + 1)}
+{\Gamma(\sum_{v=1}^V\beta_v + N_{*}^{t,v,-(m,n)} + 1)})
+\implies\\
+\prod_{k=1}^K
+\frac{\Gamma(\beta_{k,r}^{new})}
+{\Gamma(\beta_{k,0}^{new})} = 
+(\prod_{k \neq t}
+\frac{\Gamma(\beta_r + N_{*}^{k,r, -(m,n)})}
+{\Gamma(\sum_{v=1}^V\beta_v + N_{*}^{k,v,-(m,n)})})
+((\frac{\beta_r + N_{*}^{t,r, -(m,n)}}
+{\sum_{v=1}^V\beta_v + N_{*}^{t,v,-(m,n)}})
+(\frac{\Gamma(\beta_r + N_{*}^{t,r, -(m,n)})}
+{\Gamma(\sum_{v=1}^V\beta_v + N_{*}^{t,v,-(m,n)})}))
+\implies\\
+\prod_{k=1}^K
+\frac{\Gamma(\beta_{k,r}^{new})}
+{\Gamma(\beta_{k,0}^{new})} = 
+(\frac{\beta_r + N_{*}^{t,r, -(m,n)}}
+{\sum_{v=1}^V\beta_v + N_{*}^{t,v,-(m,n)}})
+(\prod_{k=1}^K
+\frac{\Gamma(\beta_r + N_{*}^{k,r, -(m,n)})}
+{\Gamma(\sum_{v=1}^V\beta_v + N_{*}^{k,v,-(m,n)})})
+$
+
+\item $
+p(Z_{(m,n)} = t,\bold{Z}_{-(m,n)},\bold{W};\vec{\alpha},\vec{\beta})
+\propto\\
+(\alpha_t + N_m^{t,*, -(m,n)})
+\prod_{k}\Gamma(\alpha_k + N_m^{k,*, -(m,n)})
+(\frac{\beta_r + N_{*}^{t,r, -(m,n)}}
+{\sum_{v=1}^V\beta_v + N_{*}^{t,v,-(m,n)}})
+(\prod_{k=1}^K
+\frac{\Gamma(\beta_r + N_{*}^{k,r, -(m,n)})}
+{\Gamma(\sum_{v=1}^V\beta_v + N_{*}^{k,v,-(m,n)})})
+\propto\\
+(\alpha_t + N_m^{t,*, -(m,n)})
+(\frac{\beta_r + N_{*}^{t,r, -(m,n)}}
+{\sum_{v=1}^V\beta_v + N_{*}^{t,v,-(m,n)}}), where\\
+(\alpha_t + N_m^{t,*, -(m,n)})
+\text{ is how much Document m likes topic t and}\\ 
+(\frac{\beta_r + N_{*}^{t,r, -(m,n)}}
+{\sum_{v=1}^V\beta_v + N_{*}^{t,v,-(m,n)}})
+\text{ is how much topic t likes vocabulary word v.}\\
+\text{Run the Gibb's sampling until the likelihood converges i.e. }:\\
+f_d(\vec{Z}|\vec{\alpha}) = p(\bold{Z}|\vec{\alpha}) = 
+\frac{B(\vec{\alpha}_d^{new})}{B(\vec{\alpha})}\ converges, where\ 
+\vec{\alpha}_d^{new} = 
+[\alpha_1 + N_d^{1, *}, \cdots, \alpha_K + N_d^{K, *}]^T
+$
+\end{itemize}
+
+$\text{LDA: Topic Discovery}:$
+\begin{itemize}
+\item $\text{Find the optimal parameters using EM algorithm}:$
+\item $\text{E-Step augments Data with Hidden Variable and estimate
+probability of hidden variables given observations.}\\
+p(z^k|w)_t = \frac{p(w|z^k)_{t}p(z^k)}
+{\sum_{\forall{k}}{p(w|z^k)_{t}p(z^k)}}$
+\item $\text{M-Step soft partitions the data counts to 
+re-stimate parameters.}\\
+p(w|z^k)_{t+1} = 
+\frac{c(w)p(z^k|w)_{t}}{\sum_{\forall{w' \in V}}c(w')p(z^k|w')}$ 
+\item $Topic-Annotation: \forall_{d}
+\text{Topic Distribution} = \vec{\theta}_d$
+\end{itemize}
+
+$$\text{Percy Liang: NLU - Foundations and State-of-the-art}:$$
+https://www.youtube.com/watch?v=mhHfnhh-pB4&t=4079s
+$$\text{Semantic Parsing}:$$
+\begin{enumerate}
+\item $Evolution: Syntax\ (Grammar) \rightarrow 
+Semantics\ (Meaning) \rightarrow Pragmatics\ (Intent)$
+\item $\text{Distributional Semantics: Decompose word 
+and context matrix to latent vector representation. 
+Most broadly applicable and ML friendly, but representations 
+are monolithic. Unsupervised and easy to generate, but the 
+choice of context (global vs local) impacts results.}$
+\item $\text{Frame Semantics: Decompose a sentence to 
+predicate and arguments based on template frames. 
+Exposes more structure and better tied to external world, 
+but needs supervision, frame templates are manually created,
+and does not fully represent the world.}$
+\item $\text{Model Theoretic Semantics: Full world representation,
+rich semantics, and end to end, but narrower in scope.}$
+\begin{itemize}
+\item $\text{Abstract Meaning Representation AMR: 
+Decompose and annotate a sentence providing broad semantic
+coverage of the sentence meaning.}$
+\item $\text{Executable Semantic Parsing: A sentence is semantically 
+parsed to provide a program that is executed on a knowledge base
+to provide a behavior.}$
+\item $\text{Neural Semantic Parsing: Semantic parser where we 
+assume language encodes computation, semantic parsing is used
+to represent language as programs, and RNN used to generate
+semantic parser.}$
+\item $\text{Training data for semantic parsing: Heavy supervision 
+as we need experts to provide programs for sentences. May we 
+learn from light supervision with just question and answer tuples? 
+One possible approach is use statistical techniques to zero in 
+on the correct program by running different candidate programs
+on different question and validating it against answer tuples.}$
+\end{itemize}
+\item $\text{Reading Comprehension: Solve end to end task without 
+explicit model of world as long as there are input/output Q/A pairs
+and comprehension passage data available e.g. SQuAD (100K examples) 
+stanford-qa.com.}$
+\item $\text{Dialogue: Involves understanding AND generation - machine
+has to talk back. Use cases are task-oriented versus chatbots. Main 
+challenge is how to evaluate?}$
+\end{enumerate}
+
+$$\text{Interactive Learning: Language is defined by its use: 
+Game SHRDLURN - Language as Learning Goal.}$$
+\begin{enumerate}
+\item $\text{Downstream goal drives language learning.}$
+\item $\text{Both human and computer learn and adapt.}$
+\end{enumerate}
+
+$$\text{Summary}$$
+\begin{enumerate}
+\item $\text{Most of NLU is not about the words but how it 
+connects to the world.}$
+\item $\text{Language is about interaction/communication:
+Maybe the best way to learn is not by training via large amounts
+of data but by just using it to meet some objective.}$
+\item $\text{Open Questions:}$
+\begin{itemize}
+\item $\text{How to combine logical and distributional?}$
+\item $\text{How to represent knowledge, context, and memory? 
+Setting it as a prediction problem given past pair of tuples may
+not the appropriate set up as general context is inherently missing. 
+But then how do we featurize the context, say WWW?}$
+\item $\text{How to create interactive learning environment?
+One way forward may not be create better models, but better
+learning settings, such as interactivity which may create the 
+right supervision signals for use case driven language models.}$
+\end{itemize}
+\end{enumerate}
+
+$$\text{Chris Manning: Representations for Language: From 
+Word Embeddings to Sentence Meanings}:$$
+https://www.youtube.com/watch?v=nFCxTtBqF5U
+\begin{enumerate}
+\item $\text{Language is a discrete symbolic encoding system conveyed 
+over a continous substrate, such as sound waves, gestures, or writing.}$
+\item $\text{NLP was dealt mostly with symbolic, logical, and rule-based
+way. Machine Learning statistical way evolved into prominence recently.}$
+\item $\text{Distributed Representation: Consider words not as atomic
+symbols or one hot vectors (all words are orthogonal) to a representation 
+that encodes similarity of words!}: \\
+Skip\ Gram: p(o|c) = \frac{\exp(u_ov_c)}{\sum_{w=1}^W\exp(u_wv_c)}\\
+\text{Encodes semantic components as linear vector differences!}$
+\item $\text{Latent Semantic Analysis: SVD of word in context matrices}:\\
+A_{\in \mathbb{R}^{W\times{C}}} \approx 
+U_{\in \mathbb{R}^{W\times{C_k}}}
+\Sigma_{\in \mathbb{R}^{C_k\times{C_k}}}
+V^T_{\in \mathbb{R}^{C_k\times{C_a}}}, where\ C_k < C_a\\
+\text{Vector relationship exhibited for scale counts of word occurrences!}$
+\item $\text{Word2Vec and LSA: Ratios of co-occurence probabilities encodes 
+components of "meaning" - objective of the Glove algorithm.}$
+\item $\text{Gated Recurrent Units (GRUs)}:\\
+h_t = u_t\circ{\tilde{h}_t} + (1 - u_t)\circ{h_{t-1}}\\
+\tilde{h}_t = tanh(Wx_t + U(r_t\circ{h_{t-1}}) + b)\\
+u_t = \sigma(W_ux_t + U_uh_{t-1} + b_u)\\
+r_t = \sigma(W_rx_t + U_rh_{t-1} + b_r)\\
+\text{Recurrent state mixes control (updates gates) adn memory (state).}$
+\item $\text{BiDir LSTM with attention beats most algorithms with 
+information flow. Advantages: }$
+\begin{itemize}
+\item $\text{End to End Training}$
+\item $\text{Distributed representation share strengths - better exploits 
+word and phrase similiarities.}$
+\item $\text{Better exploitation of context - more information encoded with 
+fewer bits whereas n-grams were too vast and source-context in symbolic 
+notation was too sparse.}$
+\item $\text{More "fluent" text generation.}$
+\end{itemize}
+\item $\text{Reading Comprehension E2E NN}:\\
+Attention: \vec{\alpha} = softmax[\vec{q}^T\bold{W}_s\tilde{\vec{p}}_1, 
+\cdots, \vec{q}^T\bold{W}_s\tilde{\vec{p}}_N]^T\\
+Candidate\ Vector: \vec{o} = \vec{\alpha}^T\tilde{\vec{p}}\\
+Answer\ Entity: a = arg\max_{\forall{a \in p\cap{E}}}W_a^T\vec{o}$
+\item $\text{Semantic intepretation of language}:\\
+\text{Neural Bag of Words: Average word vectors and (optionally) put
+through a Deep Averaging Network (DAN)}\\
+\text{RNN/LSTM/GRU capture too much of last words in final vector,
+where focus is LM for next word prediction.}\\
+\text{CNN although not very linguistic captures multi-word phrases 
+and builds features to capture distinguishing aspects of phrases}:\\
+Word\ Vectors: \vec{x}_i \in \mathbb{R}^k, 
+Concatenation: \vec{x}_{i:i+j},
+Convolution\ Filter: \bold{W} \in \mathbb{R}^{hk}, \\
+CNN\ Layer\ Feature: c_i = f(vec(\bold{W})^T\vec{x}_{i:i+h-1} + b),
+Feature\ Map: \vec{c} = [c_1, \cdots, c_{n-h+1}], and\\
+Max\ Pool\ (better\ than\ average): 
+\hat{c} = \max{\vec{c}}$
+\item $\text{Data-Dependent Composition: NLU/AI requires understanding 
+of bigger things from knowing smaller parts that go well together.}\\
+Recursive\ Neural\ Network: \text{Tree Structure NN model supporting
+compositionality.}$
+\end{enumerate}
+
+$$Conclusion:$$
+\begin{enumerate}
+\item $\text{Deep Learning, Distributed Representation, End-to-End 
+Training, and richer modeling of state has benefited NLP.}$
+\item $\text{Vector space mush is beating structured and symbolic 
+logic approaches.}$
+\item $\text{Over time more structure, modularity for language, memory,
+knowledge, and planning would be needed.}$
+\end{enumerate}

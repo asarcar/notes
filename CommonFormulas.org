@@ -1,0 +1,820 @@
+$$\text{Distributions: }$$
+\begin{enumerate}
+\item $\text{Dirichlet is a probability distribution on multinomial 
+probability mass function (pmf) belonging to the exponential family!}
+\text{Dirichlet is very useful in bayesian statistics as it's a 
+conjugate prior to categorical distribution:}$
+
+\begin{itemize}
+\item $\vec{\theta} \sim Dir(\vec{\alpha}) \implies
+p(\vec{\theta})_{Dir} = \frac{1}{B(\vec{\alpha})}
+\prod_{i=1}^n\theta_i^{\alpha_i-1}I(\vec{\theta} \in S)$
+
+\item $\vec{\alpha} = [\alpha_1, \cdots, \alpha_n]^T, 
+\forall_{i=1..n}\alpha_i \geq 0,  
+\alpha_0 = \sum_{i=1}^n\alpha_i$
+
+\item $
+S = {\vec{x} \in \mathbb{R}^n: x_i \ge 0 \ \&\ \sum_{i=1}^nx_i = 1}\ 
+i.e.\ \vec{x} \text{ represents a probability mass function p.m.f.}$
+
+\item $
+\frac{1}{B(\vec{\alpha})} = 
+\frac{\Gamma(\alpha_0)}{\prod_{i=1}^n\Gamma(\alpha_i)}$
+
+\item $
+\Gamma(z)_{converges4\ for\ z > 0} = 
+\int_{x=0}^{\infty}x^{(z-1)}e^{-x} = (z-1)\Gamma(z-1), 
+\Gamma(1) = 1, and\ \Gamma(i)_{i = 1,2,\cdots, \infty} = (n-1)!$
+
+\item $
+Key\ Statistics: \\
+E[\vec{\theta}] = E[\vec{\theta}p(\vec{\theta})_{Dir}] = 
+\frac{1}{\alpha_0}\vec{\alpha} \\
+Mode(\vec{\theta}) = 
+\arg\max_{\vec{\theta}}p(\vec{\theta})_{Dir} = 
+\frac{1}{\alpha_0-n}(\vec{\alpha}-1) \\
+Cov(\vec{\theta}) = E[\vec{\theta}-E[\vec{\theta}]]
+E[\vec{\theta}-E[\vec{\theta}]]^T = 
+\frac{1}{\alpha_0^2(\alpha_0 + 1)}
+(\alpha_0Diag(\vec{\alpha}) - \vec{\alpha}\vec{\alpha}^T)\\
+E[\prod_{i=1}^n\theta_i^{\beta_i}] = 
+\frac{B(\vec{\alpha} + \vec{\beta})}{B(\vec{\alpha})}$
+
+\item $
+\text{Magnitude of each } 
+\alpha_i \ \&\ \alpha_0 = \sum_{i=1}^K\alpha_i\ 
+\text{determines the sparsity and "concentration" 
+of the distribution i.e.}\\
+\forall_i{\alpha_i} < 1\ (i.e.\ \alpha_0 < K) \implies
+\text{pmf is sparse and mostly concentrated with few high } 
+\theta_i \text{ and rest } \theta_i \text{ close to zero.}\\
+\forall_i{\alpha_i} = 1\ (i.e.\ \alpha_0 = K) \implies
+\text{pmf is uniform in the simplex plane.}\\ 
+\forall_i{\alpha_i} > 1\ (i.e.\ \alpha_0 >> K) \implies
+\text{pmf is concentrated in the simplex plane with most }
+\theta_i \text{ contributing to the peak.}
+$
+\end{itemize}
+
+\item $\text{Univariate Gaussian (UG) \& Multivariate Gaussian (MG)}$
+\begin{itemize}
+\item $ X_{\in R} \in UG\ if\  
+pdf(X)_{\in [0,1]} \sim Normal(\mu, \sigma^2)\ i.e.\ f(x) = 
+(\sqrt{2\pi\sigma_X^2})^{-\frac{1}{2}}
+\exp(-\frac{1}{2}(\frac{x - \mu_X}{\sigma_X})^2);
+\mu_X \in R \ \&\ \sigma_X > 0 
+\lim_{\sigma_X \rightarrow 0+} f(x) = \delta_{\mu_X}
+\ i.e.\ X \in DUG\ (Degenrate\ UG); DUG \subset{UG}$
+
+\item $\vec{X}_{\in MG - DMG} \sim N(\vec{\mu}, \bold{C}) \ \&\ 
+\lVert \bold{C} \rVert > 0 \implies 
+pdf(\vec{X}) = f: \vec{X} \rightarrow [0, 1] \ni 
+f(x) = (\lVert 2\pi\bold{C} \rVert)^{-\frac{1}{2}}
+\exp(-\frac{1}{2}g(\vec{x}, \vec{\mu}, \bold{C}^{-1})) 
+g(\vec{x}, \vec{\mu}, \bold{A})=
+(\vec{x} - \vec{\mu})^T\bold{A}^{-1}(\vec{x} - \vec{\mu})
+\text{ is of quadratic form whose level sets are } 
+\text{ ellipsoid ripples of value centered at } 
+\vec{\mu}$
+
+\item $\vec{X}_{\in MG} = 
+[X_1, \cdots, X_n]^T \sim N(\vec{\mu}, \bold{C}),
+where\ \vec{\mu} \in R^n \ \&\ 
+C \in 
+\text{PSD (Positive Semi Definite) Matrix}
+\implies 
+E[X_i] = \mu_i\ and\ Cov(X_i, X_j) = C_{ij} 
+Note\ \vec{\mu} \ \&\ \bold{C} 
+\text{ uniquely determines the distribution }
+N(\vec{\mu}, \bold{C}) \ \&\ 
+\lVert \bold{C} \rVert = 0 \implies 
+\vec{X}_{\vec{X} \sim N(\vec{\mu}, \bold{C})} \in DUG$
+
+\item $X_1, \cdots, X_n \in UG
+\text{ are independent with }
+\forall_{i}\{X_i \sim N(\mu_i, \sigma_i^2)\}\ iff 
+\vec{X}_{R^n} = 
+[X_1, \cdots, X_n]^T \sim N(\vec{\mu}, \bold{C});
+\vec{\mu} = [\mu_1, \cdots, \mu_n]^T \ \&\ 
+\bold{C} = Diag[\sigma_1^2, \cdots, \sigma_n^2] 
+Note\ \vec{X}_{R^n} \in MG \implies
+\forall_{i,j}\{X_i \ \&\ X_j\ are\ independent\ iff\ 
+Cov(X_i, X_j) = 0\}$
+
+\item $\vec{X}_{R^n \in MG} \sim 
+N(\vec{\mu}_{R^n}, \bold{C}_{R^{n\times{n}}})
+\implies
+\bold{A}_{\in R^{m\times{n}}}\vec{X} + 
+\vec{b}_{\in R^m} = 
+\vec{Y}_{R^m \in MG}  \sim 
+N(\bold{A}\vec{\mu} + \vec{b}, \bold{ACA^T}) 
+\text{Any affine transformation of a MG is MG} 
+Sphering: \bold{C}_{\in PD} = \bold{AA^T} \implies 
+\vec{X} \sim N(\vec{\mu}, \bold{C}) \implies
+\vec{Y} = \bold{A}^{-1}(\vec{X} - \vec{\mu}) \sim 
+N(\vec{0}, \bold{I}) 
+Constructing\ or\ DeSphering: 
+X_1, \cdots, X_n \sim N(0, 1)\ and\ independent
+\implies 
+\vec{X} = [X_1, \cdots, X_n]^T \sim 
+N(\vec{0}, \bold{I}) \implies 
+\vec{Y} = \bold{A}\vec{X} + \vec{\mu} \sim 
+N(\vec{\mu}, \bold{C}), 
+where\ \bold{C = AA^T} 
+Note\ {\forall{\vec{\mu} \in R^n 
+\ \&\ \bold{A} \in R^{m\times{n}}}}$
+
+\end{itemize}
+\end{enumerate}
+
+$\text{Information Theory:}$
+\begin{enumerate}
+\item $Probability Definitions:\\
+p_X(x) = p(x) = Pr\{X = x\}, \forall{x} \in \mathcal{X}\\
+p_{X,Y}(x,y) = p(x,y) = Pr\{X=x, Y=y\}, 
+\forall{x,y} \in \mathcal{X}\times{\mathcal{Y}}\\
+p_{Y \mid X}(Y=y \mid X = x) = \frac{p_{X,Y}(x, y)}{p_X(x)}\\
+X_1, \cdots, X_N \text{ are statistically independent if }
+\forall{(x_1, \cdots, x_N)} \in 
+\mathcal{X}_1 \times \cdots \times \mathcal{X}_N\ 
+p(x_1, \cdots, x_N) = \prod_{i=1}^Np_{X_i}(x_i)\\
+X_1, \cdots, X_N \text{ are identically distributed if }
+\forall_{i}p(X_i = x) = p_X(x)$
+
+\item $Information\ Entropy:\\
+\text{Measure of entropy associated with a given event is the logarithm
+of the surprise factor of the event i.e. inverse of probability of the event.}\\
+\text{Entropy of random variable is average uncertainty or amount of 
+information produced by a stochastic source that represents the RV.}\\
+\text{Entropy is average number of bits needed to describe the RV.}\\
+\text{Entropy is a lower bound on the average length of the 
+shortest description of the RV.}\\
+H(X) = -\sum\limits_{x} p_X(x)\log{p_X(x)} = -E_{p_X(x)}[\log{p_X(X)}]\\
+\text{Using Jenson's Inequality: } H(X) \geq 0, 
+H(X) \leq \log(\parallel \mathcal{X} \parallel),
+H(X) = \log(\parallel \mathcal{X} \parallel) 
+\text{ iff X has uniform distribution over } \mathcal{X}\ and\\
+H_b(X) = \log_b(a)H_a(X) \implies
+\text{Base is not important as change of base scales all 
+entropy by a constant.}$
+
+\item $Joint\ Entropy:\\
+\text{Measure of uncertainty associated with a set of variables.}\\
+H(X,Y) = -E_{p(x,y)}[\log{p(X,Y)}] = 
+-\sum\limits_{x \in \mathcal{X}}\sum\limits_{y \in \mathcal{Y}}
+p(x,y)\log{p(x,y)}$
+
+\item $Conditional\ Entropy:\\
+\text{Amount of information needed to describe the outcome 
+of a random variable Y given the value of another variable X. i.e. 
+Amount of uncertainty remaining in Y after X is known.}\\
+H(Y \mid X) = E_{p(x)}[H(Y \mid X=x)] = 
+\sum\limits_{x \in \mathcal{X}}p(x)H(Y \mid X = x) =
+-E_{p(x)}E_{p(y|x)}[\log{(Y \mid X)}]=
+-E_{p(x,y)}[\log{(Y \mid X)}] \implies\\
+H(Y \mid X) = 
+- \sum\limits_{x \in \mathcal{X}}\sum\limits_{y \in \mathcal{Y}}
+p(x,y)\log{p(y \mid x)}; Note\ H(X \mid Y) \neq H(Y \mid X)\\
+\text{Using Jenson's Inequality: } H(Y \mid X) \geq 0$
+
+\item $Kullback-Leibler\ Divergence:\\
+D_{KL}(P \parallel Q) = \sum\limits_iP(i)\log{\frac{P(i)}{Q(i)}}\\
+\text{Using Jenson's Inequality: } D_{KL}(P \parallel Q) \geq
+-\log\sum\limits_i\frac{P(i)Q(i)}{P(i)} = -\log{1}\implies
+D_{KL}(P \parallel Q) \geq 0$
+
+\end{enumerate}
+
+$\text{Mutual Information and Chain Rule}:$
+\begin{enumerate}
+\item $Mutual\ Information:\\
+\text{Measures the information shared by two variables i.e. 
+knowing one variable reduced how much uncertainty about the other.}\\
+\text{Average information Y gives us about X i.e. average amount of 
+decrease of information (randomness) of X by observing Y.}\\
+I(X;Y) = \sum\limits_{y \in \mathcal{Y}}\sum\limits_{x \in \mathcal{X}}
+p(x,y)\log(\frac{p(x,y)}{p(x)p(y)}) = 
+\sum\limits_{x,y}p(x)p(y \mid x)\log{p(y \mid x)} - 
+\sum\limits_{x,y}p(x,y)\log{p(y)} \implies \\
+I(X;Y) = \sum\limits_xp(x)\sum\limits_y
+p(y \mid x)\log{p(y \mid x)} - 
+\sum\limits_yp(y)\log{p(y)} \implies\\
+I(X;Y) = H(Y) -H(Y \mid X) = H(X) -H(X \mid Y)=H(X) + H(Y) - H(X,Y)\\
+I(X;Y) = D_{KL}(p(x,y) \parallel p(x)p(y)) = 
+\sum\limits_y\sum\limits_xp(x \mid y)\log{\frac{p(x \mid y)}{p(x)}} = 
+E_Y[D_{KL}(p(x \mid y) \parallel p(x))] \implies\\
+I(X;Y) \text{ Mutual information is the expectation of KL divergence 
+of univariate distribution of X from the conditional distribution of X 
+given Y}\\
+\text{The more different the distributions of } p(x \mid y) \ \&\ p(y), 
+\text{the greater the mutual information}\\
+Symmetry: I(X; Y) = I(Y; X)\\
+Self\ Information: I(X; X)=H(X)$
+
+\item $Conditional\ Mutual\ Information: 
+\text{Information Y gives us about X after Z is known.}\\
+I(X;Y \mid Z) = H(X \mid Z) - H(X \mid Y, Z) = 
+\sum\limits_z\sum\limits_{(x \mid z, y \mid z)}
+\log{\frac{p(X,Y\mid Z)}{p(X \mid Z)p(Y \mid Z)}} \implies\\
+I(X; Y \mid Z) = E_{p(x,y,z)}
+\log{\frac{p(X,Y\mid Z)}{p(X \mid Z)p(Y \mid Z)}}$
+
+\item $Chain\ Rule:\\ 
+For\ Entropy:\\ 
+H(X,Y) = H(X) + H(Y \mid X) = H(Y) + H(X \mid Y) =
+H(X \mid Y) + H(Y \mid X) + I(X; Y) = H(X) + H(Y) - I(X;Y)\\
+H(X,Y\mid Z) = H(X \mid Z) + H(Y \mid X, Z)\\
+H(X_1, \cdots, X_n) = \sum_{i=1}^nH(X_i \mid X_{i-1}, \cdots, X_1)\\
+For\ Mutual\ Information:\\
+I(X_1, \cdots, X_n; Y) = \sum_{i=1}^nI(X_i; Y \mid X_{i-1}, \cdots, X_1)$
+
+\end{enumerate}
+
+$\text{Posterior Distribution and Conjugate Prior Examples:}$
+\begin{enumerate}
+\item $\text{Dirichlet is conjugate prior for Categorical 
+(i.e. Multinomial with only one trial).}
+\bold{D} = (x1, \cdots, x_N), \\
+where\ X_1, \cdots, X_N \sim Cat(\vec{\theta}),
+\forall_{i}X_i \in {v_1, \cdots, v_n}\ \&\ are\ iid,\\
+p(X_i = v_j | \vec{\theta}) = \theta_j$
+\item $Prior\ p(\vec{\theta}|\vec{\alpha}) \propto 
+\prod_{i=1}^n\theta_i^{\alpha_i - 1}I(\vec{\theta} \in S)$
+\item $Likelihood\ = p(\bold{D}|\vec{\theta}) = 
+\prod_{i=1}^Np(X_i=x_i|\vec{\theta}) =
+\prod_{i=1}^N\prod_{j=1}^n\theta_j^{I(x_i=j)} = 
+\prod_{j=1}^n\theta_j^{c_j}, 
+where\ c_j = \sum_{i=1}^NI(x_i=j) \geq 0$
+\item $
+Posterior = p(\vec{\theta}|\bold{D}) \propto
+Prior\times{Likelihood} = 
+p(\bold{D}|\vec{\theta})p(\vec{\theta}) \propto
+\prod_{j=1}^n\theta_j^{c_j}\prod_{j=1}^n\theta_j^{\alpha_j-1} =
+\prod_{j=1}^n\theta_j^{c_j + \alpha_j-1}, 
+c_j + \alpha_j > 0 \implies \\
+Posterior =
+(\prod_{i=1}^NCat(x_i |\vec{\theta}))
+Dir(\vec{\theta}|\vec{\alpha}) \propto 
+Dir(\vec{\theta}|\vec{\alpha}^{\bold{D}}), where\ 
+\vec{\alpha}^{\bold{D}} = \vec{c} + \vec{\alpha}$
+
+\item $
+\text{Posterior Distribution for Categorical Likelihood 
+and Dirichlet prior.}\\
+\text{Say we are estimating the predictive distribution of a 
+new categorical point X, where}\\ 
+X \text{ is conditionally independent from Data given } 
+\vec{\theta}\ i.e.\ 
+p(X, X_1, \cdots, X_N|\vec{\alpha}) = 
+p(X|\vec{\alpha})p(X_1, \cdots, X_N|\vec{\alpha})\\
+p(X=k|\bold{D}, \vec{\alpha}) = 
+\int_{\forall{\vec{\theta}}}
+p(X=k, \vec{\theta}| \bold{D}, \vec{\alpha})
+d\vec{\theta} =
+\int_{\forall{\vec{\theta}}}
+p(X=k|\vec{\theta}, \bold{D}, \vec{\alpha})
+p(\vec{\theta}|\bold{D}, \vec{\alpha}) 
+d\vec{\theta} \implies\\
+p(X=k|\bold{D}, \vec{\alpha}) = 
+E_{\vec{\theta}|\bold{D} \sim 
+Dir(\vec{\theta}|\vec{c} + \vec{\alpha}}[\theta_{k}] = 
+\frac{c_k + \alpha_k}{N + \alpha_0}, \\
+where\ \forall_i{\alpha_i} \text{ are known as "pseudo counts" i.e. 
+prior belief of base reference counts we assume for each category.}$
+
+\item $\text{Posterior Distribution for UG likelihood and prior:}
+\bold{D} = (x_1, \cdots, x_n), x_i \in \mathbb{R},  
+X_1, \cdots, X_N \sim N(\mu, \sigma^2)\ iid\ given\ (\mu, \sigma),
+\mu \sim N(\mu_o, \sigma_o^2), and \theta = \mu i.e.
+(\sigma^2, \mu_o, \sigma_o^2)\ are\ known.
+p(\theta|\bold{D}) = p(\mu|\bold{D}) \propto 
+p(\bold{D}|\mu)p(\mu) = p(\mu)\prod_{i=1}^Np(x_i|\mu) \propto
+\exp(-\frac{1}{2\sigma_o^2}(\mu - \mu_o)^2)
+\prod_{i=1}^N\exp(-\frac{1}{2\sigma^2}(x_i - \mu)^2 = 
+\exp(-\frac{1}{2\sigma_o^2}(\mu - \mu_o)^2 -
+\frac{1}{2\sigma^2}\sum_{i=1}^N(x_i - \mu)^2) \implies
+p(\theta|\bold{D}) \propto 
+\exp(-\frac{1}{2\sigma_N^2}(\mu - \mu_N)^2), where\\ 
+\frac{1}{\sigma_N^2} = \frac{1}{\sigma_o^2} + \frac{N}{\sigma^2}
+\ i.e.\ sigma_N^2 \text{ is the harmonic mean of }
+(sigma_o^2, sigma^2, \cdots_{N\ times}, sigma^2) 
+\mu_N = \frac{\sigma_N^2}{\sigma_o^2}\mu_o + 
+\frac{\sigma_N^2N}{\sigma^2}\mu_{MLE}, 
+where\ \mu_{MLE} = \frac{1}{N}\sum_{i=1}^Nx_i
+\text{ and note that } \mu_N 
+\text{ is a convex combination of } \mu_o \ \&\ \mu_{MLE}\ 
+i.e.\ \frac{\sigma_N^2}{\sigma_o^2} + 
+\frac{\sigma_N^2N}{\sigma^2} = 
+\sigma_N^2(\frac{1}{\sigma_o^2} + \frac{N}{\sigma_N^2}) = 
+\frac{\sigma_N^2}{\sigma_N^2} = 1\\
+\lim_{N \rightarrow \infty}\mu_N = \mu_{MLE}\ \&\ 
+\lim_{N \rightarrow \infty}\sigma_N = 0 
+\text{ i.e. the posterior distribution of } \mu
+\text{ coverges to a point mass around the sample mean.}$
+\end{enumerate}
+
+$\text{MG is invariant against several operations}:$
+$$
+Assume\ 
+\vec{X}_{R^n \in MG} = 
+[\vec{X}_{a \in R^k}, \vec{X}_{b \in R^{n-k\times{n-k}}}]^T, 
+\vec{\mu} = [\vec{\mu}_a, \vec{\mu}_b]^T, and\ 
+\bold{C}_{\in R^{n\times{n}}} = 
+\left[ {\begin{array}{cc}
+\bold{C}_{aa} & \bold{C}_{ab}\\
+\bold{C}_{ba} & \bold{C}_{bb}\\
+\end{array} } \right]
+$$
+\begin{enumerate}
+\item $Linear\ Combination: 
+{\forall_{\vec{v} \in R^k}}\{\vec{v}\cdot\vec{X} \in UG \}
+\implies \vec{X} \in MG 
+Note\ with\ \vec{v} = \vec{0} \ \&\ 0 \in DUG \implies
+\vec{0} \in DMG
+$
+
+\item $\text{Marginalization Property}:\\ 
+\vec{X}_a \sim N(\vec{\mu}_a, \bold{C}_{aa}) 
+\vec{a} = \vec{1}_{\in R^k}, and\ 
+\vec{b} = \vec{0}_{\in R^(n-k)} \implies 
+\text{As by affine property if: } 
+\bold{A}_{\in R^{n\times{n}}} = 
+[\bold{I}_{\in R^{k\times{k}}}, 
+\bold{0}_{\in R^{n-k\times{n-k}}}]^T \implies 
+\bold{A}\vec{X} = \vec{X}_a \sim 
+N(\bold{A}\vec{\mu}, \bold{A}C\bold{A}^T) = 
+N(\vec{\mu}_a, \bold{C}_{aa})
+$
+
+\item $\text{Conditional Distribution Property}:\\
+(\vec{X}_a | \vec{X}_b = \vec{x}_b)_{\in MG} \sim 
+N(\vec{m}, \bold{D}), where\ 
+\vec{m} = \vec{\mu}_a + \bold{C_{ab}C_{bb}^{-1}}
+(\vec{x}_b - \vec{\mu}_b), 
+\bold{D = C_{aa} - C_{ab}C_{bb}^{-1}C_{ba}}
+$
+
+\item $Sum\ of\ Independent\ Gaussians: 
+\vec{X}_{\in R^n} \sim N(\vec{\mu}_X, \bold{C}_X), 
+\vec{Y}_{\in R^n} \sim N(\vec{\mu}_Y, \bold{C}_Y)\ 
+are\ independent \implies
+\vec{X} + \vec{Y} \sim N(\vec{\mu}_X + \vec{\mu}_Y,
+\bold{C}_X + \bold{C}_Y)
+$
+
+\end{enumerate}
+
+$$\text{Kronecker Properties: }$$
+\begin{enumerate}
+\item $(\bold{B}^T\otimes{\bold{A}})vec(\bold{X}) = vec(\bold{AXB})$
+\item $\vec{v}\otimes\vec{u} = vec(\vec{u}\vec{v}^T)$
+\end{enumerate}
+
+$$\textnormal{Common Estimators: }$$
+\begin{enumerate}
+  \item $\hat{X} = 
+                \frac{1}{N}\sum_{i=1}^NX_i, 
+	        where\ \forall_iX_i\ is\ iid$
+  \begin{itemize}
+   \item $\mu_{\hat{X}} = E[\frac{1}{N}\sum_{i=1}^NX_i] = 
+                 \frac{N}{N}\mu_{X_{i=1}} 
+		 \text{ without loss of generality} = \mu_X \implies 
+		 \hat{X} \text{ is an estimator of } \mu_X$
+    \item $Var_{\hat{X}} = E[(\hat{X} - \mu_{\hat{X}})^2] = 
+                 \frac{1}{N^2}[N\overline{X^2} + 2\binom{N}{2}\overline{X}^2] - 
+                 \mu_X^2 = \frac{1}{N}(\overline{X^2} - \overline{X}^2) = 
+		 \frac{Var_X}{N} \implies 
+		 Var_{\hat{X}} \text{ is an estimator of } \frac{Var_X}{N}$
+    \item $\tilde{X} = \frac{1}{N}\sum_{i = 1}^N[X_i - \hat{X}] \implies
+                  \mu_{\tilde{X}} =  E[\tilde{X}] = 
+                  \frac{1}{N}\sum_{i=1}^N(E[X_i] - \mu_{\hat{X}}) = 
+		  \frac{1}{N}\sum_{i=1}^N(\mu_X - \mu_X) = 0$
+    \item $\tilde{X}' = \frac{1}{N-1}\sum_{i=1}^N[X_i - \hat{X}]^2 \implies
+                  \mu_{\tilde{X}'} = 
+		  \frac{1}{N-1}\sum_{i=1}^N(X_i - \hat{\mu}_X)^2= 
+                  \frac{N}{N-1}E[(X_{i=1} - \hat{\mu}_X)^2] 
+		  \text{ without loss of generality} = 
+		  \frac{N}{N-1}(\overline{X^2} + 
+		  \frac{N}{N^2}\overline{X^2} -
+		  \frac{2}{N}\overline{X^2} +
+		  \frac{2\binom{N}{2}}{N^2}\overline{X}^2 - 
+		  \frac{2(N-1)}{N}\overline{X}^2) = 
+		  \frac{N}{N-1}\frac{N-1}{N}
+		  (\overline{X^2} - \overline{X}^2) = Var_X \implies 
+		  \tilde{X}' \text{ is an estimator of } Var_X$
+   \end{itemize}
+\end{enumerate}
+
+$$
+\text{Key Statistics of Multidimensional Random Variable: } 
+\vec{X} = [X_1, \cdots, X_n]^T \in R^n
+$$
+\begin{enumerate}
+  \item $Covariance\ Matrix: cov(\vec{X}, \vec{X})_{\in R^{n\times{n}}} = 
+                \bold{C}_{\vec{X}} = 
+		E[(\vec{X} - \vec{\mu}_X)(\vec{X} - \vec{\mu}_X)^T] = 
+		\overline{\vec{X}\times\vec{X}^T} - 
+		\overline{\vec{X}}\times\overline{\vec{X}}^T 
+		cov(\bold{A}\vec{X} + \vec{b}) = 
+		\bold{A}cov(\vec{X}, \vec{X})\bold{A}^T$
+  \item $Variance\ Vector: var(\vec{X})_{\in R^n} = 
+                \vec{\Sigma}_{\vec{X}},
+                where\ \vec{\Sigma}_{\vec{X}} = 
+		Diag(\bold{C}_{\vec{X}})\cdot\vec{1}
+                \vec{\Sigma}_{\vec{X}} =
+		E[(\vec{X} - \vec{\mu}_{\vec{X}})^T
+		(\vec{X} - \vec{\mu}_{\vec{X}})] = 
+		\overline{\vec{X}^T\vec{X}} - 
+		\vec{\mu}_{\vec{X}}^T\vec{\mu}_{\vec{X}}$
+  \item $\text{Correlation Matrix a.k.a. 
+                Pearson Correlation Coefficient (PCC): } 
+		corr(\vec{X}, \vec{X})_{\in R^{n\times{n}}} = 
+		\bold{\rho}_{\vec{X},\vec{X}} = 
+		\bold{\Sigma}_X^{-\frac{1}{2}}\bold{C}_X
+		\bold{\Sigma}_X^{-\frac{1}{2}}, 
+		where\ \bold{\Sigma}_X = Diag(\bold{C}_X) 
+                Note\ \bold{\rho}_{X,X} \in R^{n\times{n}} \ni 
+		-1 \leq \bold{\rho}_{X,X}[i,j]_{\forall{i \neq j}} \leq 1 \ \&\ 
+		\bold{\rho}_{X,X}[i,i] = 1$  
+\end{enumerate}
+
+$$\text{Expectation Maximization: }$$
+\begin{enumerate}
+  \item $\text{Data is observed as independent observation instances: } 
+                \bold{X}_{\in R^{d\times{N}}} = [\vec{x}^1, \cdots, \vec{x}^N]$
+  \item $\text{MLE/MAP solves the problem of estimating 
+  	        model parameters given observed data.} 
+                MLE: \arg\max_{\forall{\theta}}p(\bold{X}|\theta) 
+                MAP: \arg\max_{\forall{\theta}}p(\bold{X}|\theta)p(\theta)$
+  \item $\text{Approach does not work when there are hidden 
+                parameters } \vec{Z} 
+		\text{ that work with model parameters to influence 
+		observed data.} 
+                \arg\max_{\forall{\theta}}p(\bold{X}|\theta) = 
+		\sum_{\forall{\vec{Z}}}p(\vec{Z}, \bold{X}|\theta);
+		\text{Above MLE equation intractable as } \vec{Z} 
+		\text{ wasn't observed. } 
+		\text{EM algorithm helps to estimate model as well 
+		as hidden parameters given observed data}$
+  \item $\ln{p(\bold{X}|\vec{\theta})} = 
+                \ln{\sum_{\forall{\vec{Z}}}\frac{q(\vec{Z})}{q(\vec{Z})}
+		p(\bold{X}, \vec{Z}|\vec{\theta})} =
+		\ln(E_{q(\vec{Z})}
+		\frac{p(\bold{X}, \vec{Z}|\vec{\theta})}{q(\vec{Z})}) 
+		\geq E_{q(\vec{Z})}
+		{\ln\frac{p(\bold{X}, \vec{Z}|\vec{\theta})}{q(\vec{Z})}}
+		\ by\ Jenson's\ Inequality \implies 
+		\ln{p(\bold{X}|\vec{\theta})} \geq
+		E_{q(\vec{Z})}
+		{\ln\frac{p(\bold{X}, \vec{Z}|\vec{\theta})}{q(\vec{Z})}} 
+		E\ Step: 
+		\arg\max_{\theta}E_{q(\vec{Z})}
+		\ln\frac{p(\bold{X}, \vec{Z}|\vec{\theta})}{q(\vec{Z})} = 
+		\arg\max_{\theta}E_{q(\vec{Z})}
+		\ln{p(\bold{X}, \vec{Z}|\vec{\theta})}
+		\ assuming\ q(\vec{Z})\ doesn't\ depend\ on\ \theta 
+		M\ Step: 
+		\arg\max_{q(\vec{Z})}E_{q(\vec{Z})}
+		\ln\frac{p(\bold{X}, \vec{Z}|\vec{\theta})}{q(\vec{Z})} =
+		\arg\max_{q(\vec{Z})}E_{q(\vec{Z})}
+		\ln{\frac{p(\bold{X}|\vec{\theta})
+		p(\vec{Z}|\bold{X}, \vec{\theta})}{q(\vec{Z})}} = 
+		\arg\max_{q(\vec{Z})}[
+		E_{q(\vec{Z})}\ln{p(\bold{X}|\vec{\theta})} + 
+		E_{q(\vec{Z})}ln{\frac{p(\vec{Z}|\bold{X}, \vec{\theta})}
+		{q(\vec{Z})}}] = 
+		\ln{p(\bold{X}|\vec{\theta})}_
+		{as\ \ln{p(\bold{X}|\vec{\theta})}\ doesn't\ depend\ on\ Z} -
+		\arg\min_{q(\vec{Z})}E_{q(\vec{Z})}
+		ln{\frac{q(\vec{z})}{p(\vec{z}|\bold{x}, \vec{\theta})}} = 
+		\arg\min_{q(\vec{Z})}D(q(.) \parallel 
+		p(.|\bold{X}, \vec{\theta}) \implies 
+		q(\vec{Z}) = p(\vec{Z}|\bold{X}, \vec{\theta})$
+  \item $Proof\ of\ EM\ Maximization\ Property\ i.e.\ 
+                \vec{\theta}^{t+1} = \arg\max_{\vec{\theta}}
+                E_{\vec{Z}|\bold{X}, \vec{\theta}^t}
+		\log{p(\bold{X}, \vec{Z}|\vec{\theta})} 
+		Note\ Q(\vec{\theta}|\vec{\theta}^t) = 
+		E_{\vec{Z}|\bold{X}, \vec{\theta}^t}
+		\log{p(\bold{X}, \vec{Z}|\vec{\theta})} 
+		Above\ iteration\ keeps\ increasing\ 
+		p(\bold{X}|\vec{\theta})\ as\\
+		\log{p(\bold{X}|\vec{\theta})}= 
+                \log{p(\bold{X}, \vec{Z}|\vec{\theta})} - 
+		\log{p(\vec{Z}|\bold{X}, \theta)} \implies 
+		\sum_{\forall{\vec{Z}}}
+		p(\vec{Z}|\bold{X}, \vec{\theta}^t)
+		\log{p(\bold{X}|\vec{\theta})} = 
+		\sum_{\forall{\vec{Z}}}
+		p(\vec{Z}|\bold{X}, \vec{\theta}^t)
+		\log{p(\bold{X}, \vec{Z}|\vec{\theta})} - 
+		\sum_{\forall{\vec{Z}}}
+		p(\vec{Z}|\bold{X}, \vec{\theta}^t)
+		\log{p(\vec{Z}|\bold{X}, \theta)}) \implies 
+		\log{p(\bold{X}|\vec{\theta})} = 
+		Q(\vec{\theta}|\vec{\theta}^t) + 
+		H(\vec{\theta}|\vec{\theta}^t) \implies 
+		\log{p(\bold{X}|\vec{\theta}^{t+1})} = 
+		Q(\vec{\theta}^{t+1}|\vec{\theta}^t) + 
+		H(\vec{\theta}^{t+1}|\vec{\theta}^t) \geq
+		Q(\vec{\theta}|\vec{\theta}^t) + 
+		H(\vec{\theta}|\vec{\theta}^t) = 
+		\log{p(\bold{X}|\vec{\theta}^t)} 
+		Note\ Q(\vec{\theta}^{t+1}|\vec{\theta}^t) = 
+		\arg\max_{\theta}Q(\vec{\theta}|\vec{\theta}^t) \geq
+		Q(\vec{\theta}|\vec{\theta}^t) \ \&\ 
+		H(\vec{\theta}^{t+1}|\vec{\theta}^t) \geq 
+		H(\vec{\theta}^t|\vec{\theta}^t) = 0$
+\end{enumerate}
+
+$$\text{EM of GMM (Gaussian Mixture Model)}$$
+\begin{itemize}
+
+  \item $p(\vec{x}) = 
+  \sum_{\forall{\vec{z} \in \vec{Z}}}p(\vec{x}|
+  \vec{z} = \vec{e}_k)p(\vec{e}_k), where 
+  \vec{Z} \in \{\vec{e}_1, \cdots, \vec{e}_M\}  
+  \text{ is R.V. representing Multinomial 
+  Distribution such that } 
+  p(\vec{Z}=\vec{e}_k) = \alpha_k; \sum_{i=1}^M\alpha_k = 1 
+  p(\vec{x}|\vec{e}_k)_{\in MG} \sim 
+  N(\vec{\mu}_k, \bold{C}_k); 
+  \mu_1, \cdots, \mu_M \in R^d;
+  C_1, \cdots, C_M \ni \forall_i{C_i \in R^{d\times{d}}}
+  PSD\ a.k.a.\ Covariance\ Matrix$
+
+  \item $z_k = p(\vec{x}, e_k|\vec{\theta}) \sim 
+  \alpha_kN(\vec{x}|\vec{\mu_k}, \bold{C}_k)$
+
+  \item $Membership\ Weights\ for\ data\ point\ \vec{x}^i: 
+  w_k^i = p(\vec{Z}^i = \vec{e}_k), 
+  where\ \bold{Z} = [\vec{Z}^1, \cdots, \vec{Z}^N] \implies  
+  w_k^i = p(z_k^i = 1|\vec{x}^i, \vec{\theta}) =
+  E_{\bold{Z}|\bold{X}, \vec{\theta}}[z_k^i] = 
+  p(\vec{Z}^i=\vec{e}_k|\vec{x}^i, \vec{\theta}) =
+  p(\vec{x}^i|\vec{e}_k)p(\vec{e}_k)/p(\vec{x}^i) = 
+  \frac{\alpha_kN(\vec{x}^i|\vec{\mu}_k, \bold{C}_k)}
+  {\sum_{j=1}^M\alpha_jN(\vec{x}^i|\vec{\mu}_j, \bold{C}_j)} 
+  Let\ 
+  \{\forall_{k=1,\cdots, M}\}
+  N_k^t = \sum_{i=1}^Nw_k^i \ \&\ 
+  \{\forall_{i=1,\cdots, N; k=1, \cdots, M}\}w_k^i = 
+  \bold{W}^t_{R^{N\times{M}}}$
+
+  \item $Parameters\ \vec{\theta} = 
+  [\vec{\alpha}, \{\vec{\mu}_1, \cdots, \vec{\mu}_M\}, 
+  \{\bold{C}_1, \cdots, \bold{C}_M\}] 
+  Hidden\ Parameters: \vec{\alpha} = 
+  [\alpha_1, \cdots, \alpha_M]^T; 
+  Model\ Parameters: 
+  [\{\vec{\mu}_1, \cdots, \vec{\mu}_M\}, 
+  \{\bold{C}_1, \cdots, \bold{C}_M\}]$
+
+  \item $E\ Step: 
+  Q(\vec{\theta}|\vec{\theta}^t) = 
+  E_{\bold{Z}|\bold{X}, \vec{\theta}^t}
+  \ln{p(\bold{X}|\bold{Z},\vec{\theta})p(\bold{Z}|\vec{\theta})} = 
+  E_{\bold{Z}|\bold{X}, \vec{\theta}^t}
+  [\ln{\prod_{i=1}^N\prod_{k=1}^M
+  (\alpha_k^iN(\vec{x}^i|\vec{\mu}_k, \bold{C}_k))^{z_k^i}}] = 
+  \sum_{i=1}^N\sum_{k=1}^M
+  E_{\bold{Z}|\bold{X}, \vec{\theta}^t}[z_k^i]
+  \ln{\alpha_k} + \ln{N(\vec{x}^i|\vec{\mu}_k, \bold{C}_k)} = 
+  \sum_{i=1}^N\sum_{k=1}^M
+  w_k^i\ln{\alpha_k} + \ln{N(\vec{x}^i|\vec{\mu}_k, \bold{C}_k)}
+  \implies 
+  Q(\vec{\theta}|\vec{\theta}^t) =   
+  \sum_{i=1}^N\sum_{k=1}^M
+  w_k^i[\ln{\alpha_k} - 
+  \frac{d}{2}\ln{2\pi} + \frac{1}{2}\ln{\lVert\bold{D}_k\rVert}) - 
+  \frac{1}{2}(\vec{x}^i - \vec{\mu}_k)^T\bold{D}_k
+  (\vec{x}^i - \vec{\mu}_k)], 
+  where\ \bold{D}_k = \bold{C}_k^{-1}$
+
+  \item $M\ Step: 
+  \arg\max_{\theta}Q(\vec{\theta}|\vec{\theta}^t)
+  \text{ - finding maximum } \theta 
+  \text{ requires partial differentiation and a 
+  lagrange multiplier to capture constraints: } 
+  G(\vec{\theta}) = Q(\vec{\theta}|\vec{\theta}^t) - 
+  \lambda(\sum_{k=1}^M\alpha_k - 1) 
+  \alpha_K: 
+  \frac{\partial{G(\vec{\theta})}}
+  {\partial{\alpha_K}} = 0 \implies
+  \sum_{i=1}^N\frac{w_K^i}{\alpha_K} - \lambda = 0 \implies
+  \alpha_K = \frac{N_k}{\lambda} 
+  \sum_{k=1}^K\alpha_K = 1 \implies 
+  \sum_{k=1}^K\frac{N_k}{\lambda} = 1; 
+  \lambda = \sum_{k=1}^KN_k = N; 
+  \alpha_K = \frac{N_k}{\lambda} = \frac{N_k}{N} \implies
+  \vec{\alpha} = \frac{1}{N}\bold{W}_t^{T}\cdot\vec{1} 
+  \vec{\mu}_K: 
+  \frac{\partial{G(\vec{\theta})}}{\partial{\vec{\mu_K}}} = 0 \implies
+  \sum_{i=1}^Nw_K^i\bold{C}_k(\vec{x}^i - \vec{\mu}_K) = 0 \implies
+  \sum_{i=1}^Nw_K^i(\vec{x}^i - \vec{\mu}_K) = 0 \implies
+  \vec{\mu}_K = \frac{\sum_{i=1}^Nw_K^i\vec{x}^i}{N_K} 
+  \vec{\mu_K}^{t+1}=\sum_{i=1}^Nw_K^i\vec{x}_i/N_K;
+  \boldsymbol{\mu}_{R^{d\times{M}}} = [\vec{\mu}_1, \cdots, \vec{\mu}_M] = 
+  \bold{X}\bold{W}_t\circ\frac{1}{\vec{1}^T\bold{W}_{t}} 
+  \bold{C}_K (\bold{D}_K): 
+  \frac{\partial{G(\vec{\theta})}}{\partial{\bold{D}_K}} = 0 \implies
+  \sum_{i=1}^Nw_K^i
+  \frac{Cofactor(\bold{D}_K)^T}{\lVert\bold{D}_K\rVert} =
+  \sum_{i=1}^Nw_K^i
+  (\vec{x}^i - \vec{\mu}_K)^T(\vec{x}^i - \vec{\mu}_K) = 
+  \sum_{i=1}^Nw_K^i\bold{C}_K^i \implies 
+  Note\ \bold{C}_K^i = 
+  (\vec{x}^i - \vec{\mu}_K)^T(\vec{x}^i - \vec{\mu}_K)] 
+  N_K\bold{D}_K^{-1} = N_K\bold{C}_K = \sum_{i=1}^Nw_K^i\bold{C}_K^i \implies 
+  Note\ \bold{D}_KCofactor(\bold{D}_K)^T = \lVert\bold{D}_K\rVert \ \&\ 
+  \bold{D}_K^{-1} = \bold{C}_K 
+  \bold{C}_K^{t+1} = \frac{1}{N_k}\sum_{i=1}^Nw_K^i\bold{C}_K^{i^{t+1}}$
+\end{itemize}
+
+$$
+\text{Markov: Weather of tomorrow depends only on 
+today not on past.}
+$$
+$$
+\text{Markov Chain: }
+p(\vec{x}) = p(x_1)p(x_2|x_1)p(x_3|x_2)\cdots,
+where\ \vec{X} = [X_1, \cdots, X_n]^T
+$$
+
+$$\text{Hidden Markov Model:}$$
+\begin{enumerate}
+\item $p(\vec{x}|\vec{z}) \propto p(\vec{z}|\vec{x})p(\vec{x}), 
+where\ \vec{x}\ hidden\ states, \vec{z}\ are\ observations$
+\item $p(\vec{x}|\vec{z}, \omega) \propto 
+p(\vec{z}|\vec{x}, \omega)p(\vec{x}|\omega), where\ 
+\omega \in \Omega\ are\ model\ parameters$
+\item $p(\vec{z}|\vec{x}) = \prod_{i=1}^np(z_i|x_i)$
+\item $Discrete\ HMM\ Problems: 
+Find\ Best\ Fit\ Model\ (\Omega\ is\ discrete): 
+\arg\max_{\omega \in \Omega}p(\vec{z}|\omega) = 
+\sum_{\forall{\vec{x}} \in L^n}
+p(\vec{z}|\vec{x},\omega)p(\vec{x}|\omega),
+where\ L = \lVert V_x \rVert\ i.e.\ vocabulary\ size\ of\ x 
+Parameter\ Estimation\ (\Omega\ is\ continuous): 
+\arg\max_{\forall{\omega \in \Omega}}p(\vec{z}|\omega) = 
+\int \sum_{\forall{\vec{x}} \in L^n}
+f(\vec{z}|\vec{x},\omega)p(\vec{x}|\omega)d\omega,
+where\ f\ is\ pdf\ function. 
+MAP\ Estimation\ i.e.\ Mode\ of\ posterior\ distribution\  
+p(\vec{x}|\vec{z}, \omega) =
+\arg\max_{\forall{\vec{x}}}p(\vec{z}|\vec{x}, \omega)
+p(\vec{x}|\omega)$
+\end{enumerate}
+
+$$\text{Singular Value Decomposition}$$
+\begin{enumerate}
+\item $\bold{A}_{\in \mathbb{R}^{m\times{n}}} \text{ Matrix can be 
+imagined as m data (rows) points in n dimensional space}: 
+\{\vec{A}[1,:], \cdots, \vec{A}[n,:]\}\\
+\vec{v}_1 = \arg\max_{\forall{v, where\ \parallel v \parallel_2 = 1}}
+\parallel\bold{A}\vec{v}\parallel_2 =
+\arg\max_{\forall{v, where\ \parallel v \parallel_2 = 1}}
+\parallel\bold{A}\vec{v}\parallel_2^2 = 
+\arg\max_{\forall{v, where\ \parallel v \parallel = 1}}
+\sum_{i=1}^m(\vec{A}[i,:]^T\vec{v})^2 \implies
+\vec{v}_1 \text{ is the vector that has the minimum squared distance 
+to all the m data points.}\\
+\{\vec{v}_1, \vec{v}_{2 \mid \vec{v}_2 \bot \vec{v}_1}, \cdots, 
+\vec{v}_{r \mid \vec{v}_r \bot \{\vec{v}_1, \cdots, \vec{v}_{r-1}\}}\}
+\text{ span the row space of rank r matrix } \bold{A}$
+
+\item $\text{Frobenium norm of matrix}: 
+\parallel \bold{A} \parallel_F^2 = 
+\sum_{i=1}^m\sum_{j=1}^nA_{i,j}^2 = 
+\sum_{i=1}^m\parallel\vec{A}[i,:]\parallel^2=
+\sum_{i=1}^m\sum_{k=1}^r(\vec{A}[i,:]^T\vec{v}_k)^2$
+
+\item $\vec{u}_1 = \frac{1}{\sigma_1}\bold{A}\vec{v}_1, \cdots,
+\vec{u}_r = \frac{1}{\sigma_r}\bold{A}\vec{v}_r;
+\forall_i\vec{u}_i \text{ are all mutually orthogonal}.$
+
+\item $\bold{A}= \sum_{i=1}^r\sigma_i\vec{u}_i\vec{v}_i^T\\
+Note\ \bold{A}\vec{v}_i = \sigma_i\vec{u}_i = 
+\sigma_i\vec{u}_i\vec{v}_i^T\vec{v}_i = 
+\sum_{j=1}^r\sigma_j\vec{u}_j\vec{v}_j^T\vec{v}_i \implies\\
+\bold{A}\vec{v}_{for\ any\ \vec{v}} = 
+(\sum_{j=1}^r\sigma_j\vec{u}_j\vec{v}_j^T)
+(\sum_{i=1}^r\alpha_i\vec{v}_i)\ (where\ 
+\vec{v}_{for\ any\ vec{v}} = \sum_{i=1}^r\alpha_i\vec{v}_i) \implies\\
+\bold{A}\vec{e}_{i\ for\ any\ i} = 
+(\sum_{j=1}^r\sigma_j\vec{u}_j\vec{v}_j^T)\vec{e}_i \implies
+\forall{i}\{\vec{A}[:,i] = 
+(\sum_{j=1}^r\sigma_j\vec{u}_j\vec{v}_j^T)[:,i]\} \implies\\
+\text{All columns of both matrices are identical} \implies
+\bold{A} = \sum_{j=1}^r\sigma_j\vec{u}_j\vec{v}_j^T$
+
+\item $Given\ \bold{A} = \sum_{i=1}^r\sigma_i\vec{u}_i\vec{v}_i^T\ 
+and\ \bold{A}_k = \sum_{i=1}^{k \mid k<r}\sigma_i\vec{u}_i\vec{v}_i^T \\
+\bold{A}_k \text{ rows are projections of matrix on } 
+\bold{V}_k, \text{the subspace spanned by first k singular vectors.}\\
+Note: \sum_{i=1}^k\vec{a}\vec{v}_i\vec{v}_i^T: 
+\text{ is projection of } \vec{a} \text{ on } \bold{V}_k \implies\\
+\text{Projection of rows of matrix } \bold{A} \text{ on } \bold{V}_k =
+\sum_{i=1}^k\bold{A}\vec{v}_i\vec{v}_i^T = 
+\sum_{i=1}^k\sigma_i\vec{u}_i\vec{v}_i^T$
+
+\item $\bold{V}_k \text{ is the best fit - maximizes sum of squared 
+projection of or minimizes the sum of squared distance
+to - rows of matrix on a k ranked subspace.}$
+
+\item $\text{Best Rank k Approximation}:\\
+\parallel \bold{A} - \bold{A}_k \parallel_F \leq
+\parallel \bold{A} - \bold{B} \parallel_F, 
+\forall{\bold{B}\ of\ rank\ \leq k}$
+
+\item $\parallel \bold{A} - \bold{A}_k \parallel_2^2 = 
+\sigma_{k+1}^2\\
+\parallel \bold{A} - \bold{A}_k \parallel_2 \leq 
+\parallel \bold{A} - \bold{B}\parallel_{2\  
+{\forall{\bold{B}}\ with\ rank \leq k}}$
+
+\item $\text{Algorithm to find singular vectors of any matrix}:\\
+\bold{B}_1 = \frac{1}{\parallel \bold{B} \parallel}\bold{B}, 
+where\ \bold{B} = \bold{A}\bold{A}^T = 
+\sum_{i=1}^r\sigma_i^2\vec{u}_i\vec{u}_i^T \implies
+\lim_{k \rightarrow \infty}\bold{B}_1^k = \vec{u}_1\vec{u}_1^T\\
+\bold{B}_{n+1} = \bold{B}_n - \vec{u}_n\vec{u}_n^T \implies
+\lim_{k \rightarrow \infty}\bold{b}_{n+1}^k = 
+\vec{u}_{n+1}\vec{u}_{n+1}^T$
+\end{enumerate}
+
+$\text{Key Inequalities}:$
+\begin{enumerate}
+
+\item $Markov's\ Inequality:
+p(U \geq t)_{t > 0} \leq \frac{E[U]}{t} 
+\text{ for any random variable } U \in R^{+}\\
+Note: E[U] = \sum_{\forall{x \geq 0}}x.p(U=x) \geq 
+\sum_{\forall{x \geq t > 0}}xp(U \geq t) \geq 
+tp(U \geq t)_{t > 0}$
+
+\item $Chernoff's\ Bounding:
+p(Z \geq t) \leq e^{-st}\underset{s>0}{\text{inf}}M_Z(s)\\
+p(Z \geq t) = \underset{s>0}{p}(sZ > st) 
+p(e^{sZ} \geq e^{st}) \leq 
+e^{-st}E[e^{sZ}] = e^{-st}M_Z(s)
+$
+
+\item $Chebyshev's\ Inequality:
+p(\lVert Z - \mu_z \rVert \geq \sigma_zt) \leq \frac{1}{t^2}\\
+\text{From Markov's Inequeality: }
+p(\lVert Z - \mu_z \rVert \geq \sigma_zt) = 
+p((Z - \mu_z)^2 \geq \sigma_z^2t^2) \leq
+\frac{E[(Z - \mu_z)^2]}{\sigma_z^2t^2} = \frac{1}{t^2}
+$
+
+\item $Hoeffding's\ Inequality$
+
+\begin{itemize}
+\item $Z_1, \cdots, Z_n\ independent\ random\ variables\ on\ R,
+where\ a_i \leq Z_i \leq b_i\ \&\ S_n = \sum_{i=1}^n Z_i$
+\item $\forall_{t>0} \{ \\
+p(S_n - E[S_n] \geq t) \leq 
+\exp(\frac{-2t^2}{\sum_{\forall{i}}(b_i - a_i)^2}) \\
+p(S_n - E[S_n] \leq -t) \leq 
+\exp(\frac{-2t^2}{\sum_{\forall{i}}(b_i - a_i)^2}) \\
+p(\lVert S_n - E[S_n] \rVert \geq t) \leq 
+2\exp(\frac{-2t^2}{\sum_{\forall{i}}(b_i - a_i)^2}) \\
+\}$
+
+\item $Z_i \overset{\text{i.i.d.}}{\sim}\ Bernoulli(p) \implies
+a_i=0\ \&\ b_i=1 \implies
+S_n \sim\ Binomial(n,p)\ \&\ E[S_n] = np \implies \\
+\text{From Hoeffding Bound: }
+p(\lVert S_n - np \rVert \geq n\epsilon) \leq
+2\exp(\frac{-2n^2\epsilon^2}{n}) \implies \\
+p(\lVert \frac{1}{n}\sum_{\forall{i=1}}^n{Z_i} - p \rVert 
+\geq \epsilon) \leq  2\exp(-2n\epsilon^2)$
+
+\item $p(\lVert \mu - \hat{\mu} \rVert \geq \epsilon) \leq 
+2\exp(-2n\epsilon^2) 
+\text{ for n iids with mean \& estimator }
+\mu\ \&\ \hat{\mu} \text{ respectively.}$
+
+\item $n \text{ iids with mean } \mu: X_1, \cdots, X_n$
+
+\item $\mu \text{ estimator } \hat{\mu} = 
+\sum_{i=1\cdots{n}}{\frac{X_i}{n}}$
+
+\item $\mu \text{ estimate range: } 
+\lVert \mu - \hat{\mu} \rVert \leq \frac{Z_\delta}{\sqrt{n}} =
+[\hat{\mu} - \frac{Z_\delta}{\sqrt{n}}, 
+\hat{\mu} + \frac{Z_\delta}{\sqrt{n}}];
+Z_\delta =
+\sqrt{\frac{1}{2}\ln{\frac{2}{\delta}}}$
+
+\item $\text{We assert confidence interval} \geq 100(1-\delta)\%$
+
+\item $Z_\delta =
+\sqrt{\frac{1}{2}\ln{\frac{2}{\delta}}} \implies
+p(\lVert \mu - \hat{\mu} \rVert \geq \epsilon) \leq 
+2\exp(-2n\epsilon^2)$
+\end{itemize}
+
+\end{enumerate}

@@ -1,0 +1,1328 @@
+* DataSets
+|--------------------------------------+--------------------------------------+--------------------------------|
+| <36>                                 | <36>                                 | <30>                           |
+| Name                                 | Size                                 | Usage                          |
+|--------------------------------------+--------------------------------------+--------------------------------|
+| Penn Treebank WSJ                    | 1M Words                             | LM and Parsing                 |
+|--------------------------------------+--------------------------------------+--------------------------------|
+| Hutter Prize Wikipedia               | 100MB                                | Data Compression               |
+|--------------------------------------+--------------------------------------+--------------------------------|
+| Twitter Sentiment                    | 5513 Tweets                          | Sentiment Analysis             |
+|--------------------------------------+--------------------------------------+--------------------------------|
+| Stanford Sentiment Treebank          | 8544/2210/1101 sentences for Train,  | Sentiment Analysis             |
+| http://nlp.Stanford.edu/sentiment/   | Test, and Validation respectively    |                                |
+|--------------------------------------+--------------------------------------+--------------------------------|
+| IMDB 2011                            | 25K/25K/50K of labelled training,    | Sentiment Analysis             |
+| http://ai.Stanford.edu/              | labelled test, and unlabelled        |                                |
+| amaas/data/sentiment/index.html      | training instances - +ve/-ve         |                                |
+|--------------------------------------+--------------------------------------+--------------------------------|
+| IAM Online Handwriting DB            | 86272 words; 5364/1438/1518/3859     | Handwriting Analysis           |
+|                                      | from 775/192/216/544 forms           |                                |
+|--------------------------------------+--------------------------------------+--------------------------------|
+| ACL WMT ’14                          | 850M Words: Europarl (61M), News     | Machine Translation            |
+|                                      | commentary (5.5M), UN (421M), and 2  |                                |
+|                                      | crawled corpora of 90M and 272 words |                                |
+|--------------------------------------+--------------------------------------+--------------------------------|
+| MNIST LeCun 1998                     | 28x28 greyscale pixels, 60K/10K      | Handwritten Digit Recognition  |
+|                                      | for Training/Test respectively       |                                |
+|--------------------------------------+--------------------------------------+--------------------------------|
+| CIFAR-10 Hinton 2009                 | 32x32 color, 10 classes, 50K         | Handwritten Digit Recognition  |
+|                                      | Training, 10K Test                   |                                |
+|--------------------------------------+--------------------------------------+--------------------------------|
+| CIFAR-100 Hinton 2009                | 32x32 color, 100 clases, 1/10th      | Handwritten Digit Recognition  |
+|                                      | labelled examples per class.         |                                |
+|--------------------------------------+--------------------------------------+--------------------------------|
+| SVHN Netzer 2011 - Two Formats       | 32x32 color, 73K Training, 26K       | Handwritten Digit Recognition  |
+|                                      | Test, 1/2M extra                     |                                |
+|--------------------------------------+--------------------------------------+--------------------------------|
+| SQuAD 2016                           | 107785 Q/A on 536 Wikipedia articles | QnA, Comprehension, etc.       |
+| https://stanford-qa.com/             |                                      |                                |
+|--------------------------------------+--------------------------------------+--------------------------------|
+| ImageNet                             | >500 images/node organized according | Object Recognition             |
+|                                      | to WordNet hierarchy                 |                                |
+|--------------------------------------+--------------------------------------+--------------------------------|
+| MCTest 2013                          | 660 stories & associated Qs.         | Machine Comprehension of Text  |
+| http://research.microsoft.com/mct    | Each Q requires reader to            |                                |
+|                                      | understand text. Each Q addresses    |                                |
+|                                      | different aspects of the story.      |                                |
+|--------------------------------------+--------------------------------------+--------------------------------|
+| FB bAbI Tasks: http://fb.ai/babi     | Training: Correct A & relevant       |                                |
+| Source Code: https://github.com/facebook/bAbI-tasks | statements for answering given Q     |                                |
+|--------------------------------------+--------------------------------------+--------------------------------|
+
+
+
+* Neural Image Caption (NIC) Generator
+** NIC Pipeline: Image => CNN => Encoded Vector => RNN => Text Description
+
+* Neural Conversational Model
+** Deep Learning Benefits: 
+*** No feature engineering
+*** No Domain Specificity
+*** End to End optimization 
+*** Implied Stochasticity
+    Generation via Sequence-to-Sequence present in humans, 
+*** State of the Art results for Tasks:
+**** Domain knowledge Not Readily Available
+**** Manual Design Rules Not Possible
+     Perception/intuition of recognizing a car in various lighting 
+     conditions with other object cluttering around.
+**** Manual Rules (even many) Weak as environment is dynamic
+     Detection of Fraud - a moving target. Even features
+     on which ones to base detection keeps evolving. 
+**** Economics 
+     Data based evolving programs are cheaper to develop than have
+     engineers write task/time specific programs.
+** Recurrent Nets:
+*** Obtain better perplexity than n-gram model 
+*** Capture important long-range correlations. 
+*** Combine with other systems to re-score a short-list of candidate response.
+*** Compared against CleverBot - popular rule-based bot.
+*** Model: argmax p(A/Q)
+** Challenges in Modeling Dialogue:
+*** Objective of dialogue is over longer term xchg of info - not 
+    next step prediction.
+*** Lack of model to ensure consistency, general world knowledge, 
+    common sense, etc.
+*** Provides simple, short, sometimes unsatisfying answers. 
+*** No consistent personality; Different answers for semantically 
+    similar questions.
+
+* Attention: 
+** Topic of interest in Handwriting synthesis (Graves, 2013)
+** Digit classification (Mnih et al., 2014)
+** Machine translation (Bahdanau et al., 2015)
+** Image captioning (Xu et al., 2015)
+** Speech recognition (Chorowski et al., 2015) 
+** Sentence summarization (Rush et al., 2015)
+** Geometric reasoning (Vinyals et al., 2015)
+
+* Paragraph Vector: Distributed Representations of Sentences and Documents
+** Bag of Words: 
+Document is defined by the bag of words or n-grams contained in it. 
+Loses order unless very short context captured by n-grams. Suffers
+from data sparsity and high dimensionality. Loses semantic meaning
+as each unique word is just another binary dimensional point.
+** Prior Approach: 
+*** Average of words 
+Loses order and requires task specific tuning 
+*** Parse Tree
+Only extends to valid parse-able sentences. 
+Not ad-hoc phrases, paragraphs, documents, etc. that are not 
+parse-able. Plus need to provide parse structure.
+*** Paragraph Vector
+Constructs representations of input sequences of variable length, such as 
+sentences, paragraphs, and documents. Basic approach is to concatenate
+the paragraph vector with several word vectors to predict the next word
+in context. Before prediction, first the paragraph vectors are inferred
+via backpropagation training by fixing the word vectors.
+** Model
+*** Learning Vector Representation
+$$
+E = \frac{1}{T}\sum_{t=k}^{T-k}\log{p(w_t|w_{t-k}, \cdots, w_{t+k})};
+p(w_t|w_{t-k}, \cdots, w_{t+k}) = \frac{\exp^{y_{w_t}}}{\sum_i{\exp^{y_i}}};
+$$
+$$
+y = b + Uh(w_{t-k}, \cdots, w_{t+k}; W);
+h = \{W[t-k] \parallel \cdots \parallel W[t+k]\}^T 
+\ or \frac{1}{2k}\sum_{i=-k}^{i=k; i \neq 0}{W[t+i]};
+W \textnormal{ word embed matrix}
+$$
+*** Paragraph Vector - Distributed Memory Model (PV-DM)
+$$
+y = b + Uh(d_{paragraph-id}, w_{t-k}, \cdots, w_{t+k}; W, D);
+h = \{D[paragraph-id] \parallel W[t-k] \parallel \cdots \parallel W[t+k]\}^T
+$$
+*** Paragraph Vector - Distributed Bag of Words Model (PV-DM)
+$$
+y = b + UD[paragraph-id];
+w_i
+ = \arg \max_{\forall{i}}{y_i}
+$$
+BoW is memory efficient as we need to store only softmax weights. DM
+works better for most tasks but it needs both softmax weights and word
+vectors. Both used in combination PV-DBOW is more consistent.
+* General Sequences With RNN
+** RNN Properties
+*** Fuzzy
+    Does not predict using exact templates from training data. 
+    Like other NN use internal representation to interpolate
+    between training examples in high dimpensional space. Unlike
+    template based algorithms, RNNs synthesize and reconstitute
+    the training data in complex, non-repetitive, and novel way.
+*** Blessing of Dimensionality
+    Fuzzy predictions don't suffer from curse of dimensionality and
+    better model real-valued or multivariate data than exact matches.
+*** LSTM Improves Short Term Memory
+    Generative models use predicted output as input to predict next input.
+    Opportunities to recover from past mistakes are limited unless long term 
+    memory stabilizes by looking further back in past for predictions.
+*** Prediction/Compression Algorithms: Dynamic Evaluation
+    Neural networks are usually evaluated on test data with fixed weights. For
+    problems, where the test data is seen once, it is legitimate to allow the 
+    network to adapt its weights. Prediction and Compression algorithms,
+    as such have no division between training and test sets.
+* Neural Machine Translation by Jointly Learning to Align and Translate
+  Unlike the traditional statistical MT, the neural machine translation 
+  builds a single neural network. Attention allows models to 
+  automatically (soft-)search parts of source sentence relevant to 
+  predicting a target word.
+** MT Model: LSTM Encode-Decoder 
+   $p(\bold{y}|\bold{x})=\prod_{t=1}^{T}{p(y_t|\{y_1, ... , y_{t-1}\},c)}$
+   With RNN, each conditional probability is modeled as: $$
+   p(y_t|\{y_1, ... , y_{t-1}\},c) = g(y_{t-1}, s_t, c) $$. 
+   Note: $\bold{y} = (y_1, ..., y_{T_y}); \bold{x} = (x_1, ..., x_{T_x})$
+   $$
+   c = q(\{h_1, ..., h_{T_x}\}); h_t = f(x_t, h_{t-1}); 
+   h_j = [\vec{h_j}^T; \overleftarrow{h_j}^T]^T;
+   $$
+   $h_t \in R^n$ is a hidden state at time t, and c is a vector 
+   generated from the sequence of the hidden states; 
+   f and q are some non-linear function, such as LSTM and $h_{T_x}$
+   $s_t$ is the hidden state of the RNN.
+** MT Model Enhanced: LSTM Encoder-Decoder With Attention
+   $$
+   p(y_t|\{y_1, ... , y_{t-1}\},c) = g(y_{t-1}, s_t, c_i);  
+   s_i = f(s_{i-1}, y_{i-1}, c_i)
+   $$
+   Unlike encode-decoder approach, the probability of target word
+   is conditioned on distinct context vector $c_i$.
+   $$
+   c_i = \sum_{j=1}^{T_x}{\alpha_{ij}h_j}; 
+   \alpha_{ij} = \dfrac{\exp({e_{ij}})}{\sum_{k=1}^{T_x}{\exp({e_{ik}})}};
+   $$
+   $e_{ij}$ is an alignment score of $j_{th}$ input word when emitting
+   the $i_{th}$ output word. 
+*** Encoder
+    $$
+    x = (x_1, \dots, x_{T_x}, x_i \in R^{K_x}; 
+    y = (y1, \dots, y_{T_y}), y_j \in R^{K_y}; 
+    x_i \in 1-of-K_x vector; y_j \in 1-of-K_y vector
+    $$
+    $$
+    \vec{h_i} = \begin{cases}
+    (1-\vec{z_i})\circ\vec{h}_{i-1} + \vec{z_i}\circ\underline{\vec{h}_i} & \text{, if}\ i > 0, \\
+    0 & \text{, if}\ i = 0.
+    \end{cases}
+    $$
+    where $$
+    \underline{\vec{h_i}} = 
+    tanh(\vec{W}\overline{E}x_i +  \vec{U}[\vec{r}_i\circ\vec{h}_{i-1}]) 
+    $$ 
+    $$ \vec{z}_i = \sigma({\vec{W}_z\overline{E}x_i + 
+    \vec{U}_z\vec{h}_{i-1}}); 
+    \vec{r_i} = \sigma({\vec{W_r}\overline{E}x_i + \vec{U_r}\vec{h}_{i-1}})
+    $$. Similarly, we compute $\overleftarrow{h_i}$
+    $\overline{E} \in R^{m\times{K_x}}$ is the word embedding matrix 
+    shared by forward/backward RNNs $\vec{h}_i/\overleftarrow{h}_i$.
+    $$
+    \vec{W}, \vec{W_z}, \vec{W_r}, \overleftarrow{W}, 
+    \overleftarrow{W_z}, \overleftarrow{W_r} \in R^{n\times{m}}, 
+    \vec{U}, \vec{U_z}, \vec{U_r}, \overleftarrow{U},  
+    \overleftarrow{U_z},  \overleftarrow{U_r},  \in R^{n\times{n}}
+    $$ are weight matrices. 
+    $h_i = [\vec{h}_i^T; \overleftarrow{h}_i^T]^T$
+*** Decoder 
+**** f: Gated Hidden Unit RNN
+     $$ 
+     s_i = f(s_{i-1}, y_{i-1}, c_i) = 
+     (1-z_i)\circ{s_{i-1}} + z_i\circ{\tilde{s_i}}; 
+     \tilde{s_i} = tanh(We(y_{i-1}) + U[r_i\circ{s_{i-1}}] + Cc_i); 
+     $$
+     $$
+     y_{i-1} \in 1-of-K_y vector; 
+     z_i = \sigma(W_ze(y_{i-1}) + U_zs_{i-1} + C_zc_i);
+     r_i = \sigma(W_re(y_{i-1}) + U_rs_{i-1} + C_rc_i);
+     e(y_{i-1})=E^ty_{i-1}
+     $$
+     Recall $$c_i = \sum_{j=1}^{T_x}{\alpha_{ij}h_j};   
+     \alpha_{ij} = \dfrac{\exp({e_{ij}})}{\sum_{k=1}^{T_x}{\exp({e_{ik}})}}
+     $$
+     $$
+     e(y_{i-1}) = E^ty_{i-1}; e(y_{i-1}) \in R^m; E^t \in R^{K_x\times{m}}
+     $$
+     $$ 
+     W, W_z, W_r \in R^{n\times{m}}, U, U_z, U_r \in R^{n\times{n}},
+     C, C_z, C_r \in R^{n\times{2n}} 
+     $$ are weights.
+     Initial hidden state $$ 
+     s_0 = tanh(W_s\overleftarrow{h_1}) \textnormal{, where } 
+     W_s \in R^{n\times{n}}$$
+**** Alignment
+     $e_{ij} = a(s_{i-1},h_j)$: The alignment model $a$ is a feedforward 
+     NN with a single hidden layer perceptron. 
+     Intuitively the alignment is based on the previous 
+     hidden state $s_{i-1}$ used to emit last output word $i-1$ and the 
+     hidden state $h_j$ representing the essence of input word $j$.
+     $$ e_{ij} = a(s_{i-1},h_j) = v_a^Ttanh(W_as_{i-1} + U_ah_j);  
+     W_a \in R^{\hat{n}\times{n}}; U_a \in R^{\hat{n}\times{2n}}; 
+     v_a \in R^{\hat{n}} $$ 
+     are weight matrices. Note that standard RNN Encode-Decoder 
+     pins $\forall{i}: c_{i}= \vec{h}_{T_x}$.
+**** g: Single Hidden Layer of MaxOut Units => Normalized with SoftMax
+     At each step of the decoder, we compute the output probability 
+     with g as a deep output with a single maxout hidden layer.
+     $$
+     p(y_i|\{y_1, ... , y_{i-1}\},c_i) = g(y_{i-1}, s_i, c_i) 
+     \propto \exp({y_i^TW_ot_i}) =  
+     \operatorname{arg\,max}_{j=1}^{K_y} softmax(W_ot_i); 
+     $$
+     $$
+     t_i = [\max{\tilde{t}_{i, 2j-1}, \tilde{t}_{i,2j}}]_{j=1,\dots,l}^T;
+     \tilde{t}_i = U_os_{i-1} + V_oE^ty_{i-1} + C_oc_i; 
+     $$
+     $\tilde{t}_{i,k}$ is the $k-th$ element of vector $\tilde{t}_i$
+     $$
+     W_o \in R^{K_y\times{l}}; U_o \in R^{2l\times{n}}; 
+     V_o \in R^{2l\times{m}}; C_o \in R^{2l\times{2n}} 
+     $$ are weight matrices. 
+*** Hyperparameters
+**** Sizes
+     $n=1000; m=620; l=500; \hat{n}=1000$
+**** Initialization: 
+     Recurrent Weight Matrices - Random orthogonal matrices 
+     $$
+     U,U_z,U_r, \vec{U}, \vec{U_z}, \vec{U_r}, \overleftarrow{U},
+     \overleftarrow{U_z} \textnormal{, and }\overleftarrow{U_r}$$. 
+     Alignment Matrices - Sample each element from $$N(\mu=0, 
+     \sigma=0.001); W_a\textnormal{ and }U_a$$.
+     Vectors - Zero i.e. $v_a$ and all bias vectors.
+     Other Weight Matrices - Sample from $N(\mu=0, \sigma=0.01)$ 
+**** Training
+     SGD: Adadelta $$
+     \epsilon=10^{-6}\textnormal{ and }\rho = 0.95; 
+     \lVert{Gradient(t)}\rVert_2 \leq{1}; 
+     \lVert{Minimatch}\rVert = 80\textnormal{ sentences}
+     $$
+     $train_{time} \propto \max{\lVert len(sentence) \rVert}$. Hence
+     retrieve $1600sentences$, sort them by length, and split them into 
+     $20minibatches=1600sentences\div{\dfrac{80sentences}{minibatch}}$
+* Handwriting Synthesis
+  Generate handwriting of a given sequence of characters. Use a mixture of 
+  Gaussian kernels to compute the weights of the annotations, where the 
+  location/width/mixture coefficients of each kernel 
+  ($k_i: \mu_i/\sigma_i/\rho_i$) is predicted from a restricted alignment 
+  model, where the location ($\mu_i$) increases monotonically.
+* Overview of Gradient Descent Optimization Algorithms
+  $val_{scalar} = \phi(\vec{\bold{v}}) = \phi(v_1, v_2, \dots, v_n)$: every complex 
+  multivariate region that is smooth can be approximated via linear regions. 
+  Gradient Descent is a pragmatic way to discover local valleys as long as 
+  we descend in small steps. Note that higher-order methods (e.g. Newton's 
+  2nd order) are infeasible for high-dimensional data sets.
+  Taylor's Multivariate Expansion:
+  $$
+  \textnormal{Linear: } \phi(\vec{\bold{v}} + \vec{\bold{\delta}}) =
+  \phi(\vec{\bold{v}}) + 
+  \vec{\bold{\delta}}^T\cdot{\nabla{\phi(\vec{\bold{v}})}} +
+  O(\lvert\vec{\bold{\delta}}\rvert^2)
+  $$
+  $$
+  \textnormal{Quadratic: } \phi(\vec{\bold{v}} + \vec{\bold{\delta}}) =
+  \phi(\vec{\bold{v}}) + 
+  \vec{\bold{\delta}}^T\cdot{\nabla{\phi(\vec{\bold{v}})}} + 
+  \vec{\bold{\delta}}^T\cdot{Hessian({\phi(\vec{\bold{v}})})}
+  \cdot{\vec{\bold{\delta}}} + 
+  O(\lvert\vec{\bold{\delta}}\rvert^3)
+  $$
+  Taylor's linear formula yields approach to GD, contour lines, and zero point.
+  $$
+  \nabla{\phi(\vec{\bold{v}})} \leftarrow \vec{\bold{\delta}} 
+  \implies \phi(\vec{\bold{v}}) \textnormal{ approaches local minima; }
+  \nabla{\phi(\vec{\bold{v}})} \perp \vec{\bold{\delta}} 
+  \implies \phi(\vec{\bold{v}}) \textnormal{ leaves value unchanged; }
+  $$
+  $$
+  \vec{\bold{\delta}} = -\dfrac{\phi(\vec{\bold{v}})}
+  {\nabla{\phi(\vec{\bold{v}})}} \implies 
+  \vec{\bold{v}} + \vec{\bold{\delta}}
+  \textnormal{ approaches zero point of } \phi(\vec{\bold{v}});    
+  $$
+  Quadratic solution of Taylor's quadratic formula on $\phi(\vec{\bold{v}})$
+  or Linear solution of Taylor's linear formula on 
+  $\nabla{\phi(\vec{\bold{v}})}$ yields Newton's 2nd order:
+  $$
+  \vec{\bold{\delta}} = -\dfrac{\nabla{\phi(\vec{\bold{v}})}}
+  {Hessian({\phi(\vec{\bold{v}})})} \implies
+  \vec{\bold{v}} + \vec{\bold{\delta}}
+  \textnormal{ approaches zero point of } \nabla{\phi(\vec{\bold{v}})} 
+  \textnormal{ i.e. approaches local inflection point of }
+  \phi(\vec{\bold{v}})
+  $$
+  $Hessian({\phi(\vec{\bold{v}})}) \textnormal{ is }$   
+  \begin{enumerate}
+  \item{+ve definite: inflection point is local minima.}
+  \item{-ve definite: inflection point is local maxima.}
+  \item{+ve semi-definite: inflection point is minima valley.}
+  \item{-ve semi-definite: inflection point is maxima valley.}
+  \item{none of above: inflection point is saddle point.}
+  \end{enumerate}
+** Variants
+   - Batch: Updates once an epoch $$
+     \theta = \theta - \eta\cdot{\Delta_{\theta}J(\theta)}$$
+     + Slow for large datasets that don't fit in memory
+     + Doesn't allow reactive online as new examples surface on-the-fly.
+   - Stochastic (SGD): Updares every data point $$\theta = \theta - 
+     \eta\cdot{\Delta_{\theta}J(\theta; x^{(i)}; y^{(i)})}$$
+     + Faster as computation time not wasted when data is redundant
+     + Learns online. 
+     + Frequent updates creates high variance in objective function.
+     + Fluctuation complicates convergence vs jumping may find better minima.
+     + Slowly decreasing learning rate improves convergence.
+     + Requires dataset shuffle after every epoch.
+   - Mini-batch SGD: Updates even $\lVert MiniBatch \rVert$ data points 
+     $$\theta = \theta - 
+     \eta\cdot{\Delta_{\theta}J(\theta; x^{(i:i+n)}; y^{(i:i+n)})}$$
+     + Better convergence and Lesser fluctuation/variance than SGD
+     + $\lVert MiniBatch \rVert$ large enough to use highly optimized 
+        matrix optimizations in modern HW/SW systems.
+     + Requires dataset shuffle after every epoch.
+*** Challenges of Mini-batch SGD
+    + Learning Rate Schedule and Thresholds defined in advance and doesn't 
+      adapt to dataset characteristics.
+    + Learning Rate is globally applied to frequent as well as sparse or 
+      infrequently active features where as the latter should incur larger 
+      update to converge to optimality.
+    + Plateua Death Traps and/or Saddle points halts convergence as gradient
+      is close to zero in all dimensions without even finding a local minima.
+*** Optimization Algorithms
+**** Globally Applied
+     + Momentum - accelerate in relevant direction while dampening oscillations
+       in other directions. $$ 
+       v_t = \gamma{v_{t-1}} + \eta\cdot{\Delta_{\theta}J(\theta)}; 
+       \theta = \theta - v_t; \gamma \approx{0.9}
+       $$
+     + NAG - Nesterov Accelerated Gradient - slow down near optima. 
+       $$
+       \hat{\theta} = \theta - \gamma{v_{t-1}};
+       v_t = \gamma{v_{t-1}} + \eta\cdot{\Delta_{\theta}J(\hat{\theta})}; 
+       \theta = \theta - v_t; \gamma \approx{0.9}
+       $$
+**** Individually Applied
+     + Adagrad: Larger updates for infequent params - suited for sparse data
+       and eliminates need to manually tune the learning rate (i.e. most 
+       leave $\eta \approx{0.01}$). But monotonic decrease in learning rate
+       hurts algorithm's ability to acquire knowledge beyond a point.
+       $$
+       \vec{g}_t = [g_{t0}, \dots, g_{tn}]^T; 
+       g_{t,i} = \Delta_{\theta}J(\theta_i) 
+       \textnormal{ i.e. gradient at time step t for param } \theta_i
+       $$
+       $$
+       \vec{\theta}_{t+1} = 
+       \vec{\theta}_t - \dfrac{\eta}{\sqrt{\vec{G}_t + \epsilon}}\circ{g_t};
+       \theta_{t+1,i} = \theta_{t,i} - 
+       \dfrac{\eta}{\sqrt{G_{t,ii} + \epsilon}}\cdot{g_{t,i}}
+       $$
+       $G_t \in R^{d\times{d}}$ is a diagonal matrix where $$
+       G_{t,ii} = \sum_{\forall{j\leq{t}}}{g_{j,i}^2}
+       $$ 
+       $\epsilon\approx{1e-8}$ is a smoothing term that avoids division 
+       by zero.
+     + RMSProp: Addresses Adgrad's inability to respond with time by 
+       reducing aggressive monotonic decrease in learning rate. 
+       $$
+       RMS^2[g]_t - \epsilon = E[g^2]_t = \gamma\cdot{E[g^2]_{t-1}} + 
+       (1-\gamma)\cdot{g_t^2}; \gamma \approx{0.9}; 
+       $$
+       $$
+       \vec{\theta}_{t+1} = \vec{\theta}_t - 
+       \dfrac{\eta}{RMS[g]_t}\circ{\vec{g_t}}; \eta \approx 0.001
+       $$
+     + Adadelta: Uses RMS of parameter updates to eliminate the need in 
+       RMSProp to set a default learning rate $\eta$ - this also matches the 
+       units in updates: $$
+       \vec{\theta}_{t+1} = \vec{\theta}_t + \Delta{\vec{\theta}_t};
+       $$
+       $$
+       \vec{\theta}_{t+1} = \vec{\theta}_t - 
+       \dfrac{\eta}{RMS[g]_t}\circ{\vec{g_t}};
+       \eta \approx RMS[\Delta{\theta}]_{t-1}
+        $$
+       $$
+       RMS^2[\Delta{\theta}_t] - \epsilon =
+       E[\Delta{\theta}^2]_t = 
+       \gamma\cdot{E[\Delta{\theta}^2]_{t-1}} + 
+       (1-\gamma)\cdot{\Delta{\theta}^2}_t;
+       $$
+       $$
+       \Delta{\vec{\theta}_t} = 
+       -\dfrac{RMS[\Delta{\theta}]_{t-1}}{RMS[g]_t}\circ{\vec{g}_t}; 
+       $$
+     + Adam: Adds bias-correction and momentum to RMSprop. Uses exponentially 
+       decaying average of past first and second moment of gradients: 
+       $$
+       m_t = \beta_1\cdot{m_{t-1}} + (1-\beta_1)\cdot{g_t};
+       v_t = \beta_2\cdot{v_{t-1}} + (1-\beta_2)\cdot{g}_t^2 
+       \textnormal{ similar to Adadelta}
+       $$       
+       Initial moments are biased towards zero: 
+       $$
+       m_0=v_0=\vec{0} \textnormal{ and when decay rates are small }
+       \beta_1 \textnormal{ or } \beta_2 \textnormal{ are close to 1}
+       $$
+       The bias-corrected moment estimates: $$
+       \hat{m_t} = \dfrac{m_t}{1-\beta_1^t}; 
+       \hat{v_t} = \dfrac{v_t}{1-\beta_2^t}
+       $$
+       Final formula: $$
+       \vec{\theta}_{t+1} = \vec{\theta}_t - 
+       \dfrac{\eta}{\sqrt{\hat{v}_t + \epsilon}}\cdot{\hat{m}_t};
+       \beta_1\approx{0.9}; \beta_2\approx{0.999}; \epsilon\approx{10^{-8}}
+       $$
+**** Which Optimizer to Use?        
+     For sparse input data use adaptive learning methods, such as Adagrad, 
+     RMSprop, Adadelta, and Adam with Adam as perhaps the best choice.
+     Vanilla SGD may take longer, is highly reliant on robust initialization 
+     and learning rate annealing schedule, and often gets stuck in saddle 
+     points rather than local minima.
+**** Miscellaneous Techniques
+     + Shuffling & Curriculum Learning - avoids biasing the algorithm unless 
+       data is presented in a meaningful order.
+     + Batch Normalization - Reestablishing normalization over mini-batch 
+       as part of model architecture acts as a regularizer, allows use of 
+       higher learning rate, and pay less attention to initialization - note 
+       normalized initialization of params $\mu=0; \sigma=1$ are anyway 
+       lost as training progresses.
+     + Early Stopping - Stop when error on validation doesn't improve enough.
+     + Gradient Noise - Adding Gaussian noise to each gradient update
+        $$
+       g_{t,i} = g_{t,i} + N(\mu=0, \sigma=\sqrt{\dfrac{\eta}{(1+t)^\gamma}})
+       $$ 
+       makes network more robust to poor initialization, allows model
+       to find new minima, and pushes model away from linear zero region 
+       and towards conclusive non-linear saturation regions.
+* Maxout Networks
+  Design models to leverage Dropout, an approximate model averaging technique.
+  $$ 
+  h_i(x) = \max_{j \in [1,k]}{z_{ij}}; z_{ij} = x^TW_{\cdots{ij}} + b_{ij};
+  x \in R^d; 
+  \textnormal{ Learned parameters are } 
+  W \in R^{d\times{m\times{k}}}; b \in R^{m\times{k}}
+  $$
+  Example maxout feature map in CNN is by taking maximum across k affine 
+  feature maps and pool across channels in addition to spatial locations.
+** Learning Improvement
+   Dropout training encourages maxout units to have large linear regions 
+   around inputs that appear in the training data. Because each sub-model
+   must make a good prediction of the output, each unit should learn to 
+   have roughly the same activation regardless of which inputs are dropped. 
+   In a maxout network with arbitrarily selected parameters, varying
+   the dropout mask could frequently change which piece of the piecewise 
+   function an input is mapped to. Maxout trained with dropout may have
+   the identity of the maximal filter in each unit change relatively 
+   rarely as the dropout mask changes. Networks of linear operations and 
+   max(·) may learn to exploit dropout
+** Optimization Improvement  
+*** SGD vs Dropout  
+    While SGD moves slowly and steadily in the most promising direction, 
+    Dropout is most effective when taking relatively large steps in 
+    parameter space. Dropout rapidly explores many different directions 
+    and rejects the ones that worsen performance. In this regime, each 
+    update can be seen as making a significant update to a different 
+    model on a different subset of the training set.
+*** ReLU vs Dropout
+    Because the 0 in the max(0, z) activation function is a constant, 
+    this blocks the gradient from flowing through the unit. In the 
+    absence of gradient through the unit, it is difficult for training 
+    to change this unit to become active again. Maxout does not suffer 
+    from this problem because gradient always flows through every maxout 
+    unit–even when a maxout unit is 0, this 0 is a function of the 
+    parameters and may be adjusted. Units that take on negative activations 
+    may be steered to become positive again later.
+* Grammar as a Foreign Language
+  Any sequence-to-sequence translation maximimizes the conditional 
+  probability of target sequence given the source sequence: 
+  $$
+  P(B|A) = \prod_{t=1}^{T_B} P(B_t|A_1, \cdots, A_{T_A}, B_1, \cdots, B_{t-1}) =
+  \prod_{t=1}^{T_B} softmax(W_o\cdot{h_{T_A+t}})^T\delta_{B_t}
+  $$
+  Attention over the encoder LSTM states for output sequence at time t: 
+  $$
+  \vec{\bold{u}}^t = [u_0^t, \cdots, u_{T_A}^t]^T; 
+  u_i^t = \vec{v}^Ttanh(W_1^{'}h_i + W_2^{'}d_t); a_i^t = softmax(u_i^t); 
+  d_t^{'} = \sum_{i=1}^{T_A}{a_i^th_i}
+  $$
+  $$
+  \textnormal{where }
+  [h_1,\cdots, h_{T_A}]^T \textnormal{ are encoder hidden vectors}; 
+  h_i \in R^{d}; 
+  $$
+  $$
+  [d_1,\cdots,d_{T_B}]^T \textnormal{ are decoder hidden vectors}; 
+  d_i \in R^{d}; 
+  $$
+  $$
+  W_1^{'}, W_2^{'}, \textnormal{ and }\vec{v} 
+  \textnormal{ are learnable parameters of the model.}
+  $$
+  $$
+  [d_t^{'}; d_t]^T \textnormal{ are new hidden state used for prediction and 
+  fed to next time step.}
+  $$
+* Teaching Machines to Read and Comprehend
+** Summary
+*** Mechanism: 
+    Provide large scale supervised reading comprehension data.
+*** Attention based DNN
+    Read docs & answer with min prior knowledge of language.
+** Reading Comprehension Traditional Approach
+   IR bag-of-words $\implies$ Hand Engineered Grammars $\implies$ 
+   IE Predicate arg Triples queried as Relational DB.
+   ML Absent: No training data. Difficulty in structuring statistical models flexible 
+   enough to learn and exploit document structure.
+*** Synthetic Narratives and Queries: 
+    Approach has been used to isolate performance on algorithms.
+    Historically failed to capture complexity, richness, and noise of NL.
+*** Supervised Training Data 
++ Summary/Paraphrase sentences of Million CNN/Daily Mail articles 
+    ++ Objective: estimate $p(a|c,q)$: excluding knowledge from co-occurence stats
+    ++ Converted to context-query-answer triples.
+    ++ News article summaries are abstractive representation of article:
+    ++ Replace one entity at a time from summary to form Cloze style questions.
+** Models
+*** Symbolic Matching: 
+**** Frame Semantic Parsing: (e1, V, e2) i.e. identify predicates & args;
+     Who did what to whom; c/d = Kim loves Suse; q = X loves Suse; a: X == Kim
+     Ranked entity-predicate triples with increasing recall/precision trade-off
+**** Word Distance - align entity in Q to C. Find distance of word pos in Q to C.  
+*** Recurrent & Attention Based Neural Network: 
+    $$ p(a|d,q) = \exp(W(a)g(d,q)) \mid a \in V$$ 
+    V includes all word types in documents, questions, entity maskers, and
+    the question unknown entity marker. W: wt matrix = embedding of each 
+    possible token and g(d,q) = embedding(d,q).
+**** Attentive Reader: 
+     Query read once. Attention on Document based on query.
+     $$
+     \textnormal{Query: }
+     \vec{u} = \overrightarrow{y}_q(\vert q \vert) \parallel 
+     \overleftarrow{y}_q(1); 
+     \textnormal{Document: }
+     \vec{y}_d(t) = \overrightarrow{y}_d(t) \parallel 
+     \overleftarrow{y}_d(t);
+     \bold{Y_d} = \{\vec{y}_d(1), \vec{y}_d(2), \cdots, \vec{y}_d(\vert d \vert)\}
+     $$
+***** Attention
+      $$
+      \vec{r} = \bold{Y_d}\vec{\bold{s}}, \textnormal{where }
+      \vec{\bold{s}}  = softmax(\{w_{ms}^T\bold{M}\}), 
+      \bold{M} = \{m(1), m(2), \cdots, m(\vert d \vert)\},
+      m(t) = tanh(W_{ym}y_d(t) + W_{um}u)
+      $$
+***** Joint Document and Query Embedding 
+      $$ g^{AR}(d, q) = tanh(W_{rg}\vec{r} + W_{ug}\vec{u}) $$
+**** Impatient Reader: 
+     Reread from the document as each query token is read. 
+     $$
+     \textnormal{Query: }
+     y_q(i) = \overrightarrow{y}_q(i) \parallel \overleftarrow{y}_q(i); 
+     $$
+***** Attention
+      The soft attention summary vector on document is recurrently 
+      defined i.e. based on current query token and the soft 
+      attention vector on previous query token. 
+      $$
+      m(i, t) = tanh(W_{dm}y_d(t) + W_{rm}r(i-1) + 
+      W_{qm}y_q(i)), 1\leq i \leq \vert q \vert,
+      \vec{\bold{s}}(i)  = 
+      softmax(\{s(i, 1), s(i, 2), \cdots, s(i, \vert d \vert)\}^T), \ and \ 
+      s(i, t) \propto \exp(w_{ms}^Tm(i, t))
+      $$
+      $$
+      r(i) = \bold{Y_d}\vec{\bold{s}}(i) + tanh(W_{rr}r(i-1)), 
+      1 \leq i \leq \vert q \vert \ \& \ r(0) = \bold{r}_0
+      $$
+***** Joint Document and Query Embedding 
+      $$ g^{IR}(d, q) = tanh(W_{rg}\vec{r}(\vert q \vert) + W_{ug}\vec{u}) $$
+*** Challenges:
+**** Incorporation of world knowledge
+     Water flows down due to gravity, kids go to school while adults go to work, etc.
+**** Multi-document queries 
+     Require attention and embedding that scales exponentially with data set size 
+     i.e. complex inference & long range reference resolution.
+
+* A Thorough Examination of the CNN/Daily Mail Reading Comprehension Task
+** Model
+*** Encoding: GRU RNN
+  Gated Recurrent Unit (GRU) used as comparable performance
+  but computationally cheaper than LSTM.
+  Given $$
+  p = \{p_1, p_2, \cdots, p_m\}, 
+  q = \{q_1, q_2, \cdots, q_l\} \ \& \ 
+  E = \{e_1, e_2, \cdots, e_N\}
+  \textnormal{ find } a \in p \cap E
+  $$ 
+  where N is total abstract entity markers in corpus. 
+  $$
+  p, q \in R^d; E \in R^{d\times{|V|}};
+  \overrightarrow{\tilde{h}}_{p_i} = 
+  RNN(\overrightarrow{\tilde{h}}_{i-1}, p_i);
+  \overleftarrow{\tilde{h}}_{p_i} = 
+  RNN(\overleftarrow{\tilde{h}}_{i+1}, p_i);
+  $$
+  $$
+  \vec{p}_i = (\overleftarrow{\tilde{h}}_{p_i} \parallel 
+  \overrightarrow{\tilde{h}}_{p_i});
+  \bold{q} = (\overleftarrow{\tilde{h}}_{q_1} \parallel 
+  \overrightarrow{\tilde{h}}_{q_l});
+  \vec{p}_i, \bold{q} \in R^h; h = 2\tilde{h}
+  $$
+** Attention
+  $$
+  \bold{o} = \bold{P}\cdot{softmax(\bold{P}^T\bold{W_s^T}\bold{q})}; 
+  \bold{P} = \{ \vec{p}_1, \vec{p}_2, \cdots, \vec{p}_m\}; 
+  \bold{W_s} = R^{h\times{h}} \textnormal{ bilinear term instead of tanh}
+  $$
+** Prediction
+   $$
+   a = \arg\max_{a \in p \cap E}{\bold{W_a^To}}; 
+   \bold{W_a} \in R^{h\times{|p \cap E|}}
+   $$
+** Training
+   $$
+   Err = \frac{\sum_{\forall{d_k \in DataTraining_{1,2,\cdots,k,\cdots, N}}}
+   {-\log(softmax(\bold{W_a^To_k})_{a_k})}}{N}
+   $$
+* Where do features come from?
+  http://www.cs.toronto.edu/~hinton/absps/cogsci14.pdf: The shape of an 
+  object, the layout of a scene, the sense of a word, and the meaning of a 
+  sentence must all be represented as spatio-temporal patterns of neural
+  activity.
+* Building Watson: Overview of Deep QA Project
+Deep QA is massively parallel probabilistic evidence-based archtecture.
+Jeopardy Requirements: high precision, accurate confidence, determination,
+complex language, breadth of domain, and speed.
+** Baseline Performance
++ Metric: Winners answered 40-50% questions with 85-95% precision.
++ Practical Intelligent Question Answering Technology (PIQUANT): 
+   Textual Retrieval Conference (TREC) QA systems but use local resources.
++ TREC corpus small: 1M documents, questions in simpler form, confidence
+  for answers not a metric as opposed to Jeopardy. TREC allowed to 
+  access web and had 1 week to produce results for 500 questions.
++ PIQUANT: Best 47% precision and 100% questions at 13% precision.
++ Ephyra: 45% of TREC Qs answered correctly using live web search but 15%
+  accuracy on Jeopardy clues. Unreliable confidence estimates.
++ Search System vs Query System: Natural Language content with 
+  shallow text search delivers better coverage - higher precision when 
+  answering more questions than selective structured data query system. 
+  Confidence estimation of search is poorer i.e. precision curve flattens.
+** DeepQA Principles
++ Massive Parallelism: Multiple interpretations and hypotheses.
++ Many Experts: Loosly coupled probabilistic Q and content analytics.
++ Pervasive Confidence Estimation: All components produce feature and 
+  associated confidences. Underlying confidence-processing substrate learns
+  stacking and combining scores.
++ Integrate shallow/deep knowledge: Balance use of strict/shallow semantics
+  leveraging loosely formed ontologies.
+** Architecture
+*** Content Acquisition
++ Identify Corpus Sources: Classify example Qs & Characterize domains.
++ Expand Document Corpus:
+  ++ Identify Seed Documents. Retrieve related docs from web/repository.
+  ++ Extract self-contained text nuggets from related web docs.
+  ++ Score nuggets based on relevance to original seed document.
+  ++ Merge most relevant/informative nuggets into the expanded corpus.
++ Other Semi-Structured and Structured Content Sources
+  ++ DBs, Taxonomies, and Ontologies (e.g. dbPedia, WordNet, and Yago)
+*** Question Analysis
+Understand what the question is asking. Performs analyses to determine 
+how Q is processed by rest of the system. Encourage mixture of experts.
++ Q Classification: Identify Q types/parts requiring special processing.
+   Puzzle, math, definition Q? Identify puns, constraints, subclues, etc.
++ LAT: Word/Noun phrase in Q that specifies type of answer: subject, 
+   object, character, etc. Turns Q into factual statement with substituion.
++ Relation Detection: Identify relations contained e.g. syntactic 
+   subject-verb-object predicates or semantic relationship between entities. 
+   Usually, answers in triple store relational DB are rare.
++ Decomposition: Break into subsections. Correct Q interpretation and
+   derived answer will score high and improve answer confidence.
+*** Hypothesis Generation 
+Each candidate answer - generated from Q analysis followed by from 
+"primary" search for answer - plugged back into Q is a hypothesis.
++ Primary Search: Focus on recall - find as much answer-bearing content.
+   Precision would be handled via scoring analysis later. Tuned to 85%
+   binary recall of top 250 ranked candidates. Indri/Lucene for Document 
+   Search. SPARQL for KB search on triple stores based on name entities
+   in the clue. Multiple search queries generated for a Q. Constraints in Q 
+   are used to filter result lists.
++ Candidate Answer Generation: Generate 100s of candidate answers 
+  based on name entity recognition or even title of document. Tolerate
+  noise at this early stage to drive up precision later.
+*** Soft Filtering
+Lightweight scoring algorithms to 100/Ks of candidates to prune to a 
+smaller set (~100) of candidates for more intensive scoring components.
+*** Hypothesis and Evidence Scoring
+Gather additional evidence for each answer and apply deep scoring analytics. 
++ Evidence Retrieval: Integrate evidence - route to deep scoring components.
+  ++ Search again on candidate term plus primary search query. 
+  ++ Search triple stores
++ Scoring: Calculate degree of certainty evidence supports candidate answers.
+  ++ Register Hypotheses: Common format/Semantic independent: prob/count/...
+  ++ Evidence profile groups features into aggregate evidence dimensions.
+*** Final Merging and Ranking
+Evaluate 100s of hypotheses based on 100Ks of scores to identify best 
+hypothesis given evidence and likelihood of correctness (confidence).
+*** Answer Merging
+Identify equivalent and related hypotheses (e.g. Abraham Lincoln & Honest Abe)
+using ensemble of matching, normalization, and coreference resolution 
+algorithms. Followed by custom merging per feature to combine scores.
+*** Ranking and Confidence Estimation
+Run the system over training Qs with As and train model based on scores.
+Ranking and Confidence estimation is separated into two phases. Scores
+groups according to domain (type matching, passage scoring, ...). System
+produces an ensemble (mixture of experts) over which metalearner trains
+which score to weigh based on question class e.g. scores important for 
+factoid may not be so for puzzle questions. Also allows iterative 
+improvement, robustness, and experimentation. NLP-based scorers produce
+sparse features requiring confidence weighted learning techniques.
+** Speed and Scaleout
+Unstructured Information Management Architecture (UIMA) standardized
+framework that supports scaleout of text and multi-modal analysis.
+Hadoop was used to preprocess corpus and create fast run-time indices.
+** Strategy
+Catalogue of heuristics for wagering, reinforcement learning for learning
+strategy, and buzzing strategy based on confidence score, and game situation.
+* Web Question Answering: Is More Always Better?
+Q/A system retrieves ‘answers’ to Qs rather than full best matching docs or 
+passages. For many apps significant accuracy is attained in NLP techniques
+by increasing the amount of learning data. Complement Linguistic 
+approaches - e.g. using POS tagging, syntactic parsing, semantic relations, 
+NER, dictionaries, WordNet - by exploiting redundancy in big data Web repo.
+
+QA from a single/small information source is challenging as usually one
+answer exists in corpus, which needs to uncovered via complex linguistic
+approaches to map Q/A string. Redundancy allows systems to overcome 
+challenges faced by NL systems, such as resolving anaphors, synonyms, 
+subtle syntactic formulations, indirect answers, etc. 
+
++ Why Redundancy Helps
+  ++ Enables Simple Query Rewrites: Answer expressed in different manner.
+  ++ Facilitates Answer Mining: Hones on answer by cooccurence frequency.
+
+** System Overview
++ Four components:
+  ++ Rewrite Query with associated weights and position Left/Right/Anywhere.
+  ++ Mine N-Grams from summary returned by search. Compute frequency 
+        accross summaries.
+  ++ Filter/Reweight N-Grams on candidate match on expected answer type.
+  ++ Tile N-Grams merges similar answers & assembles answer fragments.
++ Find candidate answers in a large and possibly noisy source. Expand the 
+query to include likely answers. Expanded queries used on smaller but 
+perhaps more reliable collections – either find support for the answer 
+in the smaller corpus, or indirectly as a new query issued and mined.
+* Towards AI-Complete QA: A set of Prerequisite Toy Tasks
++ 20 Task Types defined 
+  ++ Single supporting fact to Argument Relations to Yes/No to Counting
+  ++ Basic coreference to basic deduction to basic induction
+  ++ Positional to Size reasoning to Path finding to Agent's Motivations
++ Synthesized data using simulation 
+  ++ Objects and agents manipulated in the simulation space 
+  ++ Manipulation, movement, and updates were constrained based on rules
++ Toughest Tasks: Counting, Lists/Sets, Positional Reasoning, and Path Finding.
+Overall best performing model: MemNN (Memory Based Neural Networks) + 
+AM (Adaptive memories) + N (N-grams) + NL (NonLinearity)
+** Extensions To Memory Networks
+*** Basic Architecture
+The basic architecture of memory networks has a memory array $\bold{m}$ 
+and four learnable components, I, G, O, and R executed on input:
+\begin{enumerate}
+  \item $Input \ Map\ I: \{x_1, \cdots, x_n\} \implies I(x); 
+  Simplest\ case\ I(x) = x; 
+  \textnormal{Sentences modeled as bag of words.}$
+  \item $Generalization \ Map\ G: m_i = G(m_i, I(x), \bold{m}), \forall{i};
+  Simplest\ case\ G: Next\ available\ memory.$
+  \item $Output \ Map\ O: o = O(I(x), \bold{m})$
+  \begin{itemize}
+    \item $o_1 = O_1(x, \bold{m}) = \arg\max_{\forall{i=1,\cdots,N}}{s_O(x, m_i)}$
+    \item $o_2 = O_2(q, \bold{m}) = \arg\max_{\forall{i=1,\cdots,N}}; {s_O([x,m_{o_1}], m_i)}$
+    \item $o = [x, m_{o_1}, m_{o_2}]$
+  \end{itemize}
+  \item $Response\ R: r = R(q) = \arg\max_{w \in W}s_R(o, w); 
+  W \textnormal{ word dictionary}$
+  \item  $s_O/s_R 
+  \textnormal{ are Q/context and Q/A match scoring functions 
+  based on embedding model:}$
+  \begin{itemize}
+    \item $s(x,y) = \phi_x(x)^TU^TU\phi_y(y); U \in R^{n\times{D}}$
+    \item $n \textnormal{ embedding dimension}$
+    \item $D \textnormal{ number of features }$ 
+    \item $D(s_O) = 3\lVert{W}\rVert; w \in W \mapsto \phi_y(w)_1, 
+    \phi_x(w)_2 \ if\ w \in Input, \ and\ \phi_x(w)_3 \ if\ w \in \bold{m}$  
+  \end{itemize}
+\end{enumerate}
+*** Adaptive Memories/Responses
+\begin{enumerate}
+  \item $i=1$
+  \item $o_i = O(x, \bold{m})$
+  \item $\bold{while}\ o_i \neq m_0\ do$
+  \begin{itemize}
+    \item $i \leftarrow i + 1$
+    \item $o_i = O([x, m_{o_1}, \cdots, m_{o_{i-1}}], \bold{m})$
+  \end{itemize}
+  \item $\bold{end\ while}$
+\end{enumerate}
+Keep predicting support facts $i$, conditioned on previous facts 
+until terminating fact $m_0$ is predicted.
+
+Multiple Answers in response module are generated using similar trick,
+where we predict word $w_i$ conditioned on previous words until we 
+predict terminating word $w_0$: $$
+w_i = R([x, m_{o_1}, \cdots, m_{|o|}, w_1, \cdots, w_{i-1}], w) 
+$$
+*** Nonlinear Sentence Modeling
+Three variants that go beyond modeling sentences:
+\begin{enumerate}
+  \item $\textnormal{Bag-of-N-grams: } N=1,2, and\ 3$
+  \item $\textnormal{Multilinear Map: }$
+  \begin{itemize}
+    \item $p(i,l) = \lceil (iP_{sz})/l \rceil \textnormal{ i.e. each word in
+                 sentence is binned into one of position }[1,\cdots, P_{sz}]$
+    \item $Every\ word\ w_i \in Sentence 
+                  \mapsto\ Unique\ Matrix\ P_{p(i,l)} \in R^{n\times{n}}$
+    \item $Final\ Position\ Cognizant\ Embedding: 
+                 E(x) = tanh(\sum_{i=1,\cdots,l}P_{p(i,l)}U\phi_x(x_i))$
+    \item $Matching\ Score\ s(q,d) = E(q)^TE(d)$
+    \item $Mean\ Performance\ of\ MemNN+AM+ML = MemNN+AM+NG+NL$
+  \end{itemize}
+\end{enumerate}
+
+* Generating Sequences With Recurrent Neural Networks
+https://arxiv.org/pdf/1308.0850.pdf: Alex Graves
+** Network
+$$
+h_t^k =  H(W_{ih^k}x_t + W_{h^{k-1}h^{k}}h_t^{k-1} + 
+W_{h^kh^k}h_{k-1}^k + b_h^k); h_t^0 = 0; k = 1,2,\cdots,N_{final-layer}
+$$
+$$
+y_t = Y(\hat{y}_t); \hat{y}_t = b_y + \sum_{n=1}^{N}W_{h_ky}h_t^k;
+Y \textnormal{ is output layer function}
+$$
+$$
+L(\bold{x}) = -\sum_{t=1}^T{\log{Pr(x_{t+1}|y_t)}};
+Pr(\bold{x}) = \prod_{t=1}^T{Pr(x_{t+1}|y_t)};
+\bold{x} = \{x_1, x_2, \cdots, x_T\}
+$$
+$$
+Pr(x_{t+1} = k|y_t) = y_t^k = 
+\frac{\exp{\hat{y}_t^k}}{\sum_{k'=1}^K{\exp{\hat{y}_t^{k'}}}} \implies
+L(\bold{x}) = -\sum_{t=1}^T{\log{y_t^{x_{t+1}}}} \implies
+\frac{\partial{L(\bold{x})}}{\partial{\hat{y}_t^k}} = 
+y_t^k - \delta_{k,x_{t+1}}
+$$
+Mixture of bivariate Gaussians predicts $\{x1, x2\}$ pen offset from
+previous input. Bernoulli distribution predicts x3 the end of stroke 
+indicator. 
+$$
+y_t = (e_t, \{ \pi_t^j, \mu_t^j, \sigma_t^j, \rho_t^j\}_{j=1}^M);
+x_t \in R \times R \times \{0, 1\}; 
+\mu_t^j, \sigma_t^j \in R^2; e_t, \pi_t^j, \rho_t^j \in R
+$$
+$$
+\textnormal{Network Outputs: } \hat{y}_t = (\hat{e}_t, 
+\{ \hat{\pi}_t^j, \hat{\mu}_t^j, \hat{\sigma}_t^j, 
+\hat{\rho}_t^j\}_{j=1}^M) = 
+b_y + \sum_{n=1}^N{W_{h^ny}h_t^n}
+$$
+$$
+e_t = \frac{1}{1 + \exp(\hat{e}_t)} \implies e_t \in (0,1);
+\pi_t^j = \frac{\exp(\hat{\pi}_t^j)}
+{\sum_{j'=1}^M{\exp(\hat{\pi}_t^{j'})}} \implies
+\pi_t^j \in (0,1), \sum_j{\pi_t^j} = 1
+$$
+$$
+\mu_t^j = \hat{\mu}_t^j \implies \mu_t^j \in R;
+\sigma_t^j = \exp(\hat{\sigma}_t^j) \implies \sigma_t^j > 0;
+\rho_t^j = tanh(\hat{\rho}_t^j) \implies \rho_t^j \in (-1,1)
+$$
+$$
+\textnormal{Note: } 
+\rho = \frac{Cov(x,y)}{\sqrt{Var(x)Var(y)}} \implies
+Cov(x,y) = \rho\sigma_x\sigma_y
+$$
+$$
+\Sigma = 
+\left[ 
+{
+\begin{array}{cc} 
+Var(x) & Cov(x,y) \\ 
+Cov(x,y) & Var(x) \\ 
+\end{array} 
+} 
+\right] = 
+\left[ 
+{
+\begin{array}{cc} 
+\sigma_x^2 & \rho\sigma_x\sigma_y \\ 
+\rho\sigma_x\sigma_y & \sigma_y^2 \\ 
+\end{array} 
+} 
+\right] 
+$$
+$$
+\textnormal{Multivariate Gaussian: }
+\frac{\exp(-\frac{(\vec{x}-\vec{\mu})^T\Sigma^{-1}(\vec{x}-\vec{\mu})}{2})}
+{\sqrt{2\pi|\Sigma|^n}}; \vec{x} \in R^n 
+$$
+$$
+\textnormal{Given: }
+\vec{x}, \vec{mu} \in R^2, \vec{\sigma} \in (>0, >0), \rho \in (-1, 1) \implies
+N(\vec{x}|\vec{\mu}, \vec{\sigma}, \rho) = 
+\frac{exp(-\frac{Z}{2(1-\rho^2)})}{2\pi\sigma_x\sigma_y\sqrt{1-\rho^2}}
+$$
+$$
+Z = (\frac{x-\mu_x}{\sigma_x})^2 + (\frac{y-\mu_y}{\sigma_y})^2 -
+\frac{2\rho(x-\mu_x)(y-\mu_y)}{\sigma_x\sigma_y}; 
+\vec{x} = (x, y); \vec{\mu} = (\mu_x, \mu_y); 
+\vec{\sigma} = (\sigma_x, \sigma_y)
+$$
+$$
+Pr(x_{t+1} = \{(x, y), eos\} | y_t) = (\sum_{j=1}^M
+{\mu_t^jN(x_{t+1}=(x,y)|\mu_t^j, \sigma_t^j, \rho_t^j)})
+\times{e_t^{eos}}\times{(1-e_t)^{(1-eos)}} \implies
+$$
+$$
+L(\vec{x}) = -\sum_{t=1}^T{\log(Pr(x_{t+1}|y_t} = 
+-\sum_{t=1}^T[\log\{\sum_{j=1}^M
+{\mu_t^jN(x_{t+1}=(x,y)|\mu_t^j, \sigma_t^j, \rho_t^j)}\} + 
+{eos}\log(e_t) + (1-eos){\log(1-e_t)}]
+$$
+$$
+\frac{\partial{L(\vec{x})}}{\partial{\hat{e}_t}} = {eos} - e_t;
+\frac{\partial{L(\vec{x})}}{\partial{\hat{\pi}_t^j}} = \pi_t^j - \gamma_t^j;
+\gamma_t^j = \frac{\hat{\gamma_t^j}}{\sum_{j'=1}^M{\hat{\gamma}_t^{j'}}};
+\hat{\gamma}_t^j = {\mu_t^jN(x_{t+1}|\mu_t^j, \sigma_t^j, \rho_t^j)}
+$$
+$$
+\frac{\partial{L(x)}}
+{\partial(\hat{\mu}_t^j, \hat{\sigma}_t^j, \hat{\rho}_t^j)} = 
+-\gamma_t^j
+\frac{\partial{N(x_{t+1}|\mu_t^j, \sigma_t^j, \rho_t^j)}}
+{\partial(\hat{\mu}_t^j, \hat{\sigma}_t^j, \hat{\rho}_t^j)}
+$$
+$$
+\textnormal{Given: } C = \frac{1}{1 - \rho^2}
+$$
+$$
+\frac{\partial{N(x_{t+1}=(x,y)|\mu, \sigma, \rho)}}{\partial{\hat{\mu}_x}} = 
+\frac{C}{\sigma_x}(\frac{x - \mu_x}{\sigma_x} - \rho\frac{y-\mu_y}{\sigma_y})
+$$
+$$
+\frac{\partial{N(x_{t+1}=(x,y)|\mu, \sigma, \rho)}}{\partial{\hat{\sigma}_x}} = 
+\frac{C(x-\mu_x)}{\sigma_x}
+(\frac{x - \mu_x}{\sigma_x} - \rho\frac{y-\mu_y}{\sigma_y}) -1
+$$
+$$
+\frac{\partial{N(x_{t+1}=(x,y)|\mu, \sigma, \rho)}}{\partial{\hat{\rho}}} = 
+\frac{(x - \mu_x)(y - \mu_y)}{\sigma_x\sigma_y} - \rho(1 - CZ)
+$$
+** Synthesis
++ Main Challenges 
+  ++ Conditioning the predictions to the two sequences that are of very 
+     different lengths i.e. pen traces are 25 times as long as text.
+  ++ Alignment between them is unknown until the data is generated.
+Reason: # of co-ordinates for each char varies with style, size, pen speed, ...
+*** Synthesis Network
+Additional input later of character sequence mediated with a windowing 
+layer that feeds into the first hidden layer. 
+Given a character sequence $$\{\bold{c}_{1,\cdots,U}\}$$ we define a soft 
+window as a discrete convolution with a mixture of K Gaussian functions. 
+$$
+\phi(t, u) = \sum_{k=1}^K\alpha_t^k\exp(-\beta_t^k(u-\kappa_t^k)^2);
+w_t = \sum_{u=1}^U{\phi(t,u)\bold{c}_u}
+$$
+$$
+\kappa_t, \beta_t, \ and \ \alpha_t \textnormal{ controls window location, 
+width, and importance within mixture respectively.}
+$$
+$$
+(\hat{\alpha}_t, \hat{\beta}_t, \hat{\kappa}_t) = W_{h^1p}h_t^1 + b_p; 
+\alpha_t = \exp(\hat{\alpha}_t), 
+\beta_t = \exp(\hat{\beta}_t), 
+\kappa_t = \kappa_{t-1} + \exp(\hat{\kappa}_t);
+\hat{\alpha}_t, \hat{\beta}_t, \hat{\kappa}_t  \in R^K
+$$
+$\kappa_t > 0$ and defined as offset to ensure network learns how to 
+slide each window at each step. 
+The $w_t$ is passed to $2,\cdots,N$ hidden layer at time $t$, but to first 
+hidden layer at $t+1$ to avoid creating cycles:
+$$
+h_t^k =  H(W_{ih^k}x_t + W_{h^{k-1}h^{k}}h_t^{k-1} + 
+W_{h^kh^k}h_{k-1}^k + W_{wh^k}w_{t-\delta_{k,1}} + b_h^k); 
+h_t^0 = 0; k = 1,2,\cdots,N_{final-layer}
+$$
+$$
+L(\bold{x}) = -\log{Pr(\bold{x}|\bold{c})};
+Pr(\bold{x}|\bold{c}) = \prod_{t=1}^T{Pr(x_{t+1}|y_t)}
+$$
+* A Deep Reinforced Model for Abstractive Summarization
+** Summary
+Summarization condenses large quantities of information into short, 
+informative snippets. It aids downstream applications:
+- creating news digests
+- search
+- report generation. 
+Types of summarization:
+- Extractive: Copy part of input.
+- Abstractive: Generate new phrases, rephrase, or use new words.
+RNN {enc|dec}oder with attention models for abstractive summarization 
+do well on short {in|out}put sequences. Longer documents and summaries 
+run on these models generate repetitive/incoherent phrases.
+** Measure: 
+- ROUGE: Measures the n-gram overlap between generated summary 
+and a reference sequence. 
+- PERPLEXITY: Language model measure; also captures human readability.
+model.
+** Key Ideas
+- Encoder: Intra-temporal attention records previous weights for each
+  input token.
+- Decoder: Sequential intra-attention accounds which words have 
+  already been generated.
+- Objective Function: Combine MLE cross-entropy loss with rewards 
+  from policy gradient RL to reduce "exposure bias."
+** Dataset: CNN/Daily Mail and New York Times 
+** Intra-Attention Model
+*** Input
+Notion is to attend over specific parts of input sequence, decoder's own 
+hidden state, and previously generated word when generating next word.
+In this case, we penalize input tokens that have already obtained high 
+attention scores in past decoding steps. 
+**** Intra-temporal Attention 
+Ensures different parts of encoded input sequence is used:
+$$
+c_t^e = \sum_{i=1}^n\alpha_{ti}^e h_i^e;
+\alpha_{ti}^e = \frac{e'_{ti}}{\sum_{j=1}^n{e'_{tj}}};
+e'_{ti} = \begin{cases}
+\frac{\exp(e_{ti})}{\sum_{j=1}^{t-1}\exp(e_{ji})} & \text{, if}\ t > 1, \\
+\exp(e_{ti}) & \text{, otherwise}
+\end{cases};
+e_{ti} = h_t^{d^T}W_{attn}^eh_i^e; e_{ti}
+\textnormal{ is attention score of input state at decoding time step t.}
+$$
+**** Intra-decoder Attention
+Ensures more information about previously generated output
+is incorporated in hidden decoder state thereby avoid
+repeating same information.
+$$
+c_t^d = \begin{cases}
+\sum_{j=1}^{t-1}\alpha_{tj}^d h_j^d & \text{, if}\ t > 1, \\
+0 & \text{, otherwise}
+\end{cases};
+\alpha_{tt'}^d = \frac{\exp(e_{tt'}^d)}{\sum_{j=1}^{t-1}\exp(e_{tj}^d)};
+e_{tt'}^d = h_t^{d^T}W_{attn}^dh_{t'}^d
+$$
+*** Token Generation and Pointer
+$$
+p(y_t) = p(y_t|u_t = 1)p(u_t = 1) + p(y_t|u_t = 0)p(u_t = 0);
+p(u_t = 1) = \sigma(W_u[h_t^d \parallel c_t^e \parallel c_t^d] + b_u);
+p(y_t|u_t) = \begin{cases}
+softmax(W_{out}[h_t^d \parallel c_t^e \parallel c_t^d] + 
+b_{out}) & \text{, if}\ u_t = 0, \\
+p(y_t = x_i|u_t=1) = \alpha_{ti}^e
+\end{cases} 
+$$
+** Hybrid Learning Objective
+*** Issue with ML loss objective in Sequences 
+Objective $$ 
+\min(L_{ml}) = -\sum_{t=1}^{n'}\log(y_t^*|y_1^*, \cdots, y_{t-1}^*, x)
+$$ does not producing best results in sequence to sequence tasks:
+- Exposure Bias: Errors accumulate during sequence prediction as 
+supervision for ground truth (i.e. next token) is missing when testing.
+- Exponent Bias: Number of potentially valid summaries increases 
+exponentially with sequence length. 
+*** Policy Learning
+**** Reinforcement Learning (RL)
+RL used typically when an agent performs discrete actions before
+obtaining reward or when the metric to optimize is not differentiable
+and traditional supervising learning techniques cannot be used.
+Many sequence generation task metrics - e.g. BLEU for MT and 
+ROUGE for Summarization - are not differentiable.
+Remedy proposed is use RL techniques to policy learn maximizing a 
+specific discrete (i.e. non differentiable) metric.
+Producte two separate output sequences at each training iteration:
+\begin{enumerate}
+  \item $y^s \textnormal{: sampled from probability distribution } 
+       p(y_t^s|y_1^s, \cdots, y_{t-1}^s, x)$
+  \item $\hat{y} \textnormal{: baseline output performing greedy 
+       search maximizing output probability at each step}$
+\end{enumerate}
+$$
+L_{rl} = (r(\hat{y}) - r(y^s))
+\sum_{t=1}^{n'}{\log{p(y_t^s|y_1^s, \cdots, y_{t-1}^s, x)}};
+$$
+$r(y)$ is reward function of output sequence y in comparison to 
+ground truth sequence $y^*$ on our choice of evaluation metric.
+Observe minimizing $L_{rl}$ is maximizing conditional likelihood of 
+sampled sequence $y^s$ if its reward is higher than baseline $\hat{y}$.
+**** Mixed Training Objective
+Optimizing $L_{rl}$ improves discrete metric (e.g. ROUGE) but doesn't
+improve readability or quality of output. Note that the ML objective 
+$$ 
+\min(L_{ml}) = -\sum_{t=1}^{n'}\log(y_t^*|y_1^*, \cdots, y_{t-1}^*, x)
+$$ 
+is a conditional language model calculating the probability of a
+token based on previously predicted sequence. Motivated defining a
+mixed learning objective: $$ 
+L_{mixed} = \gamma{L_{rl}} + (1-\gamma)L_{ml} $$
+** Text Summarization
+Document Understanding (DUC) dataset includes short summaries of 
+single doc and long summaries of multiple docs categorized by subject.
+Most abstractive summarizations based on encoder-decoder model
+and evaluated on DUC-2004 outperform extractive models. These
+generate very short summaries <75 chars and used with 1-2 sentences.
+** Dataset
+CNN/Daily Mail: 286,817 training, 13,368 validation, and 11,487 testing.
+NYT: ip/out average 549/40 tokens per example and limit 800/100 tokens.
+* Sequence Level Training With Recurrent Neural Networks
+Sequence to sequence generation is brittle as: 
+- Exposure Bias: Errors accumulate during test as opposed to training 
+where we predicting next word in a sequence, given previous words and 
+some context (e.g. source doc/image). 
+- Metric Bias: Loss does not operate on sequence level - instead of 
+optimizing the train corpus language model metric, optimize the 
+target metric (e.g. BLEU or ROUGE) directly.
+** Background
+*** Problem
+- Exposure Bias: During training, model is only exposed to training data 
+  distribution, instead of its own predictions.
+- Metric: Word level loss function used for training (e.g. cross-entropy 
+  loss) whereas the performance is evaluated using discrete metric, 
+  which is not differentiable and requires combinatorial optimization 
+  to determine the sub-string maximizes the score given some context.
+*** Solution
+- Exposure Bias: Use model predictions $y_s$ at training time.
+- Metric: Directly optimize for final evaluation metric.
+But difficult to learn from an initial random policy as action space 
+for text generation is $O(\parallel{V_{input}}\parallel^T)$ extremely large.
+- MIXER: Hybrid loss function that combines REINFORCE & cross-entropy.
+ Initialize policy to the optimal given by cross-entropy training and then
+slowly deviates making use of model predictions. MIXER with greedy
+search is more accurate than the cross entropy model augmented with 
+beam search at inference time.
+- SEARN: model uses its predictions at training time to produce a
+sequence of actions/next-word. Then, a search algorithm determines
+optimal action at each time step, and a classifier (a.k.a. policy) is trained 
+to predict that action.
+- DAD: Target action at step $k$ is the $k$-th action taken by optimal policy
+(i.e. ground truth sequence) regardless of which input is fed to the system,
+whether ground truth or model's prediction.
+** Models
++ Model Dimensions:
+  ++ Exposure Bias: adversely affects generation at test time.
+  ++ End to End: Fully back-propagate gradients back including to input choice.
+  ++ Sequence to Sequence: Loss operating at sequence rather than word level.
+$$
+h_{t+1} = \phi_{\theta}(w_t, \bold{h}_t, \bold{c}_t); 
+w_{t+1} \sim p_{\theta}(w|w_t, \bold{h}_{t+1});
+$$
+$$
+\bold{h}_{t+1} = \sigma(M_i\bold{1}(w_t) + M_h\bold{h}_t + M_c\bold{c}_t);
+\bold{1}(i) \textnormal{ is an indicator vector with i-th component 1};
+$$
+$$
+\bold{o}_{t+1} = M_o\bold{h}_{t+1}; w_{t+1} \sim softmax(\bold{o}_{t+1});
+\bold{h}_1 = constant; 
+w_1 = \textnormal{special token indicating beginning of a sequence}
+$$
+\begin{enumerate}
+  \item $XENT:\ L=-\log{p(w_1, \cdots, w_T)}=
+                -\log{\prod_{t=1}^T{p(w_t|w_1,\cdots,w_{t-1})}} = 
+                -\sum_{t=1}^T{p(w_t|w_1,\cdots,w_{t-1})} = 
+                -\sum_{t=1}^T{p(w_t|w_{t-1},\bold{h}_t)} \\ 
+                \textnormal{Greedily predict next word at each time step without
+                considering the whole sequence.} \\
+                \textnormal{Training by truncated back-propagation through time 
+                with gradient clipping.} \\ 
+                \textnormal{Generation: } w_{t+1}^g = 
+                \arg\max_w{p_\theta(w|w_t^g, \bold{h}_{t+1})} \\
+                \textnormal{Search Error: } \sum_{t=1}^T\arg\max_{w_{t+1}}
+                \log{p_\theta(w_{t+1}|w_t^g, \bold{h}_{t+1})} \leq 
+                \arg\max_{w_1, \cdots, w_T}\sum_{t=1}^T
+                \log{p_\theta(w_{t+1}|w_t^g, \bold{h}_{t+1})} \\
+                \textnormal{'Beam Search' mitigates 'Search Error' but 
+                significantly slows down Generation.}$
+  \item $DATA\ AS\ DEMONSTRATOR:\ 
+                \textnormal{Mix ground truth training with model predictions. 
+                At each step with an annealing probability DAD takes as input 
+                either ground truth or model prediction.}$
+  \item $END-TO-END\ BACKPROP:\ 
+                \textnormal{Input at step t+1 is the weighted average of 
+                top K predictions at step t. Loss function is XENT and no 
+                explicit supervision at sequence level.}$
+\end{enumerate}
+** REINFORCE
+*** Problem Framing
+- Agent: RNN Generative model.
+- Environment: Words and context vector model sees at every time step.
+- Action: Predicting the next word in the sequence at each time step.
+- Reward: BLEU or ROUGE-2 metrics observed at the end of a sequence.
+- Policy: Parameters of agent whose execution results in an action.
+*** Incorporating Reward Metric
+$$
+L_\theta = - \sum_{w_1^g, \cdots, w_T^g}
+p_\theta(w_1^g, \cdots, w_T^g)r(w_1^g, \cdots, w_T^g) =
+-E_{[w_1^g,\cdots,w_T^g] \sim p_\theta}r(w_1^g, \cdots, w_T^g); 
+w_n^g \textnormal{ word by model at n}; r \textnormal{ reward}
+$$
+In practice, the expectation is approximated with a single sample from 
+the distribution of actions implemented by the RNN.
+$$
+While\ \frac{\partial{L_\theta^{XENT}}}{\partial{\bold{o}_t}} = 
+(p_\theta(w_{t+1}|w_t, \bold{h}_{t+1}, 
+\bold{c}_t) - \bold{1}(w_{t+1})) \implies 
+$$
+$$
+\frac{\partial{L_\theta}}{\partial{\bold{o}_t}} = 
+(r(w_1^g, \cdots, w_T^g)-\overline{r}_{t+1})
+(p_\theta(w_{t+1}|w_t^g, \bold{h}_{t+1}, 
+\bold{c}_t) - \bold{1}(w_{t+1}^g)); 
+\bold{o}_t:  \textnormal{input to softmax};
+\overline{r}_{t+1}: \textnormal{average reward at t+1}
+$$
+$$
+\textnormal{Equation says that chosen word }
+w_{t+1}^g \textnormal{ acts like a surrogate target for our output 
+distribution, } 
+p_{\theta}(w_{t+1}|w_t^g, \bold{h}_{t+1}, \bold{c}_t).
+$$
+$$
+\textnormal{REINFORCE first establishes a baseline }
+\overline{r}_{t+1}, 
+\textnormal{and encourages a word choice }
+w_{t+1}^g\ if\ r > \overline{r}_{t+1}
+\textnormal{ or discourages otherwise.}
+$$
+$$
+r_t = \omega^T\bold{h}_t; 
+L_\omega = \parallel \overline{r}_t - r \parallel^2;
+\overline{r}_t \textnormal{ is estimated by a linear regressor 
+which is an unbiased estimator of future rewards}
+$$
+** Mixed Incremental Cross-Entropy Reinforce (MIXER)
+- Initialization: Instead of starting from a poor random policy and training 
+the model to converge towards the optimal policy, we start from optimal 
+policy and then slowly deviate towards model's own predictions.
+- Warming: Introduce model predictions during traning with an annealing
+schedule to gradually teach the model to produce stable sequences.
+** Data
+Subset of Gigaword corpus for abstractive summarization. Example pairs
+are composed of the first sentence of news article (source) and 
+corresponding headline (target). 12321 unique words in source and 6828
+words in target. Training/Validation/Test are 179414/22568/22259 pairs
+respectively. Average sequence is 10 words. 15 words cover 95% of data.
+* Neural Turing Machines
+- Working Memory: 
+  -- Capacity for short-term information storage (arguments)
+      and rule-based (simple programs) manipulation. 
+  -- Psychology: information chunks readily recalled.
+  -- Neuroscience: prefrontal cortex and basal ganglia working system.
+** Memory Constructs
+\begin{enumerate}
+\item $\bold{M}_t \in N\times{M} \textnormal{ memory matrix at time t}$
+\item $Read: \bold{r}_t \leftarrow \bold{w}_t\cdot\bold{M}_t; 
+              \sum_{\forall{i}}w_t(i) = 1, \forall_{i}: 0 \leq w_t(i) \leq 1$
+\item $Write \\
+              Erase: \tilde{\bold{M}_t} \leftarrow 
+              \bold{M}_{t-1}\circ[\bold{1} - \bold{w}_t\circ\bold{e}_t] \\
+	      Add: \bold{M}_{t} \leftarrow \tilde{\bold{M}_t} + 
+              \bold{w}_t\circ\bold{a}_t$
+\end{enumerate}
+* Reinforcement Learning Neural Turing Machines

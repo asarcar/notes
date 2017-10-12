@@ -1,0 +1,462 @@
+* Ganesh Ramesh <mr.ganesh.ramesh@gmail.com>
+Vibhu Gupta: Employee #70 of Google. Wife works in HP Labs. 
++ EdModo Business:
+  ++ Learning Management System
+  ++ Social Media, Collaboration, and Bulletin Boards
+  ++ Content Trading Platform (TeachersPayTeachers)
++ Metrics
+  ++ 50M user base and growing.
+  ++ Retention, Engagement, and Montetization metrics poor.
++ Assessments
+  ++ Degree of difficulty in multiple-choice: Yes/No, One of Many, 
+       Many of Many, All/None, ...
+  ++ Statistics with supporting metrics around difficulty
++ Advice
+  ++ Focus: Engagement, User/Content/Assessment Modeling, and
+        Monetization
+  ++ Education of K-12 is challenging due to increased regulation 
+        and citizen expection that taxes fund quality. Foundational
+        subject content does not change. Lots of assessment questions.
+  ++ Outcome focused Companies e.g. tenmarks.com (math skill) or 
+        code.org (CS skill) are easier to fund.
++ Key Questions
+  ++ Three minute pitch
+  ++ Who is the customer? Who is the user?
+  ++ What is your target scale?
+  ++ What is your go to market?
+* Huzefa Mehta <huzefa_mehta@yahoo.com>
+- My Company:: Ed Modo Type => Digital/Online version of Classroom => 
+single sign on => classroom => social media => skype thing => 
+consolidated framework of maintaining disparate digital assets. 
+Allowed content guys to contribute content and monetize. Build an app store. 
+Ed Modo - open classroom vs school. 
+- Four Factors Driving Company Success:
+--- Team to Build
+--- Market: Story for Future but not entry point
+--- Technology: 
+--- Sales: No access to sales
+- Simple Idea: Google Classroom Dashboard Analytics
+- Razor focus: Narrow it down significantly. Parents or Boards. Exact problem.
+- Vibhu Mittal (nice marketing with Peter Norvig to post online classes which 
+helped with Marketing help him noticed) from Ed Modo; Ram Prasad from Guru.org;
+Salman Khan, and Neeti Khosla
+- Talk to Coursera, Udemi for Origami, Udacity, Khan Academy, ...
+- Bundle: DOE Grants
+- Conferences: Educational Conferences
+- People Winning: Simple tools - lunch account fillings
+- Discretionary: Budget $20-$30/student per month. Even for $3 per month 
+they would scream. India: Rs200-300/student/month
+- Access to Board: Parents, Teachers, Principal, and Staff => Talk to District
+- Pitched to Dean of Santa Clara County Office 101 and Montague - 
+Did not go anywhere
+- Private Schools like Harker were more accessible to spend money.
+- Conference on Supplementary Material Conference - Demoed an LA company 
+that called after 6 months that had budget for $100-$200 per week to help 
+special need kids to reinforce content - got money from them to provide 
+online classes.
+- Direct to parents may help but what is the channel: purchase ads on 
+parent groups.
+- Avichal Garg Blog: Primer for Education for Adaptive Learning for 
+Prep Tests (SAT)
+- Met him through Vibhu - Why Education start ups wont work in US: 
+https://avichal.com/2011/10/07/why-education-startups-do-not-succeed/ - 
+Mostly for US.
+- India good place to start
+* 12Labs: CEO Durga P Pandey
+** Summary:
+Applause/FitFrnd: Social fitness app helps enjoy working out. 
+BattleSteps: Matches one to a new walking opponent everyday 
+for a 12-hour steps challenge. Motivate to get more steps/day.
+** Idea
+Runkeepers: Top ranked "Health and Fitness" app that 
+automatically extracts from Pedometer. Why don't provide 
+a much better app to motivate runners/walkers that
+tracks 360 degrees: diet, weight, mood, and workout.
+** Market
+Weight Loss Industry $60B; Weight Watchers is similar to
+Alhocolics anonymous with 0.5B/yr revenue; 
+Glow is a fertility app. Social did not help as women 
+did not want friends to know. 
+Most fitness apps are fad with <6mos retention with
+Gaming/Social/Collaboration angle creates stickiness with 
+algorithmic assignment, group chat, support groups, etc.
+Engagement Activity increased. Hired group leader to 
+direct discussions, spearhead activity, etc. 
+The retention curve shifted up but shape remained same
+with curve dropping down within six months.
+Used ML to propose food activity with food fields pre
+populated in red/yellow/green colors - biased towards green.
+** Advice
+*** Focus: Do ONE thing really well.
+Good Apps generates an IMPULSE RESPONSE - you would love
+to use it many many time. Unless overwhelming response
+discard the idea immediately. No use stacking feature bricks.
+Diet Logging, Diet Plan, Workout Plan, Articles about Health
+are all separate and hugely competitive industries.
+*** Wellness is desired but without ANY effort
+Step tracking worked as it just monitored without effort;
+How many steps per day? Average Steps? Compare against 
+similar people.
+*** Understand market and tailor accordingly
+**** Entertainment dominates Apps
+Top 100 gross apps profile:
+- Games: 75% of revenue: 
+- Entertainment Platforms: YouTube
+- Dating, Sport Scores, etc.
+- Miscellaneous
+  -- Subsegment: "Health an Fitness"
+  -- 33% Meditation Apps
+  -- 33% Video Workout Apps
+  -- 33% Rest
+**** Pivot to Battle Steps
+- Gamification: We were earlier building engagement in a 
+  health/wellness app. Instead, take an engaging app 
+  concept (e.g. games) and infuse health/wellness concept.
+- State Leaderboard: Fitbit suffered as leader was so 
+  far ahead in a group - others were not motivated.
+  Match similar level people in battle.
+- Metrics: 
+  -- #times app opened: 8-10/day 
+  -- Day 30 retention was 10% from 5%. 
+  -- Added to Apple's featured apps: many impressesions
+  but only 20K downloads.
+**** Yes Health: Diabetes Health and Wellness App
+- Health coach partner, create a personal, holistic health 
+  program, no special equipment or prepared diet foods.
+- Connects to Fitbit activity tracker, Fitbit Aria digital 
+  scale, and Body Trace digital scale.
+- Overall Industry: Porter's Five Forces
+  -- Horizontal: Threat of Substitutes/New Entrants/Industry Rivals
+  -- Vertical: Bargaining Power of Suppliers/Buyers.
+**** Market Research 
+- Metrics
+  -- # of active Users
+  -- frequence of usage
+  -- margin and monetisation
+- Install per user is for free apps $5-$7.
+- Apple's Featured Apps is free marketing.
+- Insurance increases reach but not install and stickiness.
+- Subscription full packaged service options:
+  -- NutriSystem: People pay for food plans $10/day
+    --- No need to create plan & No need to research
+    --- Subscription service with meals all packaged for a week.
+  -- Similar idea for snacks, natural organic food, etc.
+  -- Natural Growth through marketing/promotions on FB
+  -- Challenge is backend logistics
+    --- With varying package size, shipping cost dominates
+  -- Fabletics: Personalized outfit recommendations
+- Research top grossing apps on health/fitness: Workout Videos?
+- Most common case of failure: somewhat engaging - death valley
+- Unless idea/benefit is 10x hard to raise, less traction with
+  consumers, less business, ...
+* TouchKin: Jo Aggarwal <jo@touchkin.com>
+Phone: +91 99711 32213; Skype: Uaggajo
+Cognitive Behavioral Therapy motivated by wellness app
+as large fraction of population addressable:
+57% depressed post cancer chemo therapy, post partum
+depression, etc.
+** AI based ChatBot: Wellness
+Engagement is around Self care and Structured
+Build Behavioral Model working with mental heath 
+and wellness of patients "Returning to work after 
+disability" or "Post Cancer Care."
+** Channel: 
+B2B working through Insurance. Channel is Reinsurance
+(e.g. C3) who sell Insurance and products to Insurance. 
+Partnering with Accenture to codevelop Employee Assistance
+Programs. Added Stanford Psychologist to go B2C as well.
+Added 3rd party application to reach self-employed.
+C3 also has an accelerator program to demonstrate
+they are forward looking and responsive to future needs.
+** Advice: 
+*** Medical Advice or Triage/Detection: 
+Stay away as intervention is not happening which 
+does not allow capturing value. 
+*** Health Care Management System: Stay Away
+Build a model that does not require integrating with 
+health care management system - EPIC 
+Stay clear of Hospitals as HIPAA, Data Residency, 
+Liability, etc. is a big issue.
+*** Case Management System: e.g. FITBIT integration helps.
+** Similar Companies: 
+*** Ginger.IO 
+Circumvented the integration with EPIC by using action code 
+or email-id based access.
+*** GoQii
++ Product plus Ecosystem: Wellness Coach comprising 5 elements:
+  ++ Personalized Advice: Track your steps, sleep time, distance 
+     and sync with app to send data to your coach
+  ++ Coach backed by Experts: Gives you health and nutrition 
+     advice based on your health goals
+  ++ Doctor + Data: Get medical consult from qualified doctor 
+     and get suggestions based on your health data
+  ++ Health Locker: Store all your prior health records and 
+     medical reports safely on cloud
+  ++ Karma: Your steps get converted into Karma points which get 
+     donated for a social cause by Karma partners
+*** Babylon: Diagnostics -  
+https://www.babylonhealth.com/?: Seems Telemedicine
+Issue is that burden of proof and accuracy is with the provider. 
+Need to provide trial and go through trials with hospitals. 
+Requirements is more stringent than wellness advisor.
+** Positioning:* CrayonData
+** Vikram Rao: CEO
+*** Data 
+**** Acquisition: Taste Data mined from public sources. 
+     Too much noise. Bought from third party. 
+**** Challenge: Not being a part of engagement cycle. 
+     For example, Banks own the engagement data and only use
+     us for taste related data as APIs. 
+**** Cleanup: Curated by Chennai team.
+**** Algorithms: Extract Entity-Relations and run graph traversal 
+     to extra new relations. Use Collaborative filtering to 
+     understand taste data.
+*** Business: APIs serving ranked taste given a person. 
+**** Retail Banking - Credit Card Divisions interested in taste user models 
+**** Travel & Online Travel Agencies 
+**** Fast Moving Consumer Goods
+**** Lifestyle Promoting Brands: Cigarettes, Hair Care, ...
+*** Bot: Typically executed in a larger context or workflow. 
+    Taste specific bot use case that covers the entire workflow 
+    promoted by verticals was not discovered.
+    We've built vertical bots e.g. Maya TasteBot on Messenger
+    engageapp.testmaya.com to get more engagement data which 
+    then we need to figure out how to monetize.
+*** Use Case: 
+**** How did this idea take birth?
+     Was a different idea.
+**** Where do you see most successes?
+**** How the product definition and GTM should have been positioned?
+**** How do you see this used in the customer workflow context?
+** Saurav: Data Scientist
+*** Data Acquisition
+    Two use cases:
+**** Movies/Books: 
+Website like https://www.goodreads.com/ provide recommendations 
+based on cross category connector algorithms.
+**** Dining/Travel:
++ Sources: ~70 sources roughly from three sources
+  ++ Firmographic Data - Public Reviews at  TripAdvisor, Zagat, etc.
+    +++ Data Unstructured and Messy - lot of cleaning - outsourced to Chennai.
+    +++ Updates can be weekly. We crawl every 1.5/2 months. 
+  ++ Enterprise Data - Customers such as Hong Kong Bank, Unilever, Emirates
+    +++ Anonymized Structured Data from CCs - low noise & high value
+    +++ Updates gathered on demand every 2 wks or before campaign.
+  ++ Social Feeds - Twitter - FB not crawled due to budget. 
+    +++ Tumbler/Pinterest fidelity low as owner contributed.
+    +++ Mainly request feed based on list of influencer's data, 
+        or request feed based on interest keywords
++ Characteristics:
+  ++ ~70 sources.
+  ++ 60/80 attributes
+  ++ 15K Restaurants in Singapore.
+  ++ 300TB lake normalized to 1TB after cleaning, reduction, and compression.
++ Tools: AWS $\implies$ Redis $\implies$ Solr
+*** Algorithm: 
++ Graph
+  ++ Logic: Used propositional logic and first order predicate 
+       calculus to parse user intent -- by creating a graph of entities 
+       that were extracted via Entity extraction logic.
+  ++ Search: A* search to traverse the graph. 
+  ++ Storage: The actual restaurants -- or any other concrete product-- 
+       was stored in Solr and the parsed intent was mapped to 
+       Solr metadata. 
+  ++ Parsing: The intent parsing is context aware -- takes 
+       into account context in which the entities.
+  ++ Inference Basis: The Entity Graph is walked based on Questions 
+       posed during the QnA session.
+** Questions For CrayonData
+*** Data Acquisition & Extraction: 
+**** Scale & Shape
+**** Sources
+**** Maintenance 
+**** Data Crawling: Algorithms Used
+**** Data Cleanup - Sanity
+**** Data Lake Warehouse Backend
+**** How often data was crawled, sanitized, and assimilated to Data Lake?
+**** Assimilation Framework 
+
+*** Data Transform
+**** Transformations
+**** Extensions
+**** How was data assimilated as part of customer engagement?
+
+*** Data Load
+**** New Indexing or Reorganization
+**** Tools used: Loaded in memory? 
+**** Algorithms Run to Organize
+
+*** Application
+**** Use Cases supported
+**** Algorithm Run - How Data harnessed for application
+**** Explain the "context aware parsing" in a little more detail
+
+*** Bot
+**** How do you see this used for Conversational framework? 
+
+* Praveen Patnala: Data Crawling
+** SOLR vs Elastic Search
+Stable, Configurable, etc.: SOLR for document search and is 
+customizable to use different search features for different 
+use/case - think Google. Elastic for log search - 
+sophisticated grep functionality used by IT-Ops - think Splunk.
+** Semantic Matching - not just keyword match
+** Google Knowledge Graph
+** Amit Singhal, Bipul Sinha, and Jyoti Bansal
+Do not use big guys for discovery. They will be busy and 
+won't have time.* MindTickle
+Krishna Gopal & Vishalini: 12-Jun-17
+** MindTickle: Sales Coaching Platform i.e. Training and Tracking
+** Problem Around Collateral Training:
+*** Course Materials - Video, Image, Documents, History, and Tracking
+*** Quizzes
+*** Role Plays & Scenario Tackling
+*** Coaching & Execution - Typically from Superiors
+
+** Behind Desk (Inside Sales) Desk
+*** Content search among all assets
+*** Responding with the right answer or follow up question from Customers
+
+** Value Proposition
+*** Coach Product Demos: Articulation
+*** Testing
+*** Report Card Generation exposed up/down the sales/marketing hierarchy/function
+*** Understand Capabilities/Competencies of Sales Reps
+
+** Sales Enablement Platform Companies
+*** Seismic
+*** Guru: Knowledge Management keeps customer facing teams current, 
+    consistent and confident. Sales reps couldn't find answers 
+    needed searching in Slack forcing engineering to answer same 
+    Qs again.
+*** High Spot
+*** Pitch
+**** Sales Rep Questions
+***** How do I find the best content to present my customer?
+***** When/How did my customer engage with content?
+**** Marketing
+***** How can I know what the sales team is using and pitching?
+***** What content is engaging customers and driving revenue?
+**** Sales Leadership 
+***** What and How often are my reps pitching to customers?
+***** Which pitches are closing deals and to which customers?
+      A sales enablement platform closes all these deals by providing 
+      Semantic Search, Intelligent Recommendations, Content Scoring, 
+      Smart Feeds and Advanced Analytics as well as CRM Integration.
+
+** Chat: 
+*** Intercom is building a platform that integrates with Slack, Messenger, 
+    etc. to provide shallow response for Customer Support of companies.
+*** Legal: Contract, Compliance, Audits - running algorithm on data, etc.
+*** Summarize basics 
+*** Make reading out and basic questions of legal mumbo jumbo easy
+*** $400/hr is legal cost - productivity increase would free up time.
+
+** Data Query
+*** Tableau - Dump Data Report
+** Qualtics: Conversational way of gathering experiences - customer, 
+   employee, brand, and products without any disruptions, begging, or 
+   bribing gathered in a human conversational way. Analytics on top.
+
+* Education
+Priya: Sales of Infosys/Accenture/Cognizant implement integration projects. 
+Availability: Free on weekday afternoons when her calls are done. 
+Thu/Fri 3pm would be good.
+- Education Content QnA:
+-- MC Graw Hill Adaptive Learning: Learn Smart Platform
+-- ECommerce Platform: McMillan, Cengage, Houghton Mifflin Harcourt (HMH)
+- Deep Actionable People Search:
+-- Allegis Manpower (Staffing): Hugely threatened due to disintermediation 
+  by MSFT/LinkedIn platform. Need deep people search.
+
+Rajeev Ahuja: Director/Partner at Deloitte
+- Vertical Solution has a lot of requirements that a small team cannot 
+  easily fulfill.
+- Grow into a vertical domain but start with something addressable right 
+  now eg sell just API calls with service available in SaaS. Home on the 
+  domain, use case, sales model, etc via quick iteration.
+- Pick one area and start running after getting feedback on few use cases. 
+  Build a barely functional prototype (Tesla Chatbot) good enough to 
+  kick-start conversation. 
+- Try not to sell technology source code or give exclusive perpetual 
+  license to code.
+* Amazon
+Sanjay Kamble (Amazon Alexa) and Gaurav Mishra (Uber) 12-Jun-17 3pm meeting
+
+Four dominant voice based (input as first class citizen) initiatives:
+** Google Now, Amazon Alexa, Microsoft Cortona, and Apple Siri. 
+** Amazon Prize: 
+It is a Netflix Price akin competition where University students are 
+encouraged to build application on Alexa. Main participant use cases 
+are movies QnA and Support. They have a venture fund to encourage 
+companies to develop on their platform. 
+** Amazon Work initiative is developing use cases for Enterprises.
+** Movies/Music: 
+Amazon uses a common inventory of storefront for all its products. 
+For Movies it pays the copyright owner on every purchase. 
+Movies typically are available immediately after six months after 
+release on Fire or Amazon Prime Video or for purchase on eCommerce 
+site. As opposed to NetFlix/Spotify, it does not purchase the 
+copyright to stream it for all its users as many times without 
+any expiry. 
+Amazon has managed to sell movies or a song at a 
+significant premium for each different user - owners prefer to 
+partner with Amazon. In fact, Amazon has the biggest inventory 
+of these digital assets - claimed to be bigger than Netflix/Spotify 
+and even Apple!
+
++ Two ways to build a next generation AI/Data company: 
+  ++ Broad Horizontal Use Case That Competes on Technology 
+     e.g. Algorithms, Pipeline, Performance, Accuracy, etc. 
+     to a class of problems that is better than anybody 
+     e.g. Voice Transcription or Recognition 
+  ++ Domain Specific Semantic knowledge Use Case 
+     e.g. US Recipes. You need to decide early which of the 
+     two approaches to use. 
+
+Companies (e.g. Big 5: Apple, Google, MSFT, Amazon, and FB) have 
+very good engineers with significant investment in broad 
+horizontal technology. They still value the domain specific 
+semantic knowledge that have been built over years via 
+automation or manual curation. 
+
+Domain knowledge based companies that develop a conversational 
+and semantic understanding of the space are considered very 
+valuable as well. Often companies (e.g. big 5) acquire to come 
+up to speed in these domains to reduce their time to market 
+and opportunity cost. 
+
++ Some domain specific use cases:
+  ++ HealthCare: 
+     There are three broad areas people are solving through QnA:
+     +++ Triage general medicine symtoms - common cold? 
+     +++ Health and Wellness - preventive and good practices 
+     +++ Playbook driven Workflows e.g. Nurse Practitioner 
+         advising post operative care post an appendix operation 
+         or chemotherapy. Organizations affiliated with Hospitals, 
+         such as Stanford or Cleveland Hospital, mandate a specific 
+         playbook which every Nurse practitioner are required to 
+         faithfully replicate the instructions. Companies develop 
+         the domain knowledge gathered in mapping the workflows 
+         in a semantic space and conversing with the patient. 
+         HIPAA compliance is not an issue as these companies do their 
+         work in the AWS which is HIPAA compliant.
+  ++ Amazon Fresh: 
+     Recipes is an important COG in the Fresh Flywheel: 
+     virtuous feedback loop of Fresh Grocery Selection, Recipes Workflow 
+     driving to Grocery Demand, Best Price, and Convenience  - just as 
+     eCommerce Flywheel: Wide Selection, Best Price, and Convenience. 
+     Team bought a team that focused on US Recipes. Now requires 
+     internationalization and specialization since Recipes is 
+     HyperLocal i.e. Japanese vs Indian Cuisine is very distinct 
+     from US/Italian cuisine. 
+  ++ Personal Finance: 
+     Conversational way to explore/query/analyze personal finances as 
+     provided by Mint.
+  ++ Education: 
+     Has legs in a focused environment especially on Echo Show - 
+     voice is main input interface with display for minor ip or op.
+
+
+
+

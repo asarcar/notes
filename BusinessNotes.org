@@ -1,0 +1,447 @@
+* Summary
+We lack attention, engage mostly to games, and spend most of our time 
+on mobile/messaging/voice platforms. Our comprehension/retention
+of any topic in this uber information age is perfunctory. 
+
+While elementary comprehension and basic retention of topics can be 
+supported through simple QnA service, we've lacked a scalable and 
+engaging solution due to the following reasons:
+a) Dry: We would neither engage nor learn from a QnA service, unless 
+it is delivered in a highly contextual, personalized, conversational, and 
+trivia/gamified/fun way.
+b) Manual: The flavor/structure of basic factoid questions and 
+acceptable answers is rigid and scripted. The crafting process has been 
+largely manual, which neither economicaly scales wrt amount of content, 
+number of users, types of users, etc., nor is it timely wrt fresh/new content.
+
+PieKul is building the data processing and learning pipeline required to 
+deliver a scalable and engaging content review service.
+
+Founders of PieKul: (a) Quaizar Vohra has a B.Tech from IIT Delhi and was 
+a graduate student of Stanford in the area of Big Data, ML, and AI. 
+(b) Arijit Sarcar has a B.Tech from C.S. IIT Delhi and a graduate of
+UC Berkeley. Both were Distinguished Engineers of Juniper in their past.
+** Principles
+|--------------+----------------------------------------------------------------------|
+| <12>         | <68>                                                                 |
+| CATEGORY     | DESCRIPTION                                                          |
+|--------------+----------------------------------------------------------------------|
+| OBJECTIVE    | Long Term Business and Skill Development                             |
+|              | NOT short term high risk mercenary ventures                          |
+|--------------+----------------------------------------------------------------------|
+| USE CASE     |                                                                      |
+| CONTEXT      |                                                                      |
+|--------------+----------------------------------------------------------------------|
+| Workflow     | Part of larger workflow - Understand ecosystem & client behavior     |
+|--------------+----------------------------------------------------------------------|
+| Vertical     | Requires deep domain knowledge and putting together a team with      |
+| Solution     | disparate skills addressing all layers needed for solution           |
+|--------------+----------------------------------------------------------------------|
+| Scope        | Broad and Shallow or Narrow and Deep problem and solution scope      |
+|              | Narrow and Deep are easier to sell but much harder to scale          |
+|--------------+----------------------------------------------------------------------|
+| DATA         | How do we own, extend, and nourish data. Is our solution growing     |
+|              | our data assets naturally with network effect?                       |
+|--------------+----------------------------------------------------------------------|
+| ENABLERS     | Why is this solution relevant now? What secular factors are          |
+|              | compelling the transition and creating an inflection point?          |
+|--------------+----------------------------------------------------------------------|
+** Domains
+|--------------+--------------+--------------+--------------------------------------------------|
+| <12>         | <12>         | <12>         | <48>                                             |
+| Vertical     | Name         | Company      | Use Case                                         |
+|--------------+--------------+--------------+--------------------------------------------------|
+| EDUCATION    |              |              |                                                  |
+|--------------+--------------+--------------+--------------------------------------------------|
+| Digital      | Priya A      | Mc Graw Hill | Books are artificial Construct. Unbundle, link,  |
+| Workbooks    |              | Mc Millan    | recommend, personalize, quiz, bring it alive via |
+|              |              | Cengage      | dynamic content with simulation, visualization,  |
+|              |              | HMH          | etc. with QnA interface to create digital books. |
+|--------------+--------------+--------------+--------------------------------------------------|
+| PRODUCTIVITY |              |              |                                                  |
+|--------------+--------------+--------------+--------------------------------------------------|
+| People       | Gaurav M     | Allegis      | Enable voice driven actionable search of people  |
+| Search       |              | Manpower?    | for staffing.                                    |
+|--------------+--------------+--------------+--------------------------------------------------|
+| Meeting      |              |              | Search, summarize, and organize meetings.        |
+|--------------+--------------+--------------+--------------------------------------------------|
+| Support      | Ashutosh Roy |              | Automate handling of credits and service         |
+|              |              |              | changes for Utility Companies                    |
+|--------------+--------------+--------------+--------------------------------------------------|
+| SALES        |              |              |                                                  |
+|--------------+--------------+--------------+--------------------------------------------------|
+| Visual       | Sampath G    | Anaplan      | Voice driven input                               |
+| Experience   | Krishna G    | Mind Tickle  |                                                  |
+|--------------+--------------+--------------+--------------------------------------------------|
+| HEALTHCARE   |              |              |                                                  |
+|--------------+--------------+--------------+--------------------------------------------------|
+| Post Op Care | Sanjay K?    | ??           | Q&A way to support post op care calls            |
+| Workflow     |              |              |                                                  |
+|--------------+--------------+--------------+--------------------------------------------------|
+| Insurance    | Jayant L     | LeanTaas     | Navigating, visualizing, and driving Worker's    |
+| Analytics    |              |              | Compensation analytics for claim processing.     |
+|--------------+--------------+--------------+--------------------------------------------------|
+| FINANCE      |              |              |                                                  |
+|--------------+--------------+--------------+--------------------------------------------------|
+| Enterprise   | Parames Gopi | Goldman      | Application of "random-matrix theory" to filter  |
+| Finance      |              |              | out noise and reveal genuine correlations        |
+|--------------+--------------+--------------+--------------------------------------------------|
+| Retail       | ??           | Vanguard     |                                                  |
+| Finance      |              |              |                                                  |
+|--------------+--------------+--------------+--------------------------------------------------|
+| Personal     | Mukesh A     | Intuit       | Q&A way to navigate/analyze expenses             |
+| Finance      | ??           | Mint         |                                                  |
+|              | Puneet A     |              |                                                  |
+|--------------+--------------+--------------+--------------------------------------------------|
+| CONSUMER     |              |              |                                                  |
+|--------------+--------------+--------------+--------------------------------------------------|
+| User         | Vikram R     | CrayonData   | Engage and delight users based on taste          |
+| Modeling     | Suresh       |              |                                                  |
+|--------------+--------------+--------------+--------------------------------------------------|
+| User         | Sanjay K     | Amazon       | Q&A way for hyperlocal recipes                   |
+| Workflow     | Gaurav M     | Uber         | Q&A for car ride logistics                       |
+|--------------+--------------+--------------+--------------------------------------------------|
+| LEGAL        |              |              |                                                  |
+|--------------+--------------+--------------+--------------------------------------------------|
+| eDiscovery   | ??           | ??           | Media (eMail/Video Footage/Picture) analysis     |
+|              |              |              |                                                  |
+|--------------+--------------+--------------+--------------------------------------------------|
+| IT           |              |              |                                                  |
+|--------------+--------------+--------------+--------------------------------------------------|
+| IT/Infra     | Anupam B     | Oracle       | Finding complex and unusual random correlations  |
+|              | David M      | Oracle Cloud | using NLP techniques on logs                     |
+|--------------+--------------+--------------+--------------------------------------------------|
+
+** Problem
+*** Motivation
++ Representative Problems
+  ++ Insurance: Claim Insights/Complaints/Policies/Reports/Interactions
+  ++ Sales Training: 
+  ++ Legal: IR eDiscovery, Contract Management, and Article Summarization
++ Challenges With Legacy (IR) Approach:
+  ++ Chained Reasoning: Tie to example above
+  ++ Semantics vs Key Word Matching: Tie to example above
+*** Domain
+    Question and Answer on Corpus of Enterprise specific eclectic source
+    i.e. Free/Structured Text, Data, Image, and Video.
+** Due Diligence
+*** Progress Report
+**** Results
+     + QnA
+       ++ Movie DB
+       --- State of the Art Accuracy: 3 out of 4 correct answers
+       --- Best Performance: ...
+       ++ Wikipedia
+     + Front End
+       ++ "PI": Prototype FB Messenger Chatbot for UX on QnA session on Tesla 
+**** Relevant Work/Literature
+    + Industry
+    ++ Deep Mind
+    ++ Facebook
+    + Academia
+    ++ DNN: Univ of Toronto, Univ of Montreal, NYU, ...
+    ++ NLP/IR: Stanford, WashU, Cornell, ...
+*** Customer Driven Domain Dependent Question Bank
+|-----+--------------------------------------------------------------------------|
+|     | <72>                                                                     |
+| IDX | Question Bank                                                            |
+|-----+--------------------------------------------------------------------------|
+|     | How is your model relevant for Enterprise use cases with little data     |
+|     | and many domain specific and low frequency keywords?                     |
+|-----+--------------------------------------------------------------------------|
+|     | How many unlabelled data rows does the information source corpus need?   |
+|-----+--------------------------------------------------------------------------|
+|     | How many Question and Answer pairs (labelled data) does your model need? |
+|-----+--------------------------------------------------------------------------|
+|     | How do you measure accuracy of your answers?                             |
+|-----+--------------------------------------------------------------------------|
+|     | What is the accuracy of your answers?                                    |
+|-----+--------------------------------------------------------------------------|
+|     | How do you handle ill formed questions? Do you follow up with clarifying |
+|     | questions to understand the question or provide a generic response?      |
+|-----+--------------------------------------------------------------------------|
+|     | Do you chain the thread of questions to improve answers progressively?   |
+|-----+--------------------------------------------------------------------------|
+|     | How much do you crawl outside the corpus to cover aspects of Qs that     |
+|     | have some knowledge outside the scope of corpus?                         |
+|-----+--------------------------------------------------------------------------|
+|     | What modes among text, audio, image, and video you support for corpus?   |
+|-----+--------------------------------------------------------------------------|
+|     | What modes are supported for asking Questions? Delivering Answers?       |
+|-----+--------------------------------------------------------------------------|
+|     | What are the file formats and languages you ingest? For example          |
+|     | ASCII/UTF-8/16 for text, english for language, jpg for images, ...?      |
+|-----+--------------------------------------------------------------------------|
+|     | What safeguards do you have to not answer unauthorized users?            |
+|-----+--------------------------------------------------------------------------|
+|     | How do you protect data and ensure you're compliant to safeguards        |
+|-----+--------------------------------------------------------------------------|
+|     | How long does it take for you train the model?                           |
+|-----+--------------------------------------------------------------------------|
+|     | What is your reaction/prediction time once a question is asked?          |
+|-----+--------------------------------------------------------------------------|
+|     | How many active user sessions can your system support? How long do you   |
+|     | keep the session history?                                                |
+|-----+--------------------------------------------------------------------------|
+|     | What is the maximum data your system can ingest?                         |
+|-----+--------------------------------------------------------------------------|
+
+*** People
+**** Possible Advisor
+|------------------+----------------+----------------------------------------------------------|
+| <16>             | <14>           | <56>                                                     |
+| Name             | Company        | Expertize                                                |
+|------------------+----------------+----------------------------------------------------------|
+| Rajat Monga      | Google         | Technical: Tensorflow, DNN Tools, Domains using AI       |
+|------------------+----------------+----------------------------------------------------------|
+| Gurmeet Manku    | Google         | Technical: MI, Reinforcement Learning,...                |
+|------------------+----------------+----------------------------------------------------------|
+| Sumit Gupta      | IBM            | Business: AI, Learning, GPUs,...                         |
+|------------------+----------------+----------------------------------------------------------|
+| Prasanna Ganesan | Machinify      |                                                          |
+|------------------+----------------+----------------------------------------------------------|
+| Adam Coaotes     | Baidu          | Technical: AI                                            |
+|------------------+----------------+----------------------------------------------------------|
+| Gaurav Mishra    | Uber           | Business: Entity Maps, Google Maps, eMail                |
+|------------------+----------------+----------------------------------------------------------|
+| Irfan Ganchi     | Amazon         | Business: Advertizing, PersonaGraph                      |
+|------------------+----------------+----------------------------------------------------------|
+| Praveen Patnala  | LaserLike      | Technical: Search                                        |
+|------------------+----------------+----------------------------------------------------------|
+**** Possible Financiers
+|------------------+----------------+------------------------------------------------------------------|
+| <16>             | <14>           | <64>                                                             |
+| Name             | Venture Firm   | Expertize                                                        |
+|------------------+----------------+------------------------------------------------------------------|
+| Anand Rajaraman  | Rocketship.VC  | Finance Seed Stage: Founding Partner, AI, Massive Data Sets, ... |
+|------------------+----------------+------------------------------------------------------------------|
+| Navin Chaddha    | Mayfield       | Finance All Stages: GP, Video Streaming, IITD                    |
+|------------------+----------------+------------------------------------------------------------------|
+| Stefan           | Sutter Hill    | Finance All Stages: GP, Networking                               |
+|------------------+----------------+------------------------------------------------------------------|
+| Dharmesh Thakkar | Battery        | Finance All Stages: GP, Silicon, Infra, Conservative             |
+|------------------+----------------+------------------------------------------------------------------|
+| Ankur Jain       | Emergent       | Finance Seed Stage: MP, Infrastructure, eCommerce, IITD          |
+|------------------+----------------+------------------------------------------------------------------|
+| Ashu Garg        | Foundation     | Finance All Stage: GP, Infrastructure, Conservative, IITD        |
+|------------------+----------------+------------------------------------------------------------------|
+** Technical
+*** Technology Pipeline
+    + Information Retrieval e.g. TF-IDF, co-occurence statistics based, etc.
+    + Chained Reasoning, Summarization (i.e. Definition Questions), 
+      and Semantic Parsing (i.e. Information Extraction)
+    + Paragraph/Sentence Selection, Natural Language Inferencing, 
+      and Comprehension
+    + Custom Rules/Template Matching
+    + Input Normalization: Multi Modal - Text, Audio, Images, and Video
+    + Output Rendering: Bots or Business Apps supporting all modes.
+*** Techniques
+    + Representational Learning
+    + Space Time Recurrence
+    + Attention
+    + CNN
+* Industry: 
+** Partner Questions
++ Corpus Related
+  ++ Access Mechanisms: Text, Voice, Image
+  ++ Formats of Input
+  ++ Size of Corpus #Docs, #Emails, #Images, etc.
++ QnA Related
+  ++ Open/Closed, Types of Questions
+  ++ Representative Examples of QnA
+  ++ Existing Repository?
+  ++ Cost of Mistake
+  ++ Time Requirement of Response
+  ++ Platform wrt Content and USX
+  ++ Objective? Engagement or Guidance
++ Use Case
+  ++ Business to Business, Business to Consumer, ...
+
+** Question and Answer Systems
+*** Algolia
+Index, search data, and produces the right answer to a query often when 
+not typed completely or incorrectly. Mines internal data that websites or 
+mobile apps have to deliver deep and personalized search experience.
+*** Quartz
+
+** Machine Intelligence for ERP Systems
+- PROBLEM
+    - ACTIONABLE INSIGHT, INTUITIVE ATTENTION, & PREDICTION:
+        - Objective: Automatically discover insight (formerly via queries and visualization from BI tools) with artificial intelligence, intuitive attention with automatically learned features, and prediction learnt from years of domain expertise with deep learning.
+        - Intent: Customer intent to un/subscribe, upsellable, ... products. Employee's intent to leave org or attract peers. Transactions with the intention to finance terrorism, launder money, fraud, etc. "Intent Insight" requires understanding over the structure and behavior of sources.
+        - Risk: Connect business & information systems across Suppliers, Product Providers, Channels, and Customers, etc. to enable enterprise regulatory, monitoring, and reporting requirements around KYC.
+    - MACHINE DRIVEN IMMEDIATE EMERGENCY RESPONSE SYSTEM
+        - React to "Intent/Risk" via an automated job (task sequence) to drive recourse/remediation.
+        - Identify Risk: CRM System identifies an unhappy & valued client likely to abandon product by correlating ERP/CRM system, rating in AMZN for the product, her tweets, her email/chat/voice-recording/vmail/calendars, her call center/vmail records, her feature usage pattern, her enhancement and support ticket requests, payment history, and revelation from IT logs showing the introduction of competitor product.
+        - Mitigation ERS: Notify product head to prioritize support/feature requests from that customer, schedule meeting with Sales Director of the region of that product/customer, collect pricing discounts and support values possible for the customer, gather intel on the competitor, prepare notes for the sales director, add all the notes to the meeting.
+    - MODEL ENHANCEMENTS
+- MARKET
+    - BCC Research predicts the ML market will reach $15.3 billion by 2019, with an average annual growth rate of 19.7 percent.
+
+    - Predictive analytics software, which is expected to reach $6.5 billion worldwide in 2019, up from $2 billion in 2012
+- DATA PROBLEM IN ERP SYSTEM
+    - Poor Characteristics:
+        - Transactional low dimensional spartan Data fields in ERP system were governed by available technology, transactional relevance, and necessity to provide the ERP workflow and functionality.
+        - Manual "System of Record" impacted quality - sales managers and account execs used ad-hoc myriad spreadsheets to track pipeline.
+    - Siloed:
+        - ERP systems grew organically, per vertical, and as isolated data lakes without any common data model for data normalization and cross pooling across ERP verticals and/or companies.
+        - RDBMS poor in presenting longitudinal views (cross sectional across topics over time) for pattern recognition or insights leading to creation of large data warehouses which traded off time for insights.
+    - Manual:
+        - Encoding simple transactional behaviors through manual investigation into thousands of human-created & curated rules and event monitoring systems becomes obsolete, inaccurate, ... - impossibility of using humans to create and update rules on a RT basis - ML/AI rather than DB, forms & workflow expertise.
+- INSIGHT & PREDICTION VIA LEARNING
+    - Cross Data Learning Value: Characterizing any entity - customer (CRM) or employee (HR) - requires analysis beyond the nominal "bean counting" indexing and query/visualization techniques available to enterprises via either online/real-time (OLAP) or offline (Data Warehouse) systems.
+    - Proof of Value: Web scale companies have demonstrated immense value by correlating seemingly unrelated signals - from Enterprise (ERP/CRM/...), IT (Transactional Logs/Click Through/...), Web, and OpenSource profiles, transactions, interactions, social posts, glass door, quora, etc. historical debris/signature of activity - by using learning techniques and behavioral analyses.
+    - Newer Data Processing Solutions: The value was created by ingesting massive amount of disparate data sources over Non-Conventional Data Processing Systems (Hadoop, Spark, etc.) and then running custom domain specific learning algorithms for not just insight but prediction.
+- BUSINESS INTELLIGENCE COMPANIES:
+    - https://techcrunch.com/2015/07/27/the-next-wave-of-enterprise-software-powered-by-machine-learning/
+    - Sales: Clari. Gainsight http://www.gainsight.com/
+        - Gainsight: uses data science and ML to detect sales opportunities, renewals at risk, and to generate more accurate sales forecasts. Whereas legacy sales solutions provide a snapshot, it offers actionable predictions.
+    - Marketing: Captora. Persado.
+    - Human Resources: Entelo, Gild, and Concept Node: Identify/Recruit talent. Make internal teams work more effectively.
+    - Supply Chain:  Rage  http://www.rageframeworks.com/
+
+        - Rage "Supplier Risk Real Time Intelligence (RTI)" - Continuous surveillance for all global suppliers, accounting specific operating context and env (e.g. Industry, sector, macro, geo-political) of each supplier, including implications of reputation and compliance.
+
+    - Finance: Anaplan, Adaptive Planning, and Trufa: ML/Analytics provide dynamic views into opportunities to drive more profit, grow faster, and generate efficiencies with changing business & market conditions as opposed to just recording every historical financial transaction.
+
+- ENTERPRISE CHALLENGE: CUSTOMIZATION, SILOISM, AND DECAY
+    - Custom: Even when enterprises adopted newer data processing pipelines, analysis in each domain required custom processing.
+    - Data ingestion: Custom ETLs due to data siloism
+    - Custom Domain Specific Algorithms:
+        - Custom Galore: Supplementing of domain specific additional signals to supplement the low dimensional transactional spartan data, extensive feature tweaking/preparation, and custom learning algorithms.
+        - Decay Over Time: In fact, even in web companies the custom algorithms required significant manpower to keep tweaking new data sources, features, and algorithms to ensure the insights stood the test of time as input characteristics changed over time (e.g. customer preference/taste/environment).
+        - Domain Specific Silos: At its extreme the siloism permeated into separate orgs even in a specific domains (e.g. N different recommendation engines for users, content, ads, etc.)
+    - Above challenges was way beyond the capabilities of Enterprise consumption.
+- WHY AI/DEEP-LEARNING PIPELINE IS RELEVANT FOR ENTERPRISE
+    - Deep Learning: Useful when we don't understand and don't have a model of how output is related to input.
+    - Generic Approach: AI/DL allows one to use a common approach and algorithm across domains i.e. apply a common set of techniques across ERP verticals and (if allowed) even across organizations. Of course, one does need to tweak hyperparameters (e.g. neural pipeline depth/width and learning rate) but it is significantly less than custom algorithms.
+    - No Decay: Just as a baby learns and improves continuously via observation, training, and adaptation so too does the predication.
+- OVERCOMING DL REQUIREMENT CHALLENGES
+    - High Dimensional & High Volume data:
+        - Supplement low dimensional transactional ERP data with additional data
+            - collected from Web, Enterprise, IT, OpenSource, etc. Note that Data Silo is still a challenge - the ability to even learn the custom ETL aspects via DL is still an area of research. Thus, ETL still has to be developed on a custom basis.
+            - augmented via pattern generation.
+        - Trained Models: Train domain specific data on models already trained on generic data or published trained models.
+        - Transformed Models: Certain models are already available on a lower dimensional but semantically meaningful space. For example, word2vec transforms a much higher dimension word space to a lower dimension semantic space. It is easier now to interpret and analyze words in this reduced space.
+        - Inverse Space Search: Modeling the negative use cases is often counter productive -  rather model positive use case and remove them from search space.
+    - High Processing
+        - Processed Features: Multiple DL models can be applied in stages, where each stage has already extracted the relevant features. It is easier to use this already processed features as input to a DL pipeline with lower processing burden.
+        - GPU/TPU Platforms & Scale-Out algoritms.
+- EXAMPLES OF FINANCIAL & OPERATIONAL GAINS
+    - Supply Chain, Demand Planning, Warehousing and Distribution
+        - Forecasting (Demand/Price) & Grouping Suppliers
+            - http://www.opsrules.com/supply-chain-optimization-blog/bid/349734/Combining-Machine-Learning-and-Optimization-in-Supply-Chain-Analytics -  Cost may be a randomized variable with PDF.
+
+            - Dynamic Costing: ML for time series analysis of high volatility/low similariy & volume products e.g. fashion.
+            - Quality/Risk Monitoring: Scour supplier records for unexpected correlations in habits for clues in determining quality and risk.
+        - Topic Spotting - trending news - using ML.
+        - Optimization - many parameters may have hidden relationship that can be the basis of optimization.
+
+* Verticals:
+** Legal
+http://blog.aylien.com/nlp-text-analysis-insurance-legal-customer-service/
++ eDiscovery: Information Retrieval
+  ++ Discovery in legal proceedings
+  ++ Litigation, government investigations, or Freedom of Information Act 
+  ++ Information sought in electronic format. 
+  ++ Meta Data Crucial: Time Written/Shared
+  ++ Scale: >100GB with <5% relevance
+  ++ Cost: Outside service bureaus charge $1000/GB filter/reduce volume
+  ++ Query Types: Filter specific entities, timeframes, email meta data
+  ++ Companies: Recommind, Equivio (MSFT), Content Analyst
+  ++ Marketing Term: TAR - https://catalystsecure.com/tarforsmartpeople
++ Contract Management
+  ++ Extract Information: Amounts, Dates, Patents Sources - mine public records
+  ++ Summarize Contract Reports: Risk assessment, budgeting, planning
++ Legal Document Summarization
+  ++ Summary of (say top 5) sentences that describe overall long/tedius doc
+*** Contract Management
+*** Article Summarization   
+** HealthCare
+*** Hospitals
+**** Sales
+***** Supply Chain Cost: 20-30% of Hospital Budget
+- Standardization Efforts: Few approved Suppliers and new products
+- Resource Utilization Programs: Targets are Physicial Preference Items
+- Value Analysis Committees (VACs)
+***** Clinical Information Technology: 25-35% of Budget
+Leaves little room for other capital budget: figure creative way to 
+use e.g. lease, pay per use, risk based contracts, etc.
++ Trends:
+  ++ Hospital Consolidation: Facility and Organization with Hospitals
+     banding together under a GPO Group Purchasing Organizations to 
+     take advantage of buying power and better prices.
+  ++ Service Consolidation: IDN Integrated Delivery Network. Orgs 
+     with on health insurance plan, doctors, hospitals, and clinics
+  ++ Bundled Pricing
+  ++ Population Health
+  ++ Health and Wellness initiatives: keep patients out of hospital. 
+  ++ Bundled pricing for procedures: e.g. heart, spine, and transplant
+  ++ ACA: Larger co-pays and increased deductibles drives support for 
+     patient supported initiatives for Cost Control and Outcomes for 
+     for specific diseases: e.g. diabetes, COPD, CHF
+  ++ Medical tourism: Travel to hospitals for specific procedures. 
+In general, the trends create larger issue specific high density 
+and high scale facility for specific procedures and diseases with an
+increased scrutiny in each cost of product and service in the delivery chain.
+*** Insurance
+**** Sources
++ Website, Live Chat, Email, Social Networks, Agents, and Customer Care Reps
+**** Issues
+Claims, Complaints, Policies, Health Reports, Incident Reports, 
+Customer (Potential) Interactions: Social, Email, Live Chat, Phone, ...
++ Fraud Prevention
+  ++ Streamline Data Flow between Departments/Agents
+  ++ Improve agent decision - present accurate timely data 
+  ++ Improve CX - SLA response times
+  ++ Detection of Fraudulent Claims/Activity
+  ++ Unstructured Sources: Applications, Claim Forms, and Adjuster Notes
++ Example Fraud: 
+  ++ Common phrase/description of incidents from multiple claimants
+  ++ Dashboard highlights potential fraud activity
+** Finance: https://www.bloomberg.com/news/sponsors/features/oracle/data-at-the-center-of-business/?adv=10985&prx_t=SpQCAPsQOAVUANA
++ CFOs increasingly Track 
+  ++ Nonfinancial: Talent, CUX, BP efficiency, Brand, Competitive intelligence
+  ++ Future/Predictive Trends: Most profitable customers, Risky vendors, ...
+  ++ Data is increasingly nonfinancial, unstructured, NL based, ...
+  ++ Cross Department: HR, marketing, sales, engineering, supplies, ...
+  ++ Test business models and scenarios with connected systems.
+** Customer Service
++ Chat Bots
++ Customer/Agent Interaction Analysis
++ Sentiment Analysis
++ Automate Routing of Customer Queries
+
+* Companies
+** Anaplan
+*** Background
+Scalable and Sophisticated Excel Models in Cloud. 
+Founded in 2009 Lancashire. Moved HQ from UK to SFO. 
+Replaced CEO last year. Trying to IPO. Massive expansion: 
+Customer Base: Tripled. 45-500 => 700-1000 employees.
+First big use case cracked: Territory/Quota Management.
+- Problem Solved
+  -- #Systems: Procured + Home Grown $\implies$ Data Integrity Issues.
+      Example: Revenue/Sales Workflow
+      FPNA Forecast $\implies$ Sales Force (SF Quota) $\implies$ 
+      Sales Operations Commissions (Claridus) $\implies$ 
+      Payroll (ADP) $\implies$ Accounts Payable (Oracle) 
+  -- Requests Queued behind IT Data Analysts writing SQL.
+  -- Lacks EXCEL power: Drag/Drop, Pivots, What if scenarios, etc. 
+- Solutions
+  -- One System: "Hub" Model of Data Warehouse. 
+     Mulitiple Models based on use case pull information 
+     FPNA Budget/Forecast $\implies$ Sales Quota Allocation $\implies$ 
+     Sales Operations Commissions $\implies$ Payroll $\implies$ ...
+  -- Excel USX: No waiting for Data Analyst. Copy Models. Run what ifs.
+     Generate reports and views based on function e.g. Inside Sales,
+     Strategic Sales, Enterprise Sales, etc.
+- Issues:  
+  -- Incremental updates very slow as data/models scale. 
+     Error checking is batch mode.
+  -- Data Architecture Tax: All data on which reporting or analysis needed
+      with all attributes must be made available in the "Hub"
+- Pricing:
+  -- # of Admin Users
+  -- Storage Space
+

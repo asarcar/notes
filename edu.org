@@ -1,0 +1,175 @@
+* ALEKS (Assessment and LEarning in Knowledge Spaces)
+** Knowledge Structure
+- Topic Concepts (aka Problem Types)
+  - Example of Topic is pre-algebra and example of problem type is percentage
+- Precedence Diagrams
+  - Problem types need to be learnt in a certain order as learning of one might
+    be dependent on knowing of another. Precedence diagram is a DAG with nodes
+    as problem types and edges defining precedence.
+- Knowledge State
+  - a subset of all problem types which may be reached by following a certain path in
+    the precedence diagram
+- Outer Fringe of a knowledge State: the next set of problem types which can be
+  learnt given a knowledge state, i.e. the set of problem type nodes reachable
+  from a given state using the precedence diagram
+- Inner Fringe is the last set of problem types learnt for a given knowledge
+  state, i.e. the frontier of a knowledge state in the precedence diagram
+- Knowledge state of a student can be succinctly summarized using the inner
+  fringe and outer fringe
+- [[~/research/PieKul/Notes/Science_Behind_ALEKS.pdf][Knowledge Space Theory]]
+** Creation of Knowledge Structure 
+- By Questioning Experts/Teachers on different sub-topics
+- Cleaned and Maintained using data collected from students over time
+** Computing State of a Student
+- Based on asking a certain set of questions, once can determine the outer
+  fringe and inner fringe of knowledge state of a student.
+
+* McGraw Hill 
+** LearnSmart/SmartBook
+- At a high level it is a flashcard system integrated into a book to allow
+  efficient learning and retention
+- Read : different section of the contents are highlighted as green, yellow, black or gray.
+  - Green: content mastered
+  - yellow: important content, need to be mastered (dynamically updated based
+    on practice questions)
+  - Black: should read but not as important as yellow content
+  - Gray: could be skipped
+- Practice: Flashcard like Q&A
+  - Cloze form or multi-choice questions
+  - allows student feedback using following clickable buttons
+    - know for sure
+    - think I know
+    - Not sure
+    - Don't know
+  - Tied/Points to relevant content in the textbook
+- Review
+  - Flashcard based review before exam
+- Evaluation:
+  - Allows analysis of student's strength/weakness in terms of topics
+    - One can identify the following 4 categories:
+      - Knows topic and is aware of it - this should be the most as a percentage of topics
+      - Knows topic but is not aware of it
+      - Doesn't know topic and is aware that (s)he doesn't know
+      - Doesn't know topic but thinks (s)he know it - this should be the least as a percentage
+
+** Connect
+- Allows collaboration between student and teacher
+  - Allows student to ask Qs
+  - Allows teacher to assess weak and strong areas of a student
+
+* McMillan
+- *Flipit*
+  - Platform for Course content (video) selection & scheduling
+  - Pre-lecture content includes:
+    - Videos
+    - Bridge Qs
+  - Based on Feedback, instructor can change the content of her lectures
+  - Also a platform for Post-lecture Problem
+- *LaunchPad/LearningCurve*
+  - Interactive e-book (additional to textbook)
+  - Learning curve - Q&A based assessment system to tailor learning based on
+    Student's understanding level (very much like smartbook assessment)
+    - but not like Aleks
+  - Integrates grades and assignment calendar etc
+    - gradebook gives fine-grained assessment on assignments and classwork
+  - optional pre-built units (by author of book) - ready made assignments
+  - Video assignment tool facilitates assignment and assessment of video based
+    activities
+
+* Cengage
+- *MindTap:* Mobile app which integrates:
+  - ebook
+  - flashcards
+  - Quizzes
+  - Calendar
+- *Aplia:*
+  - Course Assignment & Question Creation and assessment System
+    - Create Assignment
+      - Create Qs in various formats (cloze, multiple-choice, essay)
+      - Can copy/paste pre-created assignments from an assignment library
+      - link to reading assignment
+    - Integrates a Grade Mgmt system
+- *Owlv2 (Online Web‐based Learning)*
+  - Chemistry Specific
+  - Seems like mostly a assignment creation for teachers and assignment
+    taking for students and grading system
+  - All the other stuff is an afterthought bolt on
+  - Provides you with the tools necessary for studying class materials, taking
+    assignments, analyzing your progress, and tracking your grades from
+    wherever you have Internet access.
+  - While working at your own pace, or within a schedule set‐up by your
+    instructor, you can work on step‐by‐step tutorials, interactive
+    simulations, homework questions, read an interactive eBook, take exams, and
+    track your overall course progress. OWLv2 gives you an easy‐to‐use,
+    personalized online environment that you can manage to best suit your
+    needs.
+
+* IClicker
+
+- Allows Teacher to quiz/poll student in real-time in class
+  - Once a Q is asked, students are forced to think and participate (as the Qs
+    count towards their grade)
+  - Fosters active learning as you are forcing students to participate
+- Gives you instant feedback as to what you are teaching is being absorbed by
+  students
+- You can compile the list of Qs you asked in class as study guide
+- Allows students to ask Qs
+- The above points foster active learning
+
+* How to improve existing Education technology
+- Concept Graph Creation
+  - Crawl wikipedia and other rich sources to discover concepts, their
+    importance and precedence (in terms of which concpet should be learnt
+    before another)
+
+    - Assist for building a precedence graph (as in knowledge space theory)
+
+    - Apply concepts from PGM to add/delete/edit edges in this graph
+
+    - A precedence graph will be useful in generating learning path(s)
+
+    - Edges in the graph might be weighted based on difficulty in learning a
+      new concept from a given node. The weights can be adjusted based on student feedback 
+      (i.e. data) using PGM concepts
+
+    - Path weights can also be used in determining what is the best path in
+      reaching a concept node (i.e. guiding a student thru a set of
+      intermediate concepts to reach his final goal of learning a concept)
+   
+  - Facilitates Unbundling of books
+    - content traversal geared towards problem solving
+      - allow a user to discover path(s) between a pair of knowledge nodes he
+        may have specified
+
+    - content traversal geared towards teaching a class
+
+    - Allows discovering, ranking and recommending rich content to users
+
+      - specially in the neighborhood of a persons knowledge state
+
+      - Based on ranking of content we can recommend top 5 content sources on
+        the side
+
+      - content can be rich and live, e.g. youtube videos, images, voice etc
+
+  - Facilitates auto Q&A Generation
+
+    - Each concept in the graph becomes an answer and the surrounding context(s)
+      can be used to generate question(s)
+
+    - Ideas in MT can be used for paraphrasing Qs
+
+  - Also allows auto-generating Definitional Question
+
+    - Ideas from sentence/passage similarity (which takes semantics into
+      account) can be used to rank a free form text answer
+
+- Generate simple formulaic Qs using Templates
+
+  - For each problem type we can generate 1 or few (say 5) templates
+
+  - Quantities and variables can be changed randomly
+
+  - Ideas in MT can be used for paraphrasing Qs 
+
+
