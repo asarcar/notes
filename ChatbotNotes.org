@@ -602,3 +602,46 @@ and then remapped to the master space}:\\
 \text{Q-function may be parametric or non-parametric}
 $
 \end{enumerate}
+
+$$\text{Policy Optimization Methods}:$$
+\begin{enumerate}
+
+\item $
+\text{planning under uncertainty: states and observations
+are defined in summar space. belief state is defined over the summary
+state space.}$
+
+\item $
+\text{value iteration: belief state is viewed as arbitrary feature
+vectors, and dynamics are estimated directly in this feature space.}\\
+q(\hat{b}_i, \hat{a}) = r(\hat{b}_i, \hat{a}) + \gamma
+\sum\limits_jP(\hat{b}_j \mid \hat{b}_i, \hat{a})
+\max\limits_{\hat{a'}}Q(\hat{b}_j, \hat{a'})$
+
+\item $
+\text{Monte Carlo Optimization: Value of Q function is estimated
+iteratively on-line while interacting with user or user simulator.}\\ 
+\text{Current policy estimate guides future action selection.
+Less exploration time is expended on low value state space regions.}
+$
+
+\item $
+\text{Least-squares policy iteration: Instead of using discrete grid
+points in summary space,  use linear models to approximate Q function}\\
+Q(b, \hat{a}) \approx \phi(b, \hat{a})^T\theta = 
+\sum_{i=1}^K\phi_i(b, \hat{a})\theta_i\\
+\text{LSPI avoids estimating grid points in belief space in favour of 
+a linear model for Q. It has no learning parameters to tune.}
+$
+
+\item $
+\text{Natural actor-critic optimization}:\\
+\pi(\hat{a} \mid b, \theta) = 
+\frac{\exp{\theta \cdot \phi_{\hat{a}}(b)}}
+{\sum\limits_{\hat{a}'}\exp{\theta \cdot \phi_{\hat{a}'}(b)}}\\
+\text{Representing policy this way avoids need to choose grid points 
+and the policy is diffentiable wrt } \theta. \\
+\text{One can use gradient ascent and other techniques to determine
+optimal policy.}
+$
+\end{enumerate}
