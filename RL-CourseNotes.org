@@ -1206,6 +1206,65 @@ Q(s,a) = \sum\limits_{Goal_i}Q_{Goal_i}(s,a);
 $
 \item $
 \text{Top Q-Learning}:
+\pi(s) = \arg\max\limits_{a}\max\limits_{Goal_i}Q_{Goal_i}(s,a);
+$
+\item $
+\text{Negotiated W-Learning: Minimize loss across all agents}.
 $
 \end{itemize}
+\end{enumerate}
+
+$\text{Monte Carlo Tree Search (MCTS)}:$
+\begin{enumerate}
+\item $
+Select \rightarrow Expand \rightarrow Simulate \rightarrow
+BackUp \rightarrow Select \cdots
+$ 
+
+\item $\text{Selection based on policy } \pi.$
+
+\item $\text{Expansion based on sampling actions given policy } \pi.$
+
+\item $\text{Simulation based on roll out policy } 
+\pi_{r^c}, where\ r^c 
+\text{ is random policy execution with some intelligence interpreted 
+as "constraints."}$
+
+\item $\text{MCTS Properties}:$
+
+\begin{itemize}
+\item $
+\text{Useful for large state spaces. Only visit states in your 
+current neighborhood.}
+$
+
+\item $
+\text{Need lots of samples to get a good estimate.}
+$
+
+\item $
+\text{Planning time independent of } \parallel S \parallel.\ 
+\text{So long as the roll out policy ensures that the 
+sample collected is representative of the neighborhood.}
+$
+
+\item $
+\text{Running time is exponential in the horizon} =  
+O(\parallel A \parallel \cdot StepsOfMCRun)^{Horizon}
+$
+\end{itemize}
+\end{enumerate}
+
+$SUMMARY:$
+\begin{enumerate}
+\item $\text{Hierarhical RL: Generalization beyond 
+function approximation}:\\
+\text{Temporal Abstraction: Options and SMDPs.}\\
+\text{Goal Abstraction: Modular RL and Arbitration.}\\
+\text{State Abstraction.}
+$
+\item $MCTS: 
+\text{Effective as constant in large state space.}\\
+\text{Exponential in Horizon - use temporal abstract to scale.}
+$
 \end{enumerate}
