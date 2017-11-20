@@ -1,0 +1,61 @@
+* SD-WAN
+** Notes
+*** Correct IP address chosen: Internet/MPLS
+*** Peer with Cloud on a loopback address.
+
+** Use Case: 
+*** DB/BW Scale at different points of presence
+*** Federated Model: Multi-Hop BGP with Source Route
+** Design Objectives
+*** App-aware large scale routing
+**** Override BGP specified forwarding behavior at fine granularity.
+**** Legacy IP routing operates on low-level information 
+    i.e. BGP announcements & policies.
+**** Operating app-aware fine-grained policies require 
+     complex BGP rules - hard to manage/reason/implement.
+
+*** Incremental Brownfield Deployment: No forklift upgrade
+*** Five 9 (99.999%) service availability i.e. <5 mins downtime/yr
+*** New feature ease/velocity at Svc, Mgmt, CP,  and DP layers.
+**** Feature dev to production in weeks rather than quarters.
+** Design Consequence
+*** Avoid new IETF (standardization efforts) or DP switch silicon.
+*** Scale up means any upgrade/failure affects substantial % of traffic.
+*** TCO per bit 4-10x relative to custom silicon.
+*** Akin to B2 connecting DCs => peering edges => End Users. 
+
+
+* Summary
+** Application aware routing at Internet-peering scale.
+** Host based routing/packet processing
+** Fine-grained traffic engineering.
+
+* Peering Edge
+** Typically located at Metros
+** Objectives
+*** Peering with partner AS 
+*** Server pool of reverse proxies for TCP termination
+*** Caching and content distribution of static content
+
+* Design Objectives
+** Support interactive low latency to a global user population
+** Line of defense against DoS and related attacks
+** Reduce buildout of the backbone network back to DC
+
+* Edge Routers
+** Management & Configuration Complexity
+*** Few boxes with highest scale BW, ports, and packet processing rates.
+** Large DB: Internet-scale forwarding tables: 1M entries
+** Large ACLs: complex and large scale firewall and anti-DOS rules
+** High end compute for BGP to manage 100s of peering sessions
+
+* Mechanisms
+** Externalize most network control from devices leaving mostly
+    MPLS DP and latency sensitive control loop functionality.
+** PP, routing on Int scale forwarding tables and ACLs to sw PP 
+    running on cluster server in edge Pops.
+** Centrally enable gobal & app-aware TE system for 
+   fine-grained BW mgmt with an e2e per flow performance i.e.
+   much better than vanilla distributed BGP-based routing.
+** Move BGP to a custom stack running on servers.
+
