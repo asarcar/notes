@@ -1,6 +1,11 @@
 * SD-WAN
 ** Notes
-*** Correct IP address chosen: Internet/MPLS
+*** Site: Identity 
+*** GW: 
+Identity: Correct IP address chosen: Internet/MPLS
+Security: DoS, Internet ACL, QoS, etc.
+Chicken & Egg: Do not rely on Controller to establish contact. 
+Do not expect modify that may break the contact.
 *** Peer with Cloud on a loopback address.
 
 ** Use Case: 
@@ -8,23 +13,42 @@
 *** Federated Model: Multi-Hop BGP with Source Route
 ** Design Objectives
 *** App-aware large scale routing
-**** Override BGP specified forwarding behavior at fine granularity.
-**** Legacy IP routing operates on low-level information 
-    i.e. BGP announcements & policies.
-**** Operating app-aware fine-grained policies require 
-     complex BGP rules - hard to manage/reason/implement.
-
+**** Networking
+***** SLOs: 
+Maximize Goodput & Minimize Quality Issues (Latency, Jitter, and Reorder)
+***** Allocate App-Level Priority Based Resources 
+BW & Behavior based on app level priority 
+***** Override Default Forwarding
+Override BGP specified forwarding behavior at fine granularity. Legacy IP 
+routing operates on low-level information i.e. BGP announcements & policies.
+***** Operating app-aware fine-grained policies 
+Fine policies require complex BGP rules that are hard to manage, 
+reason, and implement.
+**** Security
+*** Safety: Global optimization is a global failure domain
+Sanity Check, Canary Updates, Fail-Static, and Revert to last known 
+good state. Provide BRB buttons at various levels.
 *** Incremental Brownfield Deployment: No forklift upgrade
-*** Five 9 (99.999%) service availability i.e. <5 mins downtime/yr
-*** New feature ease/velocity at Svc, Mgmt, CP,  and DP layers.
+*** High Availability & Feature Velocity
+**** HA: Five 9s (99.999%) service availability i.e. <5 mins downtime/yr
+**** High feature velocity at all layers: Svc, Mgmt, CP,  and DP.
 **** Feature dev to production in weeks rather than quarters.
+**** In service upgrade
+All tasks/hosts should allow in-service upgrade and restart.
+*** Intent Driven Manageability i.e. Compiler: 
+Easier and abstract expression avoids low level mgmt ops that are 
+most often cause of unavailability. Committing intent triggers
+management to generate, version, and statically verify config 
+before pushing to software components and devices.
+Also canary verification with select components.
 ** Design Consequence
 *** Avoid new IETF (standardization efforts) or DP switch silicon.
 *** Scale up means any upgrade/failure affects substantial % of traffic.
 *** TCO per bit 4-10x relative to custom silicon.
-*** Akin to B2 connecting DCs => peering edges => End Users. 
+*** Akin to B2 connecting DCs => peering edges => End Users.
+*** Avoid loops/inefficiency: app aware routing respect BGP policy.
 
-
+*** Add WATCH capability on a flow accross all intermediate hops
 * Summary
 ** Application aware routing at Internet-peering scale.
 ** Host based routing/packet processing
@@ -58,4 +82,160 @@
    fine-grained BW mgmt with an e2e per flow performance i.e.
    much better than vanilla distributed BGP-based routing.
 ** Move BGP to a custom stack running on servers.
+* Design Principlies
+** Hierarchical Control Plane
+Local controllers apply programming rules and app specific traffic
+routing policies computed by global controller. 
++ Advantages:
+++ Efficiency: Global optimization
+++ Reliability: Local operates independently of global
+++ Reaction: Local events are treated via local repair while 
+waiting for optimal global optimization.
+** Fail Static
+Data plane maintains last known good state when control plane 
+is unavailable for short periods of time. Externalizing BGP stack
+from devices decouples data plane and control failure. Allows
+upgrade of CP on a live system without impacting DP.
+** Software Programmability
+Simple HW primitives e.g. MPLS push/pop and forward to NH.
+** Testability
+Separation of concerns and sw defined and component based 
+features allows easier testing.
+** Intent Driven Manageability
+Controlled and automated configuration updates supports 
+large scale, safe, automated, and incremental updates. 
+Sub-linear scaling of human overhead in runnning operations and 
+reduction of operational errors i.e. main source of errors.
+* Design Overview
+** Components
+TE Controller (Global), Location Controller (Edge Metro), 
+Peering Fabric Controller, BGP Speaker, Legacy 
+Peering Edge Router, New Peering Fabric (GRE/MLPS 
+Packet Processor), and Host with Packet Processor
+** Application-Aware Routing
+Hosts have Internet-Scale FIB. 
+Inbound packets directed from PF to host using IP-GRE, 
+where ACLs are applied at hosts.
+Outbound packets encode the PF using GRE and MPLS 
+the exact output port of PF. PF does not host any large 
+scale FIB or ACL for ingress/egress processing.
+** BGP peering
+Peer ==> PF => IPGRE ==> Server-BGP
+* App-aware TE System
+** Global Controller
+Greedy algorithm assigns traffic to candidate egress device/port. 
+*** Output of GC: 
+For each <PoP, client-prefix, service-class> = egress-map, where
+egress-map = prioritized list of <PR/F, egress-port>, where
+service-class encodes traffic priorityservice-class encodes traffic priority
+*** Inputs to GC:
+**** Peering Routes: 
+GC maps user traffic to egress router/port where peering accepts the route.
+Feed Aggregator collects routes and BGP attributes from all peers.
+**** User BW & Performance:
+Volume Aggregator aggregates BW, Goodput, RTT, ReTx, and Queries/Sec reports.
+Prefixes are disaggregated until latency characteristics are similar.
+**** Link Utilization:
+Per Queue link utilization, drops, and link speed from peering devices.
+Limits Computer aggregates this information with Volume Aggregator
+based user demand to allocate BW per link per service class.
+*** Availability
+GC availability is guaranteed as multiple instances run accross DCs 
+with a leader election using distributed lock.
+*** Safety
+**** Sanity 
+Observed by checks i.e. verifying sanity of all incoming data 
+sources and ignoring sources that fail checks.
+**** Canary
+LCs canary the new map to a small fraction of PPs. End status is reported
+to GC. Canary failure causes alarm. Canary success effects new map.
+**** Fail-static:
+Ignore new maps when validation check fails or when map is significantly 
+different than the previous map. 
+**** Archive
+GC inputs/outputs are archived to revert programming to last known-good state.
+
+Validation mechanisms reduces scope and frequency of production 
+outages. Reverting to known good state reduces duration of outages.
+
+** Location Controller
+GC changes are dampened due to global impact. Critical changes, such 
+as interface failure or sudden decrease in serving capacity is handled locally.
+LC acts as a fallback in case of GC failure.
+*** Scaling host programming
+Multiple eventually consistent LC instances programs edge metro PPs 
+identically. Support of more PPs realized by adding more LC instances.
+*** Canary
+Subset of PPs programmed including control ACL operations. After verifying 
+correct operation in canary set wider distribution is realized.
+*** Local Routing Fallback
+BGP best path destination prefix routing is the default and fail-static route.
+Furthermore, subset of routes are mapped to this path to maintain confidence.
+*** Fast Recovery from Failures
+LC uses internal priority queues to prioritize bad news and local reaction, such
+as interface down or route withdrawals over GC programming. 
+
+** Peering Fabric
+*** Raven BGP Speaker
+Custom BGP stack chosen (i.e. Raven) that is multi-threaded and uses the 
+large number of CPU cores and memory on commodity servers. Quagga is 
+C-based single threaded with limited testing support.
+BGP Peer <==> Raven-Instance and PF <==> {Raven-Instance} i.e. failure of 
+RavenTask impacts few BGP peers.
+Enable BGP Graceful Restart to allow data traffic flow during Raven restart.
+Externalizing network functionality to multiple server racks increases
+scale and robustness against power failure.
+*** Commodity MPLS Switch
+Rather than Internet sized FIB. Program MPLS Forwarding and
+IP-GRE encap/decap.
+*** Peering Fabric Controller
+Installs flow rules to IP-GRE encap BGP packets to BGP server.
+Installs flow rules on PF to decap egress packet and forward to NextHop 
+based on MPLS label. 
+Master-Standby to increase availability.
+*** Internet ACL
+Partition Internet facing ACLs between those being hit with 
+highest volume (5% of ACLs covering 99% of traffic volume)
+implemented in HW-PF vs fine-grained filtering implemented 
+in Server. 
+Server implemented filtering performs more advanced filtering 
+(e.g. Google DoS) than available in any router. Design allows
+easy insertion of new rules on demand.
+
+** Configuration and Management
+Check Human-readable Intent
+Compile to lower-level config data consumed by systems.
+Changing config-schema requires changing the consumer
+not the config management system.
+*** Declarative
+Simplifies higher level config and workflow automation.
+*** Canary
+Indirection allows sending config incrementally to systems,
+monitor impact, and then roll out for all devices.
+*** Depth in Defense
+CP is composed of discrete components performing
+specific funtion with each validating config snippets 
+independently.
+*** Fail-Static
+If LC connection to config system is lost then LC uses
+last known configuration while alerts to fix connection
+are processed. LC canaries to subset of devices to 
+verify correct behavior.
+*** Big Red Button
+Quickly, Reliably, and safely disable parts of the system 
+at various levels. These buttons are tested nightly.
+*** Network Telemetry
+Data-Plane changes and reaction time stats (e.g. peer link 
+failure or route withdrawal) are streamed to PFC e.g. BGP
+sessions timed out when peering link fails. 
+Every binary in control plane exports information on 
+standard HTTP/RPC endpoint, which is collected and
+aggregated using a system like Prometheus.
+*** Data plane Monitoring
+Run e2e probes traversing regular path traffic. Probes 
+also used to verify proper installation of ACLs at hosts.
+Also probes used to loop back through PF and various
+links to ensure proper path installation.
+
+* Feature and Rollout Velocity
 
