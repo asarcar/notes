@@ -69,6 +69,7 @@ vGW Transit supports Internet Table Sizes: IPv4/IPv6: 2017 = 700K/40K;
 
 
 ESPRESSO
+ESPRESSO (B2)
 * Summary
 ** Application aware routing at Internet-peering scale.
 ** Host based routing/packet processing
@@ -336,3 +337,82 @@ Allow network engineers to extend functionality with templates, tool
 configs, and code changes.
 
 ** Network and Use Cases
+
+ROBOTRON
+* Introduction
+Network management space covers FCAPS - fault, config, accounting, 
+performance, and security.
+- Network Management Challenges
+ -- Distributed Configuration: xlate provisioning decisions to device configs.
+ -- Multiple Domains: Network of Networks PoPs, DCs, BB, ...
+ -- Versioning: Different designs, different devices, OS versions, ...
+ -- Dependency: Add new router in iBGP mesh requires changing all peers.
+ -- Vendor Differences: CLIs, Configs, APIs, etc.
+ - Design: Top Down Model Driven
+ -- Config as code: minimize humaln interaction and number of workflows
+ -- Validation: Layered checks e.g. p2p invalid if subnet ends are different.
+ -- Extensible: Extend functionality with templates, tool configs, and code.
+
+* Network
+** Pops
+Servers (TCP Termination, Caching, and LB) => ToRs => Aggs (Spline Switches) 
+=> Peering Edge (PR) Routers => Internet OR Backbone (BB) Routers.
+Management Tasks: Build a new Pop, provision new peering or
+transit circuts, adjust link capacity, or change BGP configs.
+** DC
+Several Clusters: Servers (Web, Caches, DBs, Backend, ...) => ToRs => Aggs => 
+Clusters => DC Routers (DRs)
+Management Tasks: Configs change infrequently compared to POPs/Backbone.
+Cluster provisioning i.e. initial device config, cabling assignment, IP allocation,
+cluster capacity upgrade, etc.
+** BB
+xPort among Pops and DCs via optical transport links. Each location has several
+BBs. Label switched paths are set between PR and DR via BBs using MPLS-TE
+tunnels and iBGP between PRs and DRs. Circuit addtion is used to add long-haul 
+capacity across BB network.
+Management Tasks: Generation and provision of IP interface config i.e. p2p
+address and bundle memebership. Mesh like nature of MPLS-TE/iBGP forces
+config changes to many nodes when node is added/removed/modified.
+
+* Overview
+Workflow: Network Design => Config Generarion => Deployment => Monitoring
+** Network Design
+Network design intent is expressed via FBNet. FBNet is a central repo object
+based vendor agnostic datastore for network information. 
+** Config Generation
+Build vendor specific device config from FBNet objects using extensible 
+template configs.
+** Deployment
+Typically in small canary phases to avoid disruptions.
+** Monitoring
+Auditing and troubleshooting an active network to ensure no deviation 
+from desired state.
+
+* FBNET
+Models and stores high-level network wide operator intent, various
+devices (routers, swtiches, ...), device attributes, network level attributes 
+(protocol parameters), topology, etc.
+Data models are abstract, simple, and easily extensible. Supports
+query/modification API service: reliable, HA, and scalable to high read rates.
+** Object, Value, and Relationship
+FBNet network models components that are physical (device, lince card, 
+interface, circuits) or logical (BGP session, IP address). 
+data attributes, and association attributes.
+Components <==> Typed Objects, Data Attributes <==> Value Fields, and
+Association Attributes <==> Relationship Fields i.e. typed references to 
+other objects.
+** Desired vs Derived
+Desired state is maintained by network op engrs with a set of tools.
+Derived state is populated via RT collection from devices e.g. circuit object.
+Disparity between two imply expected deviation or anomaly.
+** APIs
+RD: Per object type RD: get<ObjectType>(fields, query)
+WR: Multiple object Add/Update/Del to ensure integrity post WR operation.
+** Architecture
+Tools: DB - MySQL, Tool: Django (object-relational mapping) to 
+xlate Model => Table Schema
+Typed Object => Table, Object => Row, Attributes => Column, and
+Relationship => Foreign Key
+Both RD/WR APIs exposed as language-independent Thrift RPC 
+utilizing Django ORM API to interact with DB.
+ 
