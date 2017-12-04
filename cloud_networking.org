@@ -68,8 +68,7 @@ vGW Transit supports Internet Table Sizes: IPv4/IPv6: 2017 = 700K/40K;
 2022: 1.4M/140K; FIB: 2019: 1M
 
 
-ESPRESSO
-ESPRESSO (B2)
+* ESPRESSO (B2)
 * Summary
 ** Application aware routing at Internet-peering scale.
 ** Host based routing/packet processing
@@ -338,7 +337,8 @@ configs, and code changes.
 
 ** Network and Use Cases
 
-ROBOTRON
+
+* ROBOTRON
 * Introduction
 Network management space covers FCAPS - fault, config, accounting, 
 performance, and security.
@@ -415,4 +415,76 @@ Typed Object => Table, Object => Row, Attributes => Column, and
 Relationship => Foreign Key
 Both RD/WR APIs exposed as language-independent Thrift RPC 
 utilizing Django ORM API to interact with DB.
- 
+* Management Life Cycle
+Network Design => Config Generation => Deployment => Monitoring
+** Network Design
+Consume high-level human specified network design, validate against
+network design rules, and translate them into fully populated 
+internal objects.
+*** PoPs and DCs
+Topology rarely changes and conforms to fat-tree architecture that is
+ideally captured by topology templates that define components 
+composing topology i.e. device type, instances of each device type, 
+how they are connected via links groups, and IP addressing scheme.
+*** Backbone
+Constantly changing asymmetrical architecture in order to adapt to 
+dynamic capacity needs. Most changes are adding/deleting BBs 
+and/or circuits between BBs.
+Provide high level primitives to add device and circuit design tools, 
+provide complex object validation and manipulation, and resolve
+object dependency during changes.
+** Design Validation
+Design errors are major cause of outage e.g. missing/incorrect
+device and link spec in the template or assign duplicate
+endpoints to circuit.
+Embed rules to check object value and relationships to automatically 
+validate objects during FBNet object creation AND visualization 
+of resulting design for visual review.
+** Config Generation
+Use objects created in network design stage to generate vendor-specific
+configuration. Partition config into dynamic/vendor-agnostic data e.g.
+names and IP addresses versus static/vendor-specific templates with
+special syntax and keywords.
+Config corrections is ensured by storing config data schemas and 
+templates in source control repository, which is peer-reviewed and
+unit tested. This allows quick restoration during catastrophic 
+events and cross validation against device run time configs.
+** Deployment
+Goal is agile, scalable, and safe deployment via initial provisioning
+and incremental updates.
+*** Initial Provisioning
+Start from a clean state, validate topology, and copy new configuration.
+Forcing clean slate starting is "responsibly" done via first draining.
+*** Incremental Updates
+Only a portion of running config affected in each device. 
++ Modes:
+ ++ Dryrun Mode: Diff view of updated lines.
+ ++ Atomic Mode: Multiple device must accept config (e.g. iBGP 
+ mesh) atomically within a time window or rollback entire transaction.
+ ++ Phased Mode: Apply new config in phases where next phase
+ initiated only when previous phase is successful.
+ ++ Human Confirmation: Verify expected behavior within grace 
+ period after roll-out else rollback changes.
+** Monitoring
+*** Passive Monitoring
+Detect operational events, running config changes, route flaps, device
+reboots, link flaps, etc. Syslog messages to a BGP anycast address.
+Classifiers collect messages based on regexp maintained by engineers.
+*** Active Monitoring
+Collect performance metric e.g. link, CPU, memory utilization, and 
+device states for populating FBNet derived models.
+Job manager schedules periodic monitoring based on specs, such 
+as collection period, type of data, devices, and storage backend.
+Job manager can create ad-hoc on demand jobs.
+Engines pull jobs from manager and polls devices using polling
+mechanisms, such as SNMP, XML/RPC, CLI, and Thrift.
+Backend collects data and converts it into storage appropriate
+format.
+*** Config Monitoring
+Passive monitoring signals change in running config. Active monitoring
+collects running config, compares to golden config, backs up in 
+revision control to track history, etc.
+
+* Usage Statistics
+BB network experiences constant organic changes in size, circuit 
+speed, and mesh topology.
