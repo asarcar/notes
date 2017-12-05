@@ -488,3 +488,54 @@ revision control to track history, etc.
 * Usage Statistics
 BB network experiences constant organic changes in size, circuit 
 speed, and mesh topology.
+
+* B4
+Persistent very high speed connectivity between small set of end-points.
+** Traditional MPLS Scheme
+- Link State protocol used to discover topology and flood BW info.
+- TE algorithm used to discover shortest route that can fulfill 
+  new tunnel provisioning request.
+- Update network state as path is plumbed and updated network 
+  state information is flooded.
+- Also concept of priority to kick out path plumbed for lower 
+  priority.
+** Issues with Traditional distributed TE
+- Provisioned for peak and lot of BW wasted.
+- Most traffic is background traffic. Only fraction is used for
+  latency sensitive traffic. 
+- Differentiate traffic by service which MPLS is not informed.
+- Routers make local greedy choices about scheduling flows.
+- RSVP-TE provides link level and not network wide fairness.
+** Solution
+- Leverage service diversity: some tolerate delay.
+- Centralize TE using SDN to collect state and flow demands.
+- Linear Programming optimization problem under constraints.
+- Dynamic reallocation of BW as demands change.
+- Edge rate limiting for admission control.
+- Control loop timescale: Goog TE run 500 times a day.
+** Topology
+Server => ToR => Spline => Cluster Border Router (CBR) => 
+eBGP => WAN Routers (BB) => iBGP/IS-IS to other site BB
+Quagga (Control Protocol Stack) taken out of BB
+CBR => eBGP => Quagga (BB) => iBGP/IS-IS
+Quagga <=> OF Controller <=> BB
+TE-Server <=> OF Controller
+** TE-Server 
+Collects topology information, available BW, and demand 
+of flows between all DCs.
+TE-Server runs algorithms to allocate flow capacity and
+path decisions in the network. Local Controllers 
+at each DC impose admission control.
+Flow allocation is not individual flows but flow groups
+and resources are assigned at coarser granularity.
+The assignment of flows to flow groups are locally 
+carried at each individual DC sites based on priority
+and available BW.
+** Design Choices
+BGP routing and forwarding table as default "big red switch."
+HW commodity, cheap, and simple with very little buffer that 
+relies on admission control at edge. Very little forwarding 
+table as few end points.
+Software: Hierarchical logically centralized Controllers.
+Aggregation: Flow groups and link groups.
+Results: 100% utilization wth 0.3s TE solutions.
