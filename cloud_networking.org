@@ -489,6 +489,7 @@ revision control to track history, etc.
 BB network experiences constant organic changes in size, circuit 
 speed, and mesh topology.
 
+
 * B4
 Persistent very high speed connectivity between small set of end-points.
 ** Traditional MPLS Scheme
