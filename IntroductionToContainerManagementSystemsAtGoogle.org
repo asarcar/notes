@@ -1,3 +1,74 @@
+http://www.oreilly.com/webops-perf/free/files/kubernetes.pdf
+* Kubernetes
+** Containers
+Smaller units of deployment than VM using cGroups and kernel namespaces.
+** PODs
+Emulates a logical host running an application instance implemented
+via a collection of cooperative containers (compute), volumes (storage), 
+and network. The containers communicate via localhost and are bundled 
+as well as scheduled together as they share a common purpose and 
+resource, such as a File System or IP address.
+** Replicas
+Multiple POD copies sitting behind a load balancer providing
+scale and fault tolerance to an application.
+** Volumes
+Virtual File System that is treated as a durable store used to share 
+and preserve state between containers in a POD.
+*** EmptyDir
+Ephemeral storage used for temporary data between containers of the
+POD. Storage lost when POD dies.
+*** NFS
+NFS volumes mounted at POD that exists beyond life of POD. NFS volume
+may be managed service e.g. Persistent Disk (PD) from Google.
+** Borg
+Google created a lot of orchestration and scheduling software to 
+handle isolation (failures of one component does not impact another), 
+load balancing, and placement i.e. detect and replace failures 
+instantaneously. 
+Google schedules and launches around 7K containers a second.
+** Service vs App
+Service is designed to do one (or small number of discrete things), 
+has no UI (or command line), and is invoked solely via API.
+App has UI, performs many tasks, and may also expose APIs.
+Apps may often composed via many services.
+** Function
+Manage fleet of mchs running services running in a container.
+Nodes: Worker machines running containers aka minions.
+Masters: Run coordinating sw that schededule containers on nodes.
+Clusters: Physically colocated collection of masters and nodes.
+** Master Components
+*** API Server
+All components on master and nodes accomplish tasks via API calls
+handled by API server.
+*** Etcd
+Lightweight distributed K/V store that keeps and replicates the 
+current cluster configuration and run state.
+*** Scheduler and Controller Manager
+Processes that schedule PODs onto nodes.
+** Node Components
+*** Kubelet
+Daemon running on each node that create, destroy, and monitor PODs.
+*** Proxy
+Network proxy separates IP address of target container from service name.
+*** cAdvisor
+Daemon collects, aggregates, processes, and exports container metrics,
+such as resource isolation information, historical usage, and key 
+network stats.
+** Labels, Annotations, and Selectors
+*** Labels
+K/V pair assigned to a Kubernetes object (e.g. POD).
+*** Label Selectors
+String used to query labels to match for organizing/grouping things,
+such as for routing and orchestration.
+Matching is equality (= or !=), or set based (IN or NOT IN). AND 
+operation is realized via ",".
+*** Annotations
+Bits of useful information used to store about a POD that is handy 
+but doesn't need to be queried i.e. filtered or searched.
+** Replication Controllers
+Process that manages (creates/destroys) replicas to ensure correct 
+number of replicas are running at all times.
+
 https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/44843.pdf
 * History
 ** Containers
