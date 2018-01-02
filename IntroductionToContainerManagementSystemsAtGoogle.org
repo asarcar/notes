@@ -1,5 +1,4 @@
-http://www.oreilly.com/webops-perf/free/files/kubernetes.pdf
-* Kubernetes
+* http://www.oreilly.com/webops-perf/free/files/kubernetes.pdf
 ** Containers
 Smaller units of deployment than VM using cGroups and kernel namespaces.
 ** PODs
@@ -68,10 +67,36 @@ but doesn't need to be queried i.e. filtered or searched.
 ** Replication Controllers
 Process that manages (creates/destroys) replicas to ensure correct 
 number of replicas are running at all times.
-
-https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/44843.pdf
-* History
-** Containers
+** Services
+Service is a long-lived well-known endpoint that points to 
+a set of PODs in a cluster with the following attributes: 
+1. Portal-IP i.e. external IP address, 2. Port, and 3. Label selector.
+Service is exposed via a small proxy process which routes to 
+an appropriate POD based on label selector.
+** Life of Client Request
+Client => DNS Lookup => LB => Cluster => Portal-IP => 
+Proxy =label-selector=> POD
+** Service Discovery
+*** Environment Variable 
+Kubernetes creates a set of env vars on a node that describes the
+service whene a POD exposes a service on that node.
+*** Cluster DNS
+Special POD per cluster that exposes DNS service with following 
+three special containers:
+1. etcD: Store for actual lookup information.
+2. SkyDns: Special DNS server that reads from etcd.
+3. Kube2sky: Watches master for changes in list of services and 
+publishes to etcD which is then picked up by SkyDns.
+** Exposing Services
+1. Direct Access: Allow FW to pass outside to service portal IP. 
+Proxy on node then redirects to appropriate POD and container.
+2. DIY LB: HAProxy populated with portal-IPs of service.
+3. Managed Hosting: CSP automatically adds Portal_IPs to LBs.
+** Health Checks
+Allows basic: Process up in Container, TCP/Port Probe, HTTP Get, and Custom.
+* https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/44843.pdf
+** History
+*** Containers
 1. chroot originally used to separate and isolate file system
 namespaces was extended to process IDs, networking, etc. 
 2. cGroups a linux kernel feature was developed to limit,
@@ -90,14 +115,14 @@ against malicious cloud actors.
 3. Apps are still exposed to churn in OS interface, such as
 kernel system-call interface e.g. socket options, /proc and args, 
 ioctl calls, etc.
-** Borg
+*** Borg
    Resource Management and Scheduling of latency sensitive and batch jobs.
-** Omega
+*** Omega
 Cleaned up the hodge podge of tools built by separating out cluster state 
 in a paxos oriented transaction store and the cluster control
 plane that handles different aspects of scheduling using multiple peers 
 that interact with the cluster state store.
-** Kubernetes
+*** Kubernetes
 Takes Omega a step further for cloud development community to 
 ensure developers are not encumbered with aspects of distributed 
 task development, such as naming, discovery, load-balancing, 
@@ -109,15 +134,15 @@ registry and managment system that provides the following services:
 (a) package files that make up the app running inside containers.  
 (b) package manager, build, and deployment tools of the images.
 
-* App Oriented Infrastructure
-** Encapsulation
+** App Oriented Infrastructure
+*** Encapsulation
 Containers encapsulate app environment abstracting machine and 
 OS details from developer and deployment infrastructure.
-** Management Unit
+*** Management Unit
 Containers and container images are scoped to a single application.
 As such, by managing containers one manages apps not machines.
 
-* Containers as "unit of management"
+** Containers as "unit of management"
 1. Relieves app developers and ops team from mc and os details.
 2. Infra teams roll out new mc and upgrade os unencumbered by 
 running apps and developers.
@@ -131,10 +156,10 @@ mc failures, or maintenance causing app instance migration.
 Logs are keyed, collected, and aggregated by app not teased
 apart from mc logs. App failures not teased apart from mc 
 failure signals.
-* Nested Containers 
+** Nested Containers 
 Outermost Pods (Alloc) provides pool of resources. 
 Inner one provide deployment isolation.
-* Container Management Services
+** Container Management Services
 + Development environment to manage reliable distributed system apps
  ++ Naming and Service Discovery
  ++ Master Election (Raft/Chubby)
@@ -144,16 +169,16 @@ Inner one provide deployment isolation.
  ++ Workflow - run multijob analysis pipelines
  ++ Monitoring - gather container info, aggregate, dashboard, alert, ...
 
-* Kubernetes Service Object
-** Object Metadata
+** Kubernetes Service Object
+*** Object Metadata
 Object Name, UID, Version # (optimistic concurrency control), and
 labels i.e. (K,V) pairs.
-** Spec
+*** Spec
 Describe the desired state of the object.
-** Status
+*** Status
 Read only information about current state of object.
 
-* Choreograph vs Orchestrate
+** Choreograph vs Orchestrate
 Control through a combination of microservices and 
 small control loops achieves a desired emergent behavior. 
 Effect is achieved via choreographed collaboration of separate
@@ -162,7 +187,7 @@ Note centralized orchestration systems are easier to construct
 but becomes brittle and rigid over time in presence of 
 unanticipated errors or state changes.
 
-* Kubernetes Attributes
+** Kubernetes Attributes
 1. IP address per POD aligns network and app identity.
 2. Tags i.e. Labels are dynamically manipulated (K,V) pairs 
 ascribed to objects e.g. POD object labels: role=frontend 
