@@ -540,3 +540,95 @@ table as few end points.
 Software: Hierarchical logically centralized Controllers.
 Aggregation: Flow groups and link groups.
 Results: 100% utilization wth 0.3s TE solutions.
+
+* PROTEGO: https://www.usenix.org/system/files/conference/atc17/atc17-son.pdf
+Need a Multi-tenant, elastic, and highly available IPSec Gateway aaS.
+** IPSec Gateway VM: Waste of resource
+VMs provide isolation, can be spawned to scale, and leverages
+commodity servers. But... 
+1. VMs exclusively occupy a fixed amount of resource. Needs over-provision
+for peak VPN traffic demand. 90% of data centers use less than peak capacity. 
+This causes exclusive resource isolation, which cannot be solved through 
+oversubscribed VMs on servers with live migration during peak demand - 
+live migration consumes consumed high BW and takes tens of seconds.
+2. Passive Standby for HA: VM startup takes minutes due to resource 
+allocation and data copy. A passive standby node is introduced for 
+fast failover i.e. VM mechanism captures twice the resource taken for 
+peak traffic demand. 
+** Separation of CP and DP
+Long live CP states are saved in a centralized control node. DP is 
+locally saved and quickly reconstructed from control node on failure.
+Tunnels are migrated without disrupting the bw or service of old tunnels 
+via rekeying process.
+** IPSec Protocol
+*** Internet Key Exchange (IKE)
+Main role is to negotiate SAs that include a cipher suite, and materials
+to generate symmetric keys with peer. Protocol is broken into two phases. 
+*** IKE Phase 1
+Authenticate peer and negotiate shared attributes for 
+secure traffic communication, such as shared key and encryption 
+cipher suite to encrypt bidirectional "negotiation" traffic 
+(i.e. IKE SA).  SAs include (a) encryption algorithm, 
+(b) strength of encryption key (DH group), (c) authentication method, 
+(d) hash algorithm,  (e) authentication material (pre-shared secret),
+and (configured) SA lifetime.
+*** IKE Phase 2
+The shared attributes for ESP encryption, called CHILD SA, 
+are negotiated securely via further IKE SA messages. 
+CHILD SAs are unidirectional and used to protect 
+data traffic (i.e. IPSec/ESP SA).
+
+Thus, IKE SA messages can be used to negotiate either 
+subsequent IKE SA or Child SA.
+*** Encapsulating Security Payload (ESP).
+Encrypt packets for data origin authenticity, integrity, and 
+confidentiality using negotiated symmetric keys. 
+** Requirements
+1. Elastic and Scalable capacity adjustment.
+2. HA with active redundancy.
+3. Tunnel performance isolation and guarantee.
+** Challenges
+1. Migrating tunnels without throughput degradation.
+2. Rightsizing the resource reservation.
+3. Optimizing the packet processing performance.
+** Core Ideas
+*** Separation of CP/DP
+**** Centralized CP
+Recovering IEP state is expensive - re-neotiation of IKE SA takes 
+many sequential RTT msgs, and updated infrequently (minutes) 
+when peer heartbeat messages are received.
+This allows tunnel migration without stopping traffic.
+**** Quick recovery of DP state
+ESP data nodes handle packet encrypt/decrypt. ESP packet
+counter updated on per-packet basis prevents centralization.
+ESP SA can be initiated in 1 RTT assuming IKE SA is alive.
+During failover just re-negotiate ESP state.
+*** Tunnel migration by rekeying
+IPSec use keys for limited amount of time. Before Child SA
+expires, GW negotiates new keys with peer without collapsing 
+old Child SA. The global centralized control plane inserts 
+new key to data node (GPN) receiving migrated tunnel. 
+*** Elastic Provisioning Algorithm
+Protego keeps track of the resource usage distribution of IPsec 
+tunnels and calculate the convolution of these distributions. 
+*** Gateway Ingress Node (GIN) and Gateway Egress Node (GEN)
+**** Ingress: IPSec=>IP
+The CHILD SA (IPSec SA) provides the Security Parameters 
+Index (SPI) used by ingress node to steer traffic to correct 
+IPSec=>IP VM endpoint.
+**** Egress: IP=>IPSec
+The CHILD SA (IPSec SA) provides the traffic selector filter 
+used by egress node to steer traffic to correct VM endpoint.
+**** In service migration
+Old SAs are not destructed during the migration of tunnel
+based on IKE-Phase-2 protocol where CREATE_CHILD_SA 
+request/response is exchanged.
+**** Rate Limit
+GIN/GEN also limit maximum ingress and egress bandwidth of 
+the tunnel to committed SLA.
+**** GPN Failure
+Peer GW failure were detected by death of IKE heartbeat messages.
+With control and data path separation, control node offloads
+GPN failure detection to GIN/GEN which uniformly sample and
+tag packets to trigger heartbeat from GPNs.
+

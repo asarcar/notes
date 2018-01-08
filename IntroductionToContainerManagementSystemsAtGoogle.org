@@ -31,7 +31,7 @@ has no UI (or command line), and is invoked solely via API.
 App has UI, performs many tasks, and may also expose APIs.
 Apps may often composed via many services.
 ** Function
-Manage fleet of mchs running services running in a container.
+Manage fleet of machines running services running in a container.
 Nodes: Worker machines running containers aka minions.
 Masters: Run coordinating sw that schededule containers on nodes.
 Clusters: Physically colocated collection of masters and nodes.
