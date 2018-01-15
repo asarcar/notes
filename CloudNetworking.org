@@ -1,0 +1,729 @@
+* SD-WAN
+** Notes
+*** Site: Identity 
+*** GW: 
+Identity: Correct IP address chosen: Internet/MPLS
+Security: DoS, Internet ACL, QoS, etc.
+Chicken & Egg: Do not rely on Controller to establish contact. 
+Do not expect modify that may break the contact.
+*** Peer with Cloud on a loopback address.
+
+** Use Case: 
+*** DB/BW Scale at different points of presence
+*** Federated Model: Multi-Hop BGP with Source Route
+** Design Objectives
+*** App-aware large scale routing
+**** Networking
+***** SLOs: 
+Maximize Goodput & Minimize Quality Issues (Latency, Jitter, and Reorder)
+***** Allocate App-Level Priority Based Resources 
+BW & Behavior based on app level priority 
+***** Override Default Forwarding
+Override BGP specified forwarding behavior at fine granularity. Legacy IP 
+routing operates on low-level information i.e. BGP announcements & policies.
+***** Operating app-aware fine-grained policies 
+Fine policies require complex BGP rules that are hard to manage, 
+reason, and implement.
+**** Security
+*** Safety: Global optimization is a global failure domain
+Sanity Check, Canary Updates, Fail-Static, and Revert to last known 
+good state. Provide BRB buttons at various levels.
+*** Incremental Brownfield Deployment: No forklift upgrade
+*** High Availability & Feature Velocity
+Cost savings using centralized intelligence and dump devices is secondary.
+Primary benefit is better capability and sw feature velocity.
+**** HA: Five 9s (99.999%) service availability i.e. <5 mins downtime/yr
+**** High feature velocity at all layers: Svc, Mgmt, CP,  and DP.
+**** Feature dev to production in weeks rather than quarters.
+**** In service upgrade
+All tasks/hosts should allow in-service upgrade and restart.
+*** Intent Driven Manageability i.e. Compiler: 
++ Reasons 
+ ++ Properly configured network is a prerequisite to higher-level network
+ functions i.e. Connect network islands using user-role-app-aware policy 
+ based routing while applying appropriate security services.
+ ++ Eliminate the riskiest interaction agent i.e human.
+ ++ Easier and abstract expression avoids low level mgmt ops from human,
+ the riskiest interacton agent cause of unavailability. 
+ ++ Agility enables evolution e.g. add device, upgrade capacity, etc. 
+ to support changing and new app needs.
+ ++ Efficiency: SP (Cloud) platform spends most time on mgmt plane.
+ ++ Committing intent triggers management system to generate,  version, 
+ and statically verify config before pushing to sw components/devices.
+ ++ Canary verification with select components.
+*** Learn from deployment Experience. Iterate on implementation.
+** Design Consequence
+*** Avoid new IETF (standardization efforts) or DP switch silicon.
+*** Scale up means any upgrade/failure affects substantial % of traffic.
+*** TCO per bit 4-10x relative to custom silicon.
+*** Akin to B2 connecting DCs => peering edges => End Users.
+*** Avoid loops/inefficiency: app aware routing respect BGP policy.
+*** WATCH capability on a flow accross all intermediate hops
+*** MEASURE use of features to deprecate unused features
+*** RELEASE checks, new feature, qualification, and rollout targets
+*** CANARY release: fewer Pops, first to lower priority traffic, etc.
+*** OPEN
+Federated SD-WAN BGP on Controller to avail server CPU cores/memory
+vGW Transit supports Internet Table Sizes: IPv4/IPv6: 2017 = 700K/40K; 
+2022: 1.4M/140K; FIB: 2019: 1M
+
+** Header Formats
+*** GRE
+       0                   1                   2                   3
+       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   Outer IPv4 Header:
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |Version|  IHL  |Type of Service|          Total Length         |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |         Identification        |Flags|      Fragment Offset    |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |  Time to Live |Protocol=47 GRE|         Header Checksum       |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                     Outer Source IPv4 Address                 |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                   Outer Destination IPv4 Address              |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |C|       Reserved0       | Ver |       Protocol Type = APT     |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                    ARUBA POLICY TAG (APT)                     |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   Inner Header/Payload:
+*** Geneve
+       0                   1                   2                   3
+       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   Outer IPv4 Header:
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |Version|  IHL  |Type of Service|          Total Length         |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |         Identification        |Flags|      Fragment Offset    |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |  Time to Live |Protocol=17 UDP|         Header Checksum       |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                     Outer Source IPv4 Address                 |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                   Outer Destination IPv4 Address              |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+   Outer UDP Header:
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |       Source Port = xxxx      |       Dest Port = 6081        |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |           UDP Length          |        UDP Checksum           |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+   Geneve Header:
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |Ver|  Opt Len  |O|C|    Rsvd.  |          Protocol Type        |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |        Virtual Network Identifier (VNI)       |    Reserved   |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                    Variable Length Options                    |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+   Inner Header/Payload:
+*** IKE
+IP<=UDP<=IKE, UDP port 500
+*** IPSec
+**** Transport Mode
+Usually used for end-to-end communication from client to server. Also
+used to protect an already tunneled traffic e.g. IP-GRE.
+***** ESP
+Mod-IP-HDR<=ESP-HDR<=Payload-of-Orig-IP-HDR<=ESP-Trailer<=ESP-Auth-Trailer,
+Orig-IP-HDR IP protocol ID is saved in ESP-Trailer. 
+Mod-IP-HDR = Orig-IP-HDR with IP protocol ID=50.
+Encrypted envelope of ESP header: Mod-IP-HDRX<=Payload<=ESP-Trailer
+Sign envelope of ESP-Auth-Trailer: ESP-HDR<=Mod-IP-HDR-X<=Payload<=ESP-Trailer,
+where Mod-IP-HDRX excludes fields of Mod-HP-HDR whose fields change
+in transit e.g. Checksum, TTL, etc.
+***** AH
+Mod-IP-HDR<=AH-HDR<=Payload-of-Orig-IP-HDR, 
+Orig-IP-HDR IP protocol ID is saved in AH's Next-HDR field.
+Mod-IP-HDR = Orig-IP-HDR with IP protocol ID=51.
+Encrypted envelope of AH-HDR: Mod-IP-HDRX<=Payload
+Sign envelope of AH-HDR: AH-HDR-Au<=IP-HDR<=Payload<=ESP-Trailer,
+where Mod-IP-HDRX excludes fields of Mod-HP-HDR whose fields change
+in transit e.g. Checksum, TTL, etc.
+***** NAT-T
+Mod-IP-HDR<=UDP<=ESP-HDR<=Payload<=ESP-Trailer<=ESP-Auth-Trailer,
+where UDP port is 4500 and Mod-IP-HDR IP protocol ID=50.
+IPSec does not work with AH as headers and UDP ports are modified.
+**** Tunnel Mode
+***** ESP
+New-IP-HDR<=ESP-HDR<=IP-HDR<=Payload<=ESP-Trailer<=ESP-Auth-Trailer, 
+New-IP-HDR's IP protocol ID=50.
+Encrypted envelope of ESP header: IP-HDR<=Payload<=ESP-Trailer
+Sign envelope of ESP-Auth-Trailer: ESP-HDR<=IP-HDR<=Payload<=ESP-Trailer
+***** AH
+New-IP-HDR<=Auth-HDR<=IP-HDR<=Payload, 
+New-IP-HDR's IP protocol ID=51.
+Sign envelope of Auth-Header: ESP-HDR<=IP-HDR<=Payload<=ESP-Trailer
+***** NAT-T
+New-IP-HDR<=UDP<=ESP-HDR<=IP-HDR<=Payload<=ESP-Trailer<=ESP-Auth-Trailer, 
+where UDP port is 4500 and New-IP-HDR IP protocol ID=50.
+IPSec does not work with AH as IP headers and UDP ports are modified.
+* ESPRESSO (B2)
+* Summary
+** Application aware routing at Internet-peering scale.
+** Host based routing/packet processing
+** Fine-grained traffic engineering.
+
+* Peering Edge
+** Typically located at Metros
+** Objectives
+*** Peering with partner AS 
+*** Server pool of reverse proxies for TCP termination
+*** Caching and content distribution of static content
+
+* Design Objectives
+** Support interactive low latency to a global user population
+** Line of defense against DoS and related attacks
+** Reduce buildout of the backbone network back to DC
+
+* Edge Routers
+** Management & Configuration Complexity
+*** Few boxes with highest scale BW, ports, and packet processing rates.
+** Large DB: Internet-scale forwarding tables: 1M entries
+** Large ACLs: complex and large scale firewall and anti-DOS rules
+** High end compute for BGP to manage 100s of peering sessions
+
+* Mechanisms
+** Externalize most network control from devices leaving mostly
+    MPLS DP and latency sensitive control loop functionality.
+** PP, routing on Int scale forwarding tables and ACLs to sw PP 
+    running on cluster server in edge Pops.
+** Centrally enable gobal & app-aware TE system for 
+   fine-grained BW mgmt with an e2e per flow performance i.e.
+   much better than vanilla distributed BGP-based routing.
+** Move BGP to a custom stack running on servers.
+* Design Principlies
+** Hierarchical Control Plane
+Local controllers apply programming rules and app specific traffic
+routing policies computed by global controller. 
++ Advantages:
+++ Efficiency: Global optimization
+++ Reliability: Local operates independently of global
+++ Reaction: Local events are treated via local repair while 
+waiting for optimal global optimization.
+** Fail Static
+Data plane maintains last known good state when control plane 
+is unavailable for short periods of time. Externalizing BGP stack
+from devices decouples data plane and control failure. Allows
+upgrade of CP on a live system without impacting DP.
+** Software Programmability
+Simple HW primitives e.g. MPLS push/pop and forward to NH.
+** Testability
+Separation of concerns and sw defined and component based 
+features allows easier testing.
+** Intent Driven Manageability
+Controlled and automated configuration updates supports 
+large scale, safe, automated, and incremental updates. 
+Sub-linear scaling of human overhead in runnning operations and 
+reduction of operational errors i.e. main source of errors.
+https://research.fb.com/wp-content/uploads/2016/11/robotron_top-down_network_management_at_facebook_scale.pdf?
+Built a fully automated configuration pipeline, where a change in intent 
+is automatically and safely staged to all devices.
+* Design Overview
+** Components
+TE Controller (Global), Location Controller (Edge Metro), 
+Peering Fabric Controller, BGP Speaker, Legacy 
+Peering Edge Router, New Peering Fabric (GRE/MLPS 
+Packet Processor), and Host with Packet Processor
+** Application-Aware Routing
+Hosts have Internet-Scale FIB. 
+Inbound packets directed from PF to host using IP-GRE, 
+where ACLs are applied at hosts.
+Outbound packets encode the PF using GRE and MPLS 
+the exact output port of PF. PF does not host any large 
+scale FIB or ACL for ingress/egress processing.
+** BGP peering
+Peer ==> PF => IPGRE ==> Server-BGP
+* App-aware TE System
+** Global Controller
+Greedy algorithm assigns traffic to candidate egress device/port. 
+*** Output of GC: 
+For each <PoP, client-prefix, service-class> = egress-map, where
+egress-map = prioritized list of <PR/F, egress-port>, where
+service-class encodes traffic priorityservice-class encodes traffic priority
+*** Inputs to GC:
+**** Peering Routes: 
+GC maps user traffic to egress router/port where peering accepts the route.
+Feed Aggregator collects routes and BGP attributes from all peers.
+**** User BW & Performance:
+Volume Aggregator aggregates BW, Goodput, RTT, ReTx, and Queries/Sec reports.
+Prefixes are disaggregated until latency characteristics are similar.
+**** Link Utilization:
+Per Queue link utilization, drops, and link speed from peering devices.
+Limits Computer aggregates this information with Volume Aggregator
+based user demand to allocate BW per link per service class.
+*** Availability
+GC availability is guaranteed as multiple instances run accross DCs 
+with a leader election using distributed lock.
+*** Safety
+**** Sanity 
+Observed by checks i.e. verifying sanity of all incoming data 
+sources and ignoring sources that fail checks.
+**** Canary
+LCs canary the new map to a small fraction of PPs. End status is reported
+to GC. Canary failure causes alarm. Canary success effects new map.
+**** Fail-static:
+Ignore new maps when validation check fails or when map is significantly 
+different than the previous map. 
+**** Archive
+GC inputs/outputs are archived to revert programming to last known-good state.
+
+Validation mechanisms reduces scope and frequency of production 
+outages. Reverting to known good state reduces duration of outages.
+
+** Location Controller
+GC changes are dampened due to global impact. Critical changes, such 
+as interface failure or sudden decrease in serving capacity is handled locally.
+LC acts as a fallback in case of GC failure.
+*** Scaling host programming
+Multiple eventually consistent LC instances programs edge metro PPs 
+identically. Support of more PPs realized by adding more LC instances.
+*** Canary
+Subset of PPs programmed including control ACL operations. After verifying 
+correct operation in canary set wider distribution is realized.
+*** Local Routing Fallback
+BGP best path destination prefix routing is the default and fail-static route.
+Furthermore, subset of routes are mapped to this path to maintain confidence.
+*** Fast Recovery from Failures
+LC uses internal priority queues to prioritize bad news and local reaction, such
+as interface down or route withdrawals over GC programming. 
+
+** Peering Fabric
+*** Raven BGP Speaker
+Custom BGP stack chosen (i.e. Raven) that is multi-threaded and uses the 
+large number of CPU cores and memory on commodity servers. Quagga is 
+C-based single threaded with limited testing support.
+BGP Peer <==> Raven-Instance and PF <==> {Raven-Instance} i.e. failure of 
+RavenTask impacts few BGP peers.
+Enable BGP Graceful Restart to allow data traffic flow during Raven restart.
+Externalizing network functionality to multiple server racks increases
+scale and robustness against power failure.
+*** Commodity MPLS Switch
+Rather than Internet sized FIB. Program MPLS Forwarding and
+IP-GRE encap/decap.
+*** Peering Fabric Controller
+Installs flow rules to IP-GRE encap BGP packets to BGP server.
+Installs flow rules on PF to decap egress packet and forward to NextHop 
+based on MPLS label. 
+Master-Standby to increase availability.
+*** Internet ACL
+Partition Internet facing ACLs between those being hit with 
+highest volume (5% of ACLs covering 99% of traffic volume)
+implemented in HW-PF vs fine-grained filtering implemented 
+in Server. 
+Server implemented filtering performs more advanced filtering 
+(e.g. Google DoS) than available in any router. Design allows
+easy insertion of new rules on demand.
+
+** Configuration and Management
+Check Human-readable Intent
+Compile to lower-level config data consumed by systems.
+Changing config-schema requires changing the consumer
+not the config management system.
+*** Declarative
+Simplifies higher level config and workflow automation.
+*** Canary
+Indirection allows sending config incrementally to systems,
+monitor impact, and then roll out for all devices.
+*** Depth in Defense
+CP is composed of discrete components performing
+specific funtion with each validating config snippets 
+independently.
+*** Fail-Static
+If LC connection to config system is lost then LC uses
+last known configuration while alerts to fix connection
+are processed. LC canaries to subset of devices to 
+verify correct behavior.
+*** Big Red Button
+Quickly, Reliably, and safely disable parts of the system 
+at various levels. These buttons are tested nightly.
+*** Network Telemetry
+Data-Plane changes and reaction time stats (e.g. peer link 
+failure or route withdrawal) are streamed to PFC e.g. BGP
+sessions timed out when peering link fails. 
+Every binary in control plane exports information on 
+standard HTTP/RPC endpoint, which is collected and
+aggregated using a system like Prometheus.
+*** Data plane Monitoring
+Run e2e probes traversing regular path traffic. Probes 
+also used to verify proper installation of ACLs at hosts.
+Also probes used to loop back through PF and various
+links to ensure proper path installation.
+
+* Feature and Rollout Velocity
+Support independent, asynchronous, and accelerated releases via 
+loosely coupled software components. 
+- Release Checks
+ --  Extensive unit tests, pairwise inter-operability tests and e2e 
+ full system tests.
+ -- Requires full inter-operability testing accross versions.
+ -- Fully automated integration testing, canarying, and rollout of 
+ software components.
+ -- Many tests run in a production-like QA environment with a 
+ full suite of failure, performance, and regression tests.
+ -- After test suite pass, the system initiates automated 
+ incremental global rollout. Target velocity < 14 days,
+ -- Qualification < 1-2 days, and Rollout < 4-5 days.
+ -- Critical issues requires manual release, testing, and rollout
+ in hours.
+ -- Deprecate unused features to maintain clean codebase.
+* Evaluation
+** Comparison of BGP Speakers
+Choices: Quagga, Bird, XORP, or extend Raven.
+Quagga optimized significantly in B4.
+BGP advertizing and withdrawal convergence time for IPv4/6.
+Raven has faster convergence, half memory, and lower latency -
+doesn't write route to kernel. Quagga is single threaded and 
+does not explot multiple cores on machines.
+Servers have 10x CPU cores and memory relative to routers.
+** Big Red Button
+Disable peering (takes 4.12s) or de-configure BGP peers via 
+intent change (takes 19.9s).
+** Host Processing
+Immutable: LPM allows lock-free packet processing. Install
+shadow LPM. Update pkt processing paths to new LPM afterwards.
+Data Structures: IPv4 multibit trie. IPv6 binary trie.
+IPv4/v6 1.9M Prefixes-service class tuples.
+RAM: 2017: 1.3GB at 99 percentile. 
+CPU Overhead: 37Gbps @ 3Mpps 2.2% of CPU for binary trie LPM.
+* Experience
+Go into production quickly with limited deployment. Iterate on 
+implementation based on experience.
+
+
+ROBOTRON
+* Summary
+** Network Management Challenges
+*** Distributed Configurations
+High level intent (e.g. provisioning decisions) translated into
+distributed low level device configs is difficult and error prone
+due to heterogeneous config options e.g. migrate a circuit 
+between routers: change IP address, BGP sessions, interfaces,
+drain/undrain to avoid traffic interruption, etc.
+*** Multiple Domains
+Networks of Network (i.e. Pops, BB, DCs) each with different 
+characteristics. 
+*** Versioning
+Different part of network exist in different versions of topologies,
+devices, link speeds, and configs.
+*** Dependency
+Adding a new element would require changing config on all dependent
+elements e.g. add router to IBGP mesh.
+*** Vendor Differences
+Often full advantage is realized via vendor specific CLI, configs, or APIs
+that vary between vendor HW and OS versions.
+*** Configuration-as-code
+Minimize human interaction and number of workflows via codifying
+logic to ensure dependencies are followed and outcome device
+configs are deterministic, reproducible, and consistent.
+No manual login to any network device for management tasks.
+*** Validation
+Sanity checks e.g. IP address of p2p circuit rejected if each belong 
+to different subnets.
+*** Extensibility
+New device models, circuit types, DC/Pop sites, network topologies, etc.
+Allow network engineers to extend functionality with templates, tool
+configs, and code changes.
+
+** Network and Use Cases
+
+
+* ROBOTRON
+* Introduction
+Network management space covers FCAPS - fault, config, accounting, 
+performance, and security.
+- Network Management Challenges
+ -- Distributed Configuration: xlate provisioning decisions to device configs.
+ -- Multiple Domains: Network of Networks PoPs, DCs, BB, ...
+ -- Versioning: Different designs, different devices, OS versions, ...
+ -- Dependency: Add new router in iBGP mesh requires changing all peers.
+ -- Vendor Differences: CLIs, Configs, APIs, etc.
+ - Design: Top Down Model Driven
+ -- Config as code: minimize humaln interaction and number of workflows
+ -- Validation: Layered checks e.g. p2p invalid if subnet ends are different.
+ -- Extensible: Extend functionality with templates, tool configs, and code.
+
+* Network
+** Pops
+Servers (TCP Termination, Caching, and LB) => ToRs => Aggs (Spline Switches) 
+=> Peering Edge (PR) Routers => Internet OR Backbone (BB) Routers.
+Management Tasks: Build a new Pop, provision new peering or
+transit circuts, adjust link capacity, or change BGP configs.
+** DC
+Several Clusters: Servers (Web, Caches, DBs, Backend, ...) => ToRs => Aggs => 
+Clusters => DC Routers (DRs)
+Management Tasks: Configs change infrequently compared to POPs/Backbone.
+Cluster provisioning i.e. initial device config, cabling assignment, IP allocation,
+cluster capacity upgrade, etc.
+** BB
+xPort among Pops and DCs via optical transport links. Each location has several
+BBs. Label switched paths are set between PR and DR via BBs using MPLS-TE
+tunnels and iBGP between PRs and DRs. Circuit addtion is used to add long-haul 
+capacity across BB network.
+Management Tasks: Generation and provision of IP interface config i.e. p2p
+address and bundle memebership. Mesh like nature of MPLS-TE/iBGP forces
+config changes to many nodes when node is added/removed/modified.
+
+* Overview
+Workflow: Network Design => Config Generarion => Deployment => Monitoring
+** Network Design
+Network design intent is expressed via FBNet. FBNet is a central repo object
+based vendor agnostic datastore for network information. 
+** Config Generation
+Build vendor specific device config from FBNet objects using extensible 
+template configs.
+** Deployment
+Typically in small canary phases to avoid disruptions.
+** Monitoring
+Auditing and troubleshooting an active network to ensure no deviation 
+from desired state.
+
+* FBNET
+Models and stores high-level network wide operator intent, various
+devices (routers, swtiches, ...), device attributes, network level attributes 
+(protocol parameters), topology, etc.
+Data models are abstract, simple, and easily extensible. Supports
+query/modification API service: reliable, HA, and scalable to high read rates.
+** Object, Value, and Relationship
+FBNet network models components that are physical (device, lince card, 
+interface, circuits) or logical (BGP session, IP address). 
+data attributes, and association attributes.
+Components <==> Typed Objects, Data Attributes <==> Value Fields, and
+Association Attributes <==> Relationship Fields i.e. typed references to 
+other objects.
+** Desired vs Derived
+Desired state is maintained by network op engrs with a set of tools.
+Derived state is populated via RT collection from devices e.g. circuit object.
+Disparity between two imply expected deviation or anomaly.
+** APIs
+RD: Per object type RD: get<ObjectType>(fields, query)
+WR: Multiple object Add/Update/Del to ensure integrity post WR operation.
+** Architecture
+Tools: DB - MySQL, Tool: Django (object-relational mapping) to 
+xlate Model => Table Schema
+Typed Object => Table, Object => Row, Attributes => Column, and
+Relationship => Foreign Key
+Both RD/WR APIs exposed as language-independent Thrift RPC 
+utilizing Django ORM API to interact with DB.
+* Management Life Cycle
+Network Design => Config Generation => Deployment => Monitoring
+** Network Design
+Consume high-level human specified network design, validate against
+network design rules, and translate them into fully populated 
+internal objects.
+*** PoPs and DCs
+Topology rarely changes and conforms to fat-tree architecture that is
+ideally captured by topology templates that define components 
+composing topology i.e. device type, instances of each device type, 
+how they are connected via links groups, and IP addressing scheme.
+*** Backbone
+Constantly changing asymmetrical architecture in order to adapt to 
+dynamic capacity needs. Most changes are adding/deleting BBs 
+and/or circuits between BBs.
+Provide high level primitives to add device and circuit design tools, 
+provide complex object validation and manipulation, and resolve
+object dependency during changes.
+** Design Validation
+Design errors are major cause of outage e.g. missing/incorrect
+device and link spec in the template or assign duplicate
+endpoints to circuit.
+Embed rules to check object value and relationships to automatically 
+validate objects during FBNet object creation AND visualization 
+of resulting design for visual review.
+** Config Generation
+Use objects created in network design stage to generate vendor-specific
+configuration. Partition config into dynamic/vendor-agnostic data e.g.
+names and IP addresses versus static/vendor-specific templates with
+special syntax and keywords.
+Config corrections is ensured by storing config data schemas and 
+templates in source control repository, which is peer-reviewed and
+unit tested. This allows quick restoration during catastrophic 
+events and cross validation against device run time configs.
+** Deployment
+Goal is agile, scalable, and safe deployment via initial provisioning
+and incremental updates.
+*** Initial Provisioning
+Start from a clean state, validate topology, and copy new configuration.
+Forcing clean slate starting is "responsibly" done via first draining.
+*** Incremental Updates
+Only a portion of running config affected in each device. 
++ Modes:
+ ++ Dryrun Mode: Diff view of updated lines.
+ ++ Atomic Mode: Multiple device must accept config (e.g. iBGP 
+ mesh) atomically within a time window or rollback entire transaction.
+ ++ Phased Mode: Apply new config in phases where next phase
+ initiated only when previous phase is successful.
+ ++ Human Confirmation: Verify expected behavior within grace 
+ period after roll-out else rollback changes.
+** Monitoring
+*** Passive Monitoring
+Detect operational events, running config changes, route flaps, device
+reboots, link flaps, etc. Syslog messages to a BGP anycast address.
+Classifiers collect messages based on regexp maintained by engineers.
+*** Active Monitoring
+Collect performance metric e.g. link, CPU, memory utilization, and 
+device states for populating FBNet derived models.
+Job manager schedules periodic monitoring based on specs, such 
+as collection period, type of data, devices, and storage backend.
+Job manager can create ad-hoc on demand jobs.
+Engines pull jobs from manager and polls devices using polling
+mechanisms, such as SNMP, XML/RPC, CLI, and Thrift.
+Backend collects data and converts it into storage appropriate
+format.
+*** Config Monitoring
+Passive monitoring signals change in running config. Active monitoring
+collects running config, compares to golden config, backs up in 
+revision control to track history, etc.
+
+* Usage Statistics
+BB network experiences constant organic changes in size, circuit 
+speed, and mesh topology.
+
+
+* B4
+Persistent very high speed connectivity between small set of end-points.
+** Traditional MPLS Scheme
+- Link State protocol used to discover topology and flood BW info.
+- TE algorithm used to discover shortest route that can fulfill 
+  new tunnel provisioning request.
+- Update network state as path is plumbed and updated network 
+  state information is flooded.
+- Also concept of priority to kick out path plumbed for lower 
+  priority.
+** Issues with Traditional distributed TE
+- Provisioned for peak and lot of BW wasted.
+- Most traffic is background traffic. Only fraction is used for
+  latency sensitive traffic. 
+- Differentiate traffic by service which MPLS is not informed.
+- Routers make local greedy choices about scheduling flows.
+- RSVP-TE provides link level and not network wide fairness.
+** Solution
+- Leverage service diversity: some tolerate delay.
+- Centralize TE using SDN to collect state and flow demands.
+- Linear Programming optimization problem under constraints.
+- Dynamic reallocation of BW as demands change.
+- Edge rate limiting for admission control.
+- Control loop timescale: Goog TE run 500 times a day.
+** Topology
+Server => ToR => Spline => Cluster Border Router (CBR) => 
+eBGP => WAN Routers (BB) => iBGP/IS-IS to other site BB
+Quagga (Control Protocol Stack) taken out of BB
+CBR => eBGP => Quagga (BB) => iBGP/IS-IS
+Quagga <=> OF Controller <=> BB
+TE-Server <=> OF Controller
+** TE-Server 
+Collects topology information, available BW, and demand 
+of flows between all DCs.
+TE-Server runs algorithms to allocate flow capacity and
+path decisions in the network. Local Controllers 
+at each DC impose admission control.
+Flow allocation is not individual flows but flow groups
+and resources are assigned at coarser granularity.
+The assignment of flows to flow groups are locally 
+carried at each individual DC sites based on priority
+and available BW.
+** Design Choices
+BGP routing and forwarding table as default "big red switch."
+HW commodity, cheap, and simple with very little buffer that 
+relies on admission control at edge. Very little forwarding 
+table as few end points.
+Software: Hierarchical logically centralized Controllers.
+Aggregation: Flow groups and link groups.
+Results: 100% utilization wth 0.3s TE solutions.
+
+* PROTEGO: https://www.usenix.org/system/files/conference/atc17/atc17-son.pdf
+Need a Multi-tenant, elastic, and highly available IPSec Gateway aaS.
+** IPSec Gateway VM: Waste of resource
+VMs provide isolation, can be spawned to scale, and leverages
+commodity servers. But... 
+1. VMs exclusively occupy a fixed amount of resource. Needs over-provision
+for peak VPN traffic demand. 90% of data centers use less than peak capacity. 
+This causes exclusive resource isolation, which cannot be solved through 
+oversubscribed VMs on servers with live migration during peak demand - 
+live migration consumes consumed high BW and takes tens of seconds.
+2. Passive Standby for HA: VM startup takes minutes due to resource 
+allocation and data copy. A passive standby node is introduced for 
+fast failover i.e. VM mechanism captures twice the resource taken for 
+peak traffic demand. 
+** Separation of CP and DP
+Long live CP states are saved in a centralized control node. DP is 
+locally saved and quickly reconstructed from control node on failure.
+Tunnels are migrated without disrupting the bw or service of old tunnels 
+via rekeying process.
+** IPSec Protocol
+*** Internet Key Exchange (IKE)
+Main role is to negotiate SAs that include a cipher suite, and materials
+to generate symmetric keys with peer. Protocol is broken into two phases. 
+*** IKE Phase 1
+Authenticate peer and negotiate shared attributes for 
+secure traffic communication, such as shared key and encryption 
+cipher suite to encrypt bidirectional "negotiation" traffic 
+(i.e. IKE SA).  SAs include (a) encryption algorithm, 
+(b) strength of encryption key (DH group), (c) authentication method, 
+(d) hash algorithm,  (e) authentication material (pre-shared secret),
+and (configured) SA lifetime.
+*** IKE Phase 2
+The shared attributes for ESP encryption, called CHILD SA, 
+are negotiated securely via further IKE SA messages. 
+CHILD SAs are unidirectional and used to protect 
+data traffic (i.e. IPSec/ESP SA).
+
+Thus, IKE SA messages can be used to negotiate either 
+subsequent IKE SA or Child SA.
+*** Encapsulating Security Payload (ESP).
+Encrypt packets for data origin authenticity, integrity, and 
+confidentiality using negotiated symmetric keys. 
+** Requirements
+1. Elastic and Scalable capacity adjustment.
+2. HA with active redundancy.
+3. Tunnel performance isolation and guarantee.
+** Challenges
+1. Migrating tunnels without throughput degradation.
+2. Rightsizing the resource reservation.
+3. Optimizing the packet processing performance.
+** Core Ideas
+*** Separation of CP/DP
+**** Centralized CP
+Recovering IEP state is expensive - re-neotiation of IKE SA takes 
+many sequential RTT msgs, and updated infrequently (minutes) 
+when peer heartbeat messages are received.
+This allows tunnel migration without stopping traffic.
+**** Quick recovery of DP state
+ESP data nodes handle packet encrypt/decrypt. ESP packet
+counter updated on per-packet basis prevents centralization.
+ESP SA can be initiated in 1 RTT assuming IKE SA is alive.
+During failover just re-negotiate ESP state.
+*** Tunnel migration by rekeying
+IPSec use keys for limited amount of time. Before Child SA
+expires, GW negotiates new keys with peer without collapsing 
+old Child SA. The global centralized control plane inserts 
+new key to data node (GPN) receiving migrated tunnel. 
+*** Elastic Provisioning Algorithm
+Protego keeps track of the resource usage distribution of IPsec 
+tunnels and calculate the convolution of these distributions. 
+*** Gateway Ingress Node (GIN) and Gateway Egress Node (GEN)
+**** Ingress: IPSec=>IP
+The CHILD SA (IPSec SA) provides the Security Parameters 
+Index (SPI) used by ingress node to steer traffic to correct 
+IPSec=>IP VM endpoint.
+**** Egress: IP=>IPSec
+The CHILD SA (IPSec SA) provides the traffic selector filter 
+used by egress node to steer traffic to correct VM endpoint.
+**** In service migration
+Old SAs are not destructed during the migration of tunnel
+based on IKE-Phase-2 protocol where CREATE_CHILD_SA 
+request/response is exchanged.
+**** Rate Limit
+GIN/GEN also limit maximum ingress and egress bandwidth of 
+the tunnel to committed SLA.
+**** GPN Failure
+Peer GW failure were detected by death of IKE heartbeat messages.
+With control and data path separation, control node offloads
+GPN failure detection to GIN/GEN which uniformly sample and
+tag packets to trigger heartbeat from GPNs.
+
