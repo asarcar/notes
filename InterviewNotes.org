@@ -98,3 +98,37 @@ HA/scalable/fault-tolerant full text search platforms on top of lucene.
 Big picture/file stored/retrieved as one atomic unit.
 *** Docker, Kubernetes or Mesos
 *** HDFS, Hadoop, Spark
+* WhatsApp
+** Features
+Messaging service on mobile phones
+2. One to one messaging with just text
+3. Confirmations Sent (Check), Delivered (2 checks), Read (Gray to blue).
+4. Push notifications as soon as message comes in.
+Blogs to read:
+a. http://highscalability.com
+b. https://www.hiredintech.com/courses/system-design
+
+** Design
+*** 1 on 1 text
+**** Ephemeral - Store, Forward, Lose once delivered
+Just as email - so messages not lost when recipient is not online.
+**** Horizontal Scaling
+Server has Q per sender with messages per recipient.
+*** Sent, Delivered, and Read Messages
+Sent: ack from server received => put one check mark
+Delivered: After msg delivered to recipient, server posts DeliveredWithMsgID 
+to sender.
+Read: Receiver sends Ack with special ReadWithMsgID to sender. Not treating
+the DeliveredWithMsgID and ReadWithMsgID just as any other message brokered
+through any server ensures that messages are processed through any server
+and most information is kept stateless and horizontally scalable.
+*** Push Notifications
+WhatsApp uses Goog's cloud messaging platform to deliver push notifications
+to all kinds of receivers over all kinds of platforms.
+Framework is separate from Read, Delivered, and Read messages framework.
+Server receives a message, it uses another system that is dedicated to 
+deliver push notifications. Message server has stricter requirements as
+message must be delivered whereas push notifications may be delayed, fired
+and forget, or in worst case lost. No need to save the push notification
+once fired, no need to send again, or remember it was ever sent.
+
