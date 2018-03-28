@@ -1,0 +1,68 @@
+* Entries
++ Host Entries 
+ ++ /etc/resolv.conf
+ ++ /etc/hosts
++ DNS Lookup Sequence
+ ++ ISP's DNS Resolver - where is www.ex.com - does legwork - knows root 
+    name server for .com - responds with root name server.
+ ++ Root Name Server - where is www.ex.com - know that ex.com that was
+    populated when domain was registered. responds Route53.
+ ++ Route53 - where is www.ex.com - R53 knows www.ex.com is 1.2.3.4 - 
+    reason is we created a "hosted zone" for ex.com in R53.
+ ++ ISP's DNS Resolver - responds to original request with 1.2.3.4
+
+* Managed DNS
++ Advantages
+ ++ Worldwide anycast network with redundant (50) locations
+ ++ 100% SLA with high geo local affinity
+ ++ Advanced Routing - Latency Based Routing, Weighted Record, 
+    Multi-Record sets, 
+    GeoDNS - EDNS client subnet used to query Maxmind (IP to 
+    location DB), Failover - adding backup IP addresses.
+ ++ Manage - API, CLI, SDKs, AWS/3rd party tools 
+
+* Records 
++ Types
+ + A - Direct mapping - Host = [Sub]Domain => Value = {IPaddress, TTL}
+   AAAA - same as A only meant for IPv6 addresses.
+   Host	      Points To	     TTL
+   ----	      ---------	     ---
+   blog       108.168.254.43 600 seconds
+   @ 	      108.168.254.43 600 seconds
+   @ is the naked domain record representing, say ory.com 
+
+ + CNAME - Indirect mapping used to alias of domain names 
+   Host = [Sub]Domain => Value = {[Sub]Domain, TTL}
+   Host	      Points To	     TTL
+   ----	      ---------	     ---
+   journal    blog.ory.com   600 seconds
+   www 	      @		     600 seconds
+
+ + MX - Mail Exchanger records have additional priority indicating 
+   which record to use first to help route email according to domain
+   owner's preference
+   Priority	Host	      Points To	     TTL
+   --------	----	      ---------	     ---
+   0		@	      mail1.ory.com  600 seconds
+   10		@	      mail2.ory.com  600 seconds
+
+ + TXT - Holds Sender Policy Framework (SPF) data and verify domain. 
+   Also used for setting up web analytics and verifying you own certificates
+   for a given subdomain. 
+   ownership. Host=Key, Value = {TXT-Val, TTL}, TXT-Val={attribute, value}
+   Host	      TXT Value				TTL
+   ----	      ---------				---
+   @          google-site-verification=rXOxy...	600 seconds
+ 
+ + NS - Holds authoritative name server for host
+ 
+ + PTR - Inverse map looks up domain name based on IP address
+ 
+ + SOA - Holds core information about a DNS zone, such as primary name
+   server, email of domain admin, domain serial #, and timers related
+   to refreshing the zone.
+
+* Tools
+dig example.com
+dig NS example.com
+dig example.com +trace
