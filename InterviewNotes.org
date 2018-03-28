@@ -1,0 +1,134 @@
+* System Design
+** ABCD
+ Ask Qs to understand e.g. features, scale of data, req, latency
+ Don't use Buzzwords, Clear and organized thinking, and Drive 
+ discussions with 80% your thoughts and 20% solicit feedback.
+** Introduction
+*** Features - One to one chat, group chat, security, etc.
+*** Define APIs - what are the APIs, who is going to call, how/how often, 
+*** Availability - host went down, DC went down, black out period
+*** Latency - User facing service, add cache, etc.
+*** Scalability - Order of users (100, 1000), Data, Requests, etc.
+*** Durability - Data is persisted, securely, not lost, not compromised.
+*** Class Diagram - Design parking lot or elevator system - OO principles.
+*** Security/Privacy - Design authentication system
+*** Cost Effective - alternate solution that is cheaper
+
+** Concepts
+*** Vertical vs horizontal scaling
+*** CAP theorem
+Consistency - rd is most recent write, 
+Availability - get result, may not be most recent write
+Partition tolerant - connection may be lost between two nodes
+*** http vs http2 vs websockets
+*** ACID vs BASE
+Relational DB: Atomicity, Consistency, Isolation, and Durability vs
+NoSQL DB: Basically Available Soft State Eventual Consistency
+*** Partitions/Sharding Data
+Splitting data so every node is responsible for some part of key space.
+One technique is consistent hashing
+*** Optimistic vs Pessimistic Locking
+In optimistic locking we don't acquire locks assuming no records have 
+changed in the interim. Update fails if records have changed.
+In pessimistic locks on all variables are acquired before we commit.
+*** Strong vs Eventual Consistency
+Reads will see some write which may be in past but eventually latest write.
+*** Relational DB vs NoSql DB
+NoSql DB scales better and has better availability.
+*** Type of NoSql DB
+KV, Columnar (wide column), document based (XML/JSON data), and graph 
+based (Entities/Node, Relationship/Edges).
+*** Caching
+Cannot be large and cannot be source of truths, aware of eviction policies,
+and whether cache is distributed and shared by many.
+*** DC/Racks/Hosts
+Aware of how DC is architected, racks and racks of hosts, latency cross
+hosts in a rack, cross racks, cross DC, cross Internet.
+*** CPU/Memory/HW/Network BW
+Limited resources we need to work around and scale with these limitations.
+*** Random vs Sequential RD/WR
+*** HTTP/HTTP2/WebSockets
+HTTP allows one request between client and server. 
+HTTP2 does multiple requests over single sockets.
+Websockets allows fully bidirectional communiction.
+*** Protocols
+TCP/IP, IPv4 vs IPv6, TCP vs UDP, DNS lookup
+*** Security
+HTTPS and TLS, PKI and Certificate Authority, Symmetrics vs Assymetric Key
+*** Scaling
+Load Balancing L4 vs L7, CDNs, and Edge
+*** Algorithms
+Bloom Filters - membership check with low false +ve, zero false -ve.
+Count-min sketch - count frequency of events with low error rate. Top-K events.
+*** Paxos
+Consensus over distributed hosts and leader election
+*** Design Patterns and OO Design
+Factory methods and singleton methods, inheritance, etc.
+*** Virtual Machines and Containers
+*** Pub-Sub over Queue
+*** Map Reduce
+*** Multi-Threading, Concurrency, Locks, Synchronization, CAS
+
+** Software Tools
+*** Cassandra
+Wide column, highly scalable, data store - KV, TimeSeries, Columnar Store
+Eventual and strong consistency. Uses consistent hashing for sharding, 
+gossiping to keep all nodes informed about cluster.
+*** MongoDB/Couchbase
+JSON structure persistence. ACID properties at Doc level, and scales well.
+*** MySQL
+Relational DB with full set of ACID properties. Master/Slave architecture
+for scaling.
+*** Memcached, Redis
+Distribute cache and in memory store for KV storage. Redis can be set up
+as a cluster for availability and data replication. Can flush to HW if 
+configured to do so. Never source of truth and hold limited data. 
+*** Zookeeper
+Centralized configuration management tool, leader election, and distributed
+locking. Scales well for read but slow for writes - highly available. 
+Keeps all data in memory and hence limited storage.
+*** Kafka
+Fault tolerant HA Q used in pub/sub or streaming apps. Deliver message
+exactly once and keeps messages ordered inside of a partition of topic.
+*** NGINX, HAProxy
+Efficient LB, manage 10Ks of connections to single instance
+*** Solr, Elastic Search
+HA/scalable/fault-tolerant full text search platforms on top of lucene. 
+*** Blob/Objectstore AWS S3
+Big picture/file stored/retrieved as one atomic unit.
+*** Docker, Kubernetes or Mesos
+*** HDFS, Hadoop, Spark
+* WhatsApp
+** Features
+Messaging service on mobile phones
+2. One to one messaging with just text
+3. Confirmations Sent (Check), Delivered (2 checks), Read (Gray to blue).
+4. Push notifications as soon as message comes in.
+Blogs to read:
+a. http://highscalability.com
+b. https://www.hiredintech.com/courses/system-design
+
+** Design
+*** 1 on 1 text
+**** Ephemeral - Store, Forward, Lose once delivered
+Just as email - so messages not lost when recipient is not online.
+**** Horizontal Scaling
+Server has Q per sender with messages per recipient.
+*** Sent, Delivered, and Read Messages
+Sent: ack from server received => put one check mark
+Delivered: After msg delivered to recipient, server posts DeliveredWithMsgID 
+to sender.
+Read: Receiver sends Ack with special ReadWithMsgID to sender. Not treating
+the DeliveredWithMsgID and ReadWithMsgID just as any other message brokered
+through any server ensures that messages are processed through any server
+and most information is kept stateless and horizontally scalable.
+*** Push Notifications
+WhatsApp uses Goog's cloud messaging platform to deliver push notifications
+to all kinds of receivers over all kinds of platforms.
+Framework is separate from Read, Delivered, and Read messages framework.
+Server receives a message, it uses another system that is dedicated to 
+deliver push notifications. Message server has stricter requirements as
+message must be delivered whereas push notifications may be delayed, fired
+and forget, or in worst case lost. No need to save the push notification
+once fired, no need to send again, or remember it was ever sent.
+
