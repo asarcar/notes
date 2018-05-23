@@ -1,0 +1,7 @@
+* HTTPS - https://www.youtube.com/watch?v=q1OF_0ICt9A
+** Symmetric enc/dec
+$$E_k(p) = c; D_k(c) = p$$
+** Assymetric enc/dec
+$$E_{pk}(p) = c; D_{sk}(c) = p$$
+** Sign/verify 
+$$Sign_{sk}(m) = s; Verify_{pk}(m, s) = OK?$$
