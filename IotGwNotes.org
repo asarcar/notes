@@ -1,5 +1,5 @@
 * Verticals
-** Energy
+** Energy and Utilities
 Dominant industry is Oil and Gas. Others are around power energy 
 generation and management e.g. solar, thermal, etc.
 
@@ -19,6 +19,9 @@ Siemens Building Technologies
 ** Smart City
 ** Healthcare
 GE. Sales cycles are very long with regulatory overhang
+** IT & Telecom
+** Consumer Appliances
+** Transportation and Logistics
 
 * Gateway specs
 The gateway is a commodity x86 machine but hardened for more life for 
