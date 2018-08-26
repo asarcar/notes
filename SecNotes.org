@@ -38,8 +38,6 @@ int read_req(void) {char buf[128]; int i; gets(buf); i = atoi(buf); return i;}
 int main(int ac, char** av) {int x = read_req(); printf('x=%d, x);}
 
 * Network Security - https://www.youtube.com/watch?v=BZTWXl9QNK8&index=11
-
-
 * HTTPS - https://www.youtube.com/watch?v=q1OF_0ICt9A
 ** Symmetric enc/dec
 $$E_k(p) = c; D_k(c) = p$$
@@ -47,3 +45,8 @@ $$E_k(p) = c; D_k(c) = p$$
 $$E_{pk}(p) = c; D_{sk}(c) = p$$
 ** Sign/verify 
 $$Sign_{sk}(m) = s; Verify_{pk}(m, s) = OK?$$
+** Cipher Suite
+Key Exchange Algorithm - RSA, DHE, ECDHE, PST, ...
+Authentication - RSA, DSS, ECDSA, ...
+Encryption - AES, Camellia, ...
+Message Authentication Code - MD5. SHA1, SHA256, ...

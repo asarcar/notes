@@ -1,0 +1,112 @@
+* Verticals
+** Energy and Utilities
+Dominant industry is Oil and Gas. Others are around power energy 
+generation and management e.g. solar, thermal, etc.
+
+IT vs OT spend in OnG is 1:3. For other verticals 1:0.5 to 1:0.25
+Shell, Exxon-Mobil, etc. have their own SI team.
+Central single pane visibility of operations, issues, mitigation, 
+etc. in the oil wells, gas pipeline, and refinery is itself a 
+huge value add, such as why the pipeline when down, how long it 
+took to repair, etc.
+
+** Manufacturing
+Industrial - Johnson Manufacturing, Scheider Electric, Siemens, GE
+
+** Building Automation
+HVAC, Smart Lighting, Smart occupancy - Honeywell, Johnson Controls, 
+Siemens Building Technologies
+** Smart City
+** Healthcare
+GE. Sales cycles are very long with regulatory overhang
+** IT & Telecom
+** Consumer Appliances
+** Transportation and Logistics
+
+* Gateway specs
+The gateway is a commodity x86 machine but hardened for more life for 
+Industrial use cases typically with 10 year part, warranty,
+and suppport contract. The southbound connection is supported
+via wired ethernet e.g. 4 ethernet ports - two facing WAN and two facing
+LAN, WiFi, and RS232. Around 128GB of SSD with ASP retail of $500-$750 per unit.
+
+* Use cases
+** Remote connectivity
+Provides connectivity to management stations typically using ethernet ports.
+Management station controls sensors using often proprietary connections.
+Tackles issues of secure, user policy based, onboarding, activation, 
+licensing, provisioning, and management of IOT gateways.
+
+*** Secure connectivity 
+Protocols used are WebSocket over TLS or H2 over TLS 
+Local proxy or Envoy is used to securely represent all 
+locally running applications on the box. 
+Client side certificate management is a must as once client
+is trusted the cloud portal provides policy based 
+access to each application based on the user's role at portal.
+WAN connection from gateway to cloud provider may depends 
+on a local proxy server serving PAC file. 
+
+*** Policy based connectivity 
+Each gateway may connect to multiple management station at the site.
+The user running the operations of a power generation has very 
+different privileges compared to repaiman fixing the power generation.
+Furthermore, multiple management stations may be responsible for
+entirely different applications e.g. power generation versus coal furnace.
+
+** Application Management
+Monitoring, life cycle management, licensing of apps, and instantiation 
+of apps, patching, upgrading to newer versions, etc. Apps are hosted 
+inside VMs (most common), hosted as containers, hosted as k8 PODs, etc.
+Hosting legacy OS based dedicated systems that used to run on PCs or even 
+embedded systems in VMs. Example of legacy OS are old SUSE linux, vxworks 
+based appliances, windows 95, etc.
+ 
+The solution may include software appstore i.e. certifying "appropriately
+behaving" applications on the gateway platform, monitoring their health.
+
+If apps are hosted as containers then a quay akin repo is used, if apps
+are hosted as k8s micro-services, then remote k8s managment is part of
+the solution.  
+
+Admittedly, the appstore name be an overkill given the very few applications 
+and applicable domains as opposed to an iPhone akin appstore.
+
+** Data/ML Pipeline
+As opposed to Internet 1.0 where users logged into sites and generated massive
+unstructured and structured data in the cloud, in Internet 2.0 machines gerenate 
+data at the edge. 
+
+*** Data Pipeline
+In the desire to capture the value from IoT data, independent vendors (e.g. c3IoT)
+and major public cloud providers provide agents that runs in the edge compute 
+and provides ETL pipelines to direct the cleaned and transformed data to the 
+cloud vendor specific sites.
+
+**** Vendor specific agents
+The IoT gateway thus must support the cloud specific agents. For example, a 
+gateway may host a Amazon agent for directing power generation data to AWS
+whereas another Microsoft agent for directing building automation data to Azure.
+
+Similarly, Splunk may provide its own agents to direct the sensor log data 
+to its private data center to provide visualization and analysis of sensors.
+
+**** Data lifecycle management
+Generated data may have different lifecycle management policies. For example,
+the gateway may be free to discard streamed data if not able to send to 
+cloud immediately, whereas bulk data may be kept around for as long as a day
+for the gateway to establish connectivity. This policy may be provided
+by the agent or may need to be supported as a provisioned policy by the gateway
+provider.
+
+*** ML Pipeline
+Large volume of multi-site data is needed to accurately train models needed
+to inference appropriate decisions. As such, the data lake and data models 
+are typically hosted in central cloud locations. 
+
+However, certain use cases may require running the inferencing decisions 
+locally for latency intolerant applications. Furthermore, in few use cases 
+the gateway may not have persistent WAN uplink connectivity when 
+decisions need to be made. An example of such a vendor is Foghorn. It 
+licenses trained models vendors, such as C3Iot, and implements the local 
+inferencing engines on gateways.

@@ -4,7 +4,7 @@
  ++ /etc/hosts
 + DNS Lookup Sequence
  ++ ISP's DNS Resolver - where is www.ex.com - does legwork - knows root 
-    name server for .com - responds with root name server.
+    name server for .com - responds with root name server for .com.
  ++ Root Name Server - where is www.ex.com - know that ex.com that was
     populated when domain was registered. responds Route53.
  ++ Route53 - where is www.ex.com - R53 knows www.ex.com is 1.2.3.4 - 
