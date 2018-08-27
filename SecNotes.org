@@ -37,6 +37,93 @@ browsers's C implementation interprets it as amazon.com0x}
 int read_req(void) {char buf[128]; int i; gets(buf); i = atoi(buf); return i;}
 int main(int ac, char** av) {int x = read_req(); printf('x=%d, x);}
 
+* Web Security - https://www.youtube.com/watch?v=_1C62Twf0vs&index=8&list=PLA6Ht2dJt3SLQmKhygx8HfwV_hxuPPCea
+** Server security
+Initial when client would just render static content from server, focus 
+was on server security via Buffer overflow, privileged isolation, etc.
+** Client security 
++ Focus on client logic as browser and apps are complicated. 
+ ++ JS - client side code 
+ ++ DOM - JS code allowed to change visual eg. font styles
+ ++ XML Http Requests - asynchronously fetch content from servers i.e. AJAX
+ ++ Web sockets - full duplex communication between clients and servers 
+ ++ Multi-media (<video> tag plays content without using flash), 
+ ++ Geolocation
+ ++ NaCL - allows browser to run native code    
+** Browser page - amalgamation of parties
+Typical application was developed by one monolithic company that 
+controlled the experience and attack vector - word doc. Browser
+page is composition of several parties.
++ http://www.foo.com
+ ++ ad .gif from ads.com
+ ++ page analytics pixel from google.com
+ ++ jQuery.js from cdn.bar.com for image rendering
+ ++ HTML buttons, text input
+ ++ inine js from foo.com
+ ++ frame (i.e. separate js universe) from https://facebook.com/likeThis.html 
+    inline.js from FB, f.jpb from https://facebook.com
+** Same origin policy
+Browser security model implements policy where 
+goal is two website should not be able to tamper with each other i.e.
+each resource is assigned origin. JS can access resources from origin.
+Origin =  scheme (i.e. http or https) + hostname + port (i.e. 80)
+Origin of http://foo.com:8181/abc is http + foo.com + 8181. Origin 
+roughly translates in Unix parlance to user ID with frame as process ID
+i.e. aggregation of bunch of resources.
+
+*** Ideas of browser's implementation of origin policy
++ Four ideas
+ ++ Access association of origin with following client side resources
+  +++ Cookies - each Origin has client side resources e.g. pwd, shopping cart
+  +++ DOM storage - allows origin to associate K,V strings
+  +++ JS namespace - what fns and interfaces available to origin
+  +++ DOM tree - JS reflection of HTML in page
+  +++ Visual display area
+ ++ Frame gets origin of its URL
+ ++ (Java) script executes with authority it's frame's origin
+ ++ Passive content (images, CSS file) gets zero authority
+
+PostMessage allows two different frames to exchange synchronous immutable
+messages with each other if both opt in to the message.
+
+*** Constructs wrt how frames access resources wrt same origin policies
+Frames/window objects get the origin of the frame's URL OR a suffix of the 
+original domain e.g. origin = y.z.com from x.y.z.com allowed but not a.com
+as a.com is not suffix or origin of .com is not allowed as it is not domain.
+
+Two frame can access each other if either borh set document.domain to the 
+same value OR neither has changed document.domain and their values match -
+prevents a subdomain to attack parent domain.
+
+*** Dom nodes 
+Gets origin of surrounding frame
+
+*** Cookies
+Cookies have domain and path and JS can set object document.cookie. Server
+can use 'set cookie header.' Secure flag in cookie to indicate it is HTTPS
+cookie that cannot be accessed by HTTP. Browser sends all matching cookie 
+to a server. 
+Cookies allow client side of application to store per user data and per 
+user authenticated/authorized status wrt a site. By hacking cookie one 
+can make boogey purchases or have the user type email to non gmail 
+account.
+
+*** XML Http Request
+JS can only generate asynch request if it is going to its origin unless
+server enables 'Cross origin requests' (CORS) via HTTP response header
+'Access-Control-Allow-Origin.foo.com' to enable mashups.
+
+*** Images and CSS
+Frame can load images and CSS files from any origin but cannot inspect 
+bits or text inside files.
+
+*** JS
+Can call JS of another origin but cannot inspect source code.
+
+*** Plugin
+Frame can run (java) plugin from any origin. New HTML5 pages can do
+stuff that was only possible by using plugins.
+
 * Network Security - https://www.youtube.com/watch?v=BZTWXl9QNK8&index=11
 * HTTPS - https://www.youtube.com/watch?v=q1OF_0ICt9A
 ** Symmetric enc/dec
