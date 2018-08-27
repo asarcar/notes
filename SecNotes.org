@@ -72,7 +72,7 @@ roughly translates in Unix parlance to user ID with frame as process ID
 i.e. aggregation of bunch of resources.
 
 *** Ideas of browser's implementation of origin policy
-+ Four ideas
++ Four core resources that same origin policy protects:
  ++ Access association of origin with following client side resources
   +++ Cookies - each Origin has client side resources e.g. pwd, shopping cart
   +++ DOM storage - allows origin to associate K,V strings
@@ -124,7 +124,65 @@ Can call JS of another origin but cannot inspect source code.
 Frame can run (java) plugin from any origin. New HTML5 pages can do
 stuff that was only possible by using plugins.
 
+** Attack examples
+*** Cross site request forgery (CSRF)
+Malicious site generates a URL via a child frame and mimic a transfer of 
+money between user to third party http://bank.com/xfer?amount=500&to=attacker.
+Even though attacker page won't be able to access the bank origin resources. 
+Bank would obey the command as all the cookies of user is valid. 
+Prevent this attack by the bank (valid) server generating a random number
+0xa73f each time the user accesses bank which should be provided in the next 
+request e.g. http://bank.com/xfer?amount=500&to=attacker&csrf=0xa73f.
+*** DNS rebinding attack  
+Network addresses - Frame can send http(s) request to a host with same 
+origin policy, where origin is tied to what names mean which is tied to 
+DNS. Goal of attacket is run attacker controlled JS with authority of 
+victim website victim.com.
++ Approach
+ ++ attacker registers attacker.com
+ ++ user visit attacker.com
+ ++ browser generates DNS request to attacker.com
+ ++ attacker DNS responds with small TTL
+ ++ attacker binds attacker.com to victim.com intranet IP address. The 
+    intranet resolution allows attacker to hop through different IP 
+    addresses and see which one responds otherwise FW blocks such requests.
+ ++ website fetch new object via AJAX that goes to victim.com i.e. JS with 
+    origin privilege meant for attacker has privilege to access data of 
+    different origin victim.com - attacker.com web page can send data to 
+    server. 
+Solution is by ensuring that client side DNS resolver checks that external 
+host names never resolve to internal ip addresses OR browser DNS pinning so that
+DNS resolution records is kept valid regardless of TTL - tricky as some sites
+used dynamic DNS for load balancing.
+*** 'Click at me' attack
+Same origin policy does not protect pixels. Frame can draw over the real estate
+it owns - parent frame can draw over child frame.
++ Pixels attack
+ ++ Child frame - FB "like button" frame 
+ ++ Parent frame - message 'click to win iPad' that user clicks but in
+    reality likes an invisible "attacker.com!" 
+Solution is use 'frame busting code' - JS expressions to test whether you 
+are the top frame e.g. if (self != top) OR X-Frame-Options set in HTTP 
+response to prevent browser to use your page as child frame.
+*** Miscellaneous attacks
++ Attacks
+ ++ Unicode attack Attacker uses unicode "cerelic C" instead of attacker 
+    "latin C" e.g.Cats.com or "fcebook.com" to rely on user mistyping and 
+    then booking that domain name to attack.
+ ++ Java plugins assume that different domain name that resolve to same
+    IP belong to same origin i.e. x.y.com and z.y.com are same but one may
+    be valid for user while the other not.
+ ++ Screen sharing attack - HTML5 allows all the bits in screen to be 
+    shared another browser or server for collaboration. Did not factor in
+    'same origin policy' i.e. child frame can take the snapshot of entire
+    screen even of other frames!
 * Network Security - https://www.youtube.com/watch?v=BZTWXl9QNK8&index=11
+Internet was designed with requirement to connect bunch of trusting sites. 
++ Threat Model
+ ++ intercept packets, modify
+ ++ inject packets as someone else e.g. src-ip filling is left to sender
+ ++ attacker has computer with full control
+ ++ participate in distributed protocol
 * HTTPS - https://www.youtube.com/watch?v=q1OF_0ICt9A
 ** Symmetric enc/dec
 $$E_k(p) = c; D_k(c) = p$$
@@ -137,3 +195,4 @@ Key Exchange Algorithm - RSA, DHE, ECDHE, PST, ...
 Authentication - RSA, DSS, ECDSA, ...
 Encryption - AES, Camellia, ...
 Message Authentication Code - MD5. SHA1, SHA256, ...
+
