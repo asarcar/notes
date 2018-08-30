@@ -183,6 +183,35 @@ Internet was designed with requirement to connect bunch of trusting sites.
  ++ inject packets as someone else e.g. src-ip filling is left to sender
  ++ attacker has computer with full control
  ++ participate in distributed protocol
+* TLS with PFS - 
+** Vanilla TLS issue
++ TLS Steps
+ ++ Client sends random integer c in Hello. 
+ ++ Server responds with random integer s in Hello signed 
+    with private certificate for authentication. 
+ ++ Client responds with pre-master secret encrypted with 
+    Server public key. 
+ ++ Server acks the secret to complete handshake.
+ ++ Master secret is a function of pre-master secret, c, and s.
+
+Issue is pre-recorded handshake message can be tampered
+if the private key of server is ever tampered. Root cause is
+the private key is used for authentication of server and 
+encryption of a shared secret key. While authentication 
+matters while communicating, encryption is expected to last 
+for years.
+
++ TLS with PFS using Deffie-Hellman with elliptic curves
+  ++ Client and Server via Hello handshake agree on G - a base 
+     point G based on the algebraic structure of elliptic curves
+     (e.g. y2 = x3 - 3x + 3) over finite fields.
+  ++ Server picks a random integer s, computes sG, and sends unencrypted
+     authenticated with private key in Server key exchange message.
+  ++ Client picks a random integer c, computes bG, and sends bG in a 
+     Client Key Exchange message. 
+  ++ Both client and server compute premaster secret by computing abG
+     from which master secret is derived. Note an eavesdropper who sees
+     aG and bG won't be able to compute efficiently abG.
 * HTTPS - https://www.youtube.com/watch?v=q1OF_0ICt9A
 ** Symmetric enc/dec
 $$E_k(p) = c; D_k(c) = p$$
