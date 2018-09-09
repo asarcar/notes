@@ -1,3 +1,35 @@
+* Firewall Types
+** Inside Out
+Protects clients from malicious web sites.
+Packet based L3/4 ACLs, Application proxy, Hybrid
+*** IDP
+Sits offline to signal security team of an attack
+*** IPS
++ Sits inline attributes
+ ++ Signatures based that grows with time
+ ++ network support sequencing issues
+ ++ sanitize options not necessary
+ ++ no bad/good user/session awareness
+** Outside In
+Protects web apps from malicious calls by clients or API calls.
+An appropriate secure design of web app mitigates the attacks,
+but rarely that is the case. 
+*** WAF
+Network firewall are packet based L3/4 ACL
++ WAF - protect L5-7 attacks to the web app
+ ++ HTTP flood - DDoS attack using valid HTTP GET/POST commands
+ ++ Slowloris - keep a lot of incomplete concurrent connections open
+ ++ OWASP - injection, cross site scripting
+ ++ Load balancing
+ ++ SSL offloading
+ ++ API security - format/schema/parser validation
+ ++ Anti bot mobile SDK - bot validation without need of JS validation
+ ++ Datasafe - injects JS back to client browser obfuscates client types  
+ ++ Behavioral DOS - fingerprint clients based on prior reputation or patterns
+ ++ Upstream signaling - recognize attack, route traffic to added secure layer
+ ++ Credential stuffing DB - alert users credentials were stolen elsewhere
+ ++ Proactive bot defense - classify access patterns as bot, adds protection
+ ++ IP Intelligence - prior reputation of IP addresses
 * Threat Models - https://www.youtube.com/watch?v=GqmQg-cszw4
 \begin{enumerate}
 \item \text{Policy: confidentiality, integrity, and availability}
