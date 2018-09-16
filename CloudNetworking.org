@@ -728,3 +728,18 @@ With control and data path separation, control node offloads
 GPN failure detection to GIN/GEN which uniformly sample and
 tag packets to trigger heartbeat from GPNs.
 
+
+* NAT traversal techniques and P2P apps
+** NAT traversal techniques
+*** UPnP
+*** STUN
+*** ALG
+*** TU hole punching
+** NAT
+Session based 4 tuples (src-dst-port, src-dst-ip) endpoint identity translation
+*** Outbound NAT
+Only create sessions initiated first outbound and block incoming
+*** BiDir/Inbound NAT
+Allow session from private or public hosts.
+*** DNS-ALG
+Facilitates NAT for address and domain mapping.
