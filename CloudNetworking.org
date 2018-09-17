@@ -730,11 +730,48 @@ tag packets to trigger heartbeat from GPNs.
 
 
 * NAT traversal techniques and P2P apps
+** Symmetric NAT
+Sub-sequence sessions is not associated with same address binding
+used by initial session i.e. sessions initiated by same source endpoint 
+in private realm but destined to two different public endpoints (even 
+with same destination port) results in different public source endpoints.
 ** NAT traversal techniques
 *** UPnP
+MSFT created a framework for automatic service discovery, addressing, and ZTP
+for SOHOs, where XP based computer acts as UPnP NAT gateway, a control point, 
+discovering/controlling devices through API. P2P apps traverse the NAT 
+gateway by dynamically opening/closing communication ports with other peers.
 *** STUN
+Req/Rsp messages over UDP or shared secret over TLS messages allowing apps in 
+private realm to discover the presence/types of NAT between them and public realm.
+STUN does not work with symmetric NAT but TURN does. STUN sends request to two
+different public IP addresses and then compares the response to discover whether
+the NATed source IP matches to ascertain it is behind symmetric NAT. 
+
+Client P2P apps upgrade is needed to support STUN with an additional STUN server
+making STUN deployment slow/unpopular. 
 *** ALG
+Apps that embed IP/port in payload face issues traversing NAT as the NAT gateway 
+mangles IP header but not IP/port in datagram payload. ALGs modify the payload
+to ensure transparent packet routing e.g. DNS ALG translates domain name to
+private address mapping to public address mapping.
+
+ALG requires modification of NAT/FW device and configuration restricting ALG
+deployments.
 *** TU hole punching
+TCP hold-punching requires a single local TCP port to listen to an incoming
+TCP connection and to initiate multiple outgoing TCP connections concurrently
+i.e. OS and API support.
+
+Two endpoints, A (IPa, Pa) and B (IPb, Pb) in private realm connect to a relay 
+server, S in public realm. S predicts what would be the public endpoints 
+pIPa, pPa, pIPb, and pPb respectively, when both A and B opens connection to 
+each other. A and B learn the mapping and open a connection to each other.
+
+Assumption is that outgoing SYN also opens up incoming SYN i.e. doesn't 
+match incoming SYN+ACK with outgoing SYN. Doesn't send RST in response to
+an incoming SYN without a corresponding mapping. Finally, doesn't work
+with symmetric NAT unless port prediction works with certainty.
 ** NAT
 Session based 4 tuples (src-dst-port, src-dst-ip) endpoint identity translation
 *** Outbound NAT
