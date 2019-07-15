@@ -1,1 +1,20 @@
-adsadc
+* Sailpoint : https://www.youtube.com/watch?v=7wuLfQmjlgg
+
+** ID-IQ integrates provisioning and compliance features:
+*** access certifications
+*** policy enforcement
+*** account provisioning
+*** user life-cycle management
+
+** Components
+*** compliance manager
+*** lifecycle manager
+*** governance platform
+components of unified governance platform :
+**** policy model
+**** role model
+**** identity warehouse
+**** workflow engine
+**** risk model
+**** analytics
+** user provisioning
